@@ -32,7 +32,7 @@ export default function Bankroll() {
       <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
         <Card className="overflow-hidden">
           <p className="eyebrow px-5 py-4">Pohyby</p>
-          <div className="overflow-x-auto">
+          <div className="scroll-x">
             <table className="w-full min-w-[420px] text-left">
               <thead>
                 <tr style={{ borderTop: "1px solid rgba(126,240,168,0.08)" }}>

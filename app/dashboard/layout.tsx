@@ -29,7 +29,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
         <div className="min-w-0 flex-1">
           <div
-            className="flex items-center justify-end gap-3 px-5 py-4 sm:px-8"
+            className="flex items-center justify-end gap-3 py-4 pl-24 pr-5 sm:px-8 lg:pl-8"
             style={{ borderBottom: "1px solid rgba(126,240,168,0.07)" }}
           >
             <span className="hidden text-[13px] text-ash sm:inline">{session.name}</span>

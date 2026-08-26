@@ -170,7 +170,7 @@ export default function LoginForm() {
             type="button"
             onClick={() => setShow((s) => !s)}
             aria-label={show ? "Skrýt heslo" : "Zobrazit heslo"}
-            className="shrink-0 rounded-md p-1 text-ash-2 transition-colors hover:text-signal"
+            className="tap shrink-0 rounded-md p-1 text-ash-2 transition-colors hover:text-signal"
           >
             {show ? (
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none">

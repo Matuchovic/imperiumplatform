@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Vyplň e-mail i heslo." }, { status: 400 });
     }
 
-    const user = findUserByEmail(email);
+    const user = await findUserByEmail(email);
 
     // Stejná odpověď pro neexistující účet i špatné heslo — neprozrazuje,
     // které e-maily jsou v systému registrované.

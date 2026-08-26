@@ -17,7 +17,7 @@ export default function Statistiky() {
 
       <Card className="mb-4 overflow-hidden">
         <p className="eyebrow px-5 py-4">Podle sportu</p>
-        <div className="overflow-x-auto">
+        <div className="scroll-x">
           <table className="w-full min-w-[520px] text-left">
             <thead>
               <tr style={{ borderTop: "1px solid rgba(126,240,168,0.08)" }}>

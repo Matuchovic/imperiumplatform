@@ -47,8 +47,8 @@ export default function Sidebar({ plan }: { plan: string }) {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-label={open ? "Zavřít menu" : "Otevřít menu"}
-        className="fixed left-4 top-4 z-40 rounded-lg px-3 py-2 text-[13px] text-ash lg:hidden"
-        style={{ background: "rgba(12,19,16,0.9)", border: "1px solid rgba(126,240,168,0.14)" }}
+        className="tap fixed left-4 z-40 rounded-lg px-3 text-[13px] text-ash lg:hidden"
+        style={{ top: "calc(10px + env(safe-area-inset-top))", background: "rgba(12,19,16,0.9)", border: "1px solid rgba(126,240,168,0.14)" }}
       >
         Menu
       </button>

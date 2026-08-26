@@ -46,7 +46,7 @@ export default function Tikety() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="scroll-x">
           <table className="w-full min-w-[760px] text-left">
             <thead>
               <tr>

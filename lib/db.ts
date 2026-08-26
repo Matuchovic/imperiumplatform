@@ -1,30 +1,36 @@
 import { scryptSync, timingSafeEqual } from "crypto";
+import { serviceClient } from "@/lib/supabase/server";
 
-/**
- * Demo úložiště. Při napojení na skutečnou DB (Postgres + Prisma / Drizzle)
- * nahraď jen tělo findUserByEmail — zbytek aplikace zůstane beze změny.
- */
 export type User = {
   id: string;
   email: string;
   name: string;
-  plan: "start" | "pro" | "elite";
-  passwordHash: string; // formát: salt:hash (scrypt)
+  plan: string;
+  passwordHash: string;
 };
 
-const USERS: User[] = [
-  {
-    id: "usr_001",
-    email: "demo@bet-imperium.cz",
-    name: "Demo Uživatel",
-    plan: "pro",
-    passwordHash:
-      "62e3137d4d55b8c774115eb40fad7e69:167795e4fa3286f7da5a465660695925de357d3b20bb9f7565f6ada3dd45adfe882ef554f06c18e691eaa37df5579a6d791cd3e2dcb779d1f1d39d12e3c9620e",
-  },
-];
+/** Účty se čtou ze Supabase. Bez nastavených klíčů vrací null. */
+export async function findUserByEmail(email: string): Promise<User | null> {
+  try {
+    const db = serviceClient();
+    const { data } = await db
+      .from("app_users")
+      .select("id, email, name, plan, password_hash")
+      .eq("email", email.trim().toLowerCase())
+      .maybeSingle();
 
-export function findUserByEmail(email: string): User | undefined {
-  return USERS.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+    if (!data) return null;
+    return {
+      id: data.id,
+      email: data.email,
+      name: data.name,
+      plan: data.plan,
+      passwordHash: data.password_hash,
+    };
+  } catch (err) {
+    console.error("[db] čtení účtu selhalo:", err);
+    return null;
+  }
 }
 
 export function verifyPassword(password: string, stored: string): boolean {

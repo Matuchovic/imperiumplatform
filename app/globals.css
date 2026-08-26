@@ -807,3 +807,65 @@ body {
   .wel__sweep { display: none; }
   .wel__tiles { transition: none; }
 }
+
+/* ============================================================
+   MOBIL
+   ============================================================ */
+
+/* iOS Safari zvětší stránku, když má zaostřený input písmo pod 16px.
+   Layout se tím rozhodí a zpět se sám nevrátí. Proto přesně 16. */
+.field-shell input {
+  font-size: 16px;
+}
+@media (min-width: 640px) {
+  .field-shell input { font-size: 15px; }
+}
+
+/* Datum má na iOS jinou výšku řádku než ostatní typy. */
+.field-shell input[type="date"] {
+  min-height: 24px;
+  color-scheme: dark;
+}
+.field-shell input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.6) sepia(1) saturate(3) hue-rotate(90deg);
+  cursor: pointer;
+}
+
+/* Dotykové cíle pod 44 px se špatně trefují. */
+.tap {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 640px) {
+  .tap { min-width: 0; min-height: 0; }
+}
+
+/* Výřez a spodní lišta na iPhonu. */
+.boot, .wel {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.boot__meta--top { top: calc(20px + env(safe-area-inset-top)); }
+.boot__meta--bottom { bottom: calc(20px + env(safe-area-inset-bottom)); }
+
+/* Na úzkých displejích se boot i uvítání musí vejít bez rolování. */
+@media (max-height: 700px) {
+  .boot__list, .wel__list { margin-top: 18px; padding-top: 12px; }
+  .boot__row { padding: 3px 0; font-size: 12px; }
+  .wel__tiles { margin-top: 14px; }
+}
+
+/* Vodorovné rolování tabulek nesmí táhnout celou stránku. */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* Panel na malém displeji nepotřebuje kulaté rohy do krajů. */
+@media (max-width: 380px) {
+  .panel { border-radius: 16px; }
+}

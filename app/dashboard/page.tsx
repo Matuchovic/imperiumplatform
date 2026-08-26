@@ -58,7 +58,7 @@ export default async function Prehled() {
             Zobrazit vše
           </Link>
         </div>
-        <div className="overflow-x-auto">
+        <div className="scroll-x">
           <table className="w-full min-w-[620px] text-left">
             <thead>
               <tr style={{ borderTop: "1px solid rgba(126,240,168,0.08)" }}>
