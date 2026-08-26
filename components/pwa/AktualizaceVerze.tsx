@@ -123,7 +123,11 @@ export default function AktualizaceVerze() {
   const blokuje = neulozeno > 0;
 
   return (
-    <div className={`akt ${nova.dulezita ? "akt--dulezita" : ""}`} role="status" aria-live="polite">
+    <div
+      className={`akt ${nova.dulezita ? "akt--dulezita" : ""}`}
+      role="status"
+      aria-live="polite"
+    >
       <span className="akt__dot" />
 
       <span className="akt__text">
@@ -138,14 +142,22 @@ export default function AktualizaceVerze() {
         )}
       </span>
 
-      <button className="akt__btn" onClick={obnov} disabled={obnovuji}>
-        {obnovuji ? "Obnovuji…" : "Obnovit"}
+      <button
+        className="akt__btn"
+        onClick={obnov}
+        disabled={obnovuji || blokuje}
+        title={blokuje ? "Nejdřív ulož rozdělané změny" : undefined}
+      >
+        {obnovuji ? "Obnovuji…" : blokuje ? "Čeká na uložení" : "Obnovit"}
       </button>
 
       {!nova.dulezita && (
         <button
           className="akt__odloz"
-          onClick={() => { odlozenoDo.current = Date.now() + ODLOZIT_MS; setNova(null); }}
+          onClick={() => {
+            odlozenoDo.current = Date.now() + ODLOZIT_MS;
+            setNova(null);
+          }}
         >
           Později
         </button>
