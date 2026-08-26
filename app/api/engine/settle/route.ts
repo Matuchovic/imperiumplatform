@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
-import { serviceClient } from "@/lib/supabase/server";
+import { settleOpenTickets } from "@/lib/engine/settle";
+import { newRunId } from "@/lib/log";
+import { withLock } from "@/lib/jobs/lock";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 /**
- * Automatické zúčtování. Ruční procházení výsledků je nejnudnější
- * a nejdražší práce v celém provozu — přes šest hodin měsíčně.
+ * Zúčtování. Bez parametru běží naostro, s ?dry=1 jen spočítá plán.
  *
- * Bez napojení na výsledkové API jen označí tikety po výkopu, aby
- * bylo vidět, co čeká. Skutečné výsledky doplní ten samý kód.
+ * Nasucho jde pustit vždycky — právě proto, aby šel řetězec ověřit
+ * dřív, než se zapne vypínač a přijdou skutečné výsledky.
  */
 async function run(req: Request) {
   const secret = process.env.CRON_SECRET;
@@ -16,35 +18,30 @@ async function run(req: Request) {
     return NextResponse.json({ error: "Nepovoleno." }, { status: 401 });
   }
 
+  const dryRun = new URL(req.url).searchParams.get("dry") === "1";
+
   try {
-    const db = serviceClient();
-    const { data: open } = await db
-      .from("tickets")
-      .select("id, odds, stake, state")
-      .eq("state", "open")
-      .limit(500);
+    const runId = newRunId();
 
-    if (!open?.length) return NextResponse.json({ ok: true, settled: 0 });
-
-    // Sem patří dotaz do výsledkového API. Dokud není klíč, nic se
-    // nezúčtuje — raději otevřený tiket než vymyšlený výsledek.
-    if (!process.env.RESULTS_API_KEY) {
-      return NextResponse.json({ ok: true, settled: 0, waiting: open.length, reason: "chybí RESULTS_API_KEY" });
+    // Nasucho zámek nepotřebuje — nic nezapisuje.
+    if (dryRun) {
+      return NextResponse.json(await settleOpenTickets({ dryRun: true, runId }));
     }
 
-    return NextResponse.json({ ok: true, settled: 0, waiting: open.length });
+    const result = await withLock("settle", runId, () =>
+      settleOpenTickets({ dryRun: false, runId })
+    );
+
+    if (result === null) {
+      return NextResponse.json({ ok: true, skipped: "Zúčtování už běží." });
+    }
+    return NextResponse.json(result);
   } catch (err) {
-    console.error("[settle]", err);
+    console.error("[settle] selhání:", err);
     return NextResponse.json({ error: "Zúčtování selhalo." }, { status: 500 });
   }
 }
 
-/**
- * Vercel spouští cron metodou GET, ne POST. Bez GET by se zúčtování
- * tiše nikdy nespustilo — route by vracela 405 a v logu by nebylo nic,
- * co by na to upozornilo.
- *
- * POST zůstává pro ruční spuštění z terminálu.
- */
+// Vercel spouští cron metodou GET. POST zůstává pro ruční spuštění.
 export const GET = run;
 export const POST = run;

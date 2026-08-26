@@ -9,6 +9,12 @@
 const CACHE = "bi-static-v1";
 const STATIC = ["/offline.html", "/icons/icon-192.png", "/icons/icon-512.png"];
 
+// Lišta nové verze si vyžádá okamžité převzetí — bez toho by nový
+// worker čekal, až se zavřou všechny záložky.
+self.addEventListener("message", (e) => {
+  if (e.data === "SKIP_WAITING") self.skipWaiting();
+});
+
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(STATIC)).then(() => self.skipWaiting()));
 });

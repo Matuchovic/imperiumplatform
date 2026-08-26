@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
 import { roleOf } from "@/lib/auth/guard";
+import { automationSummary } from "@/lib/automations/engine";
+import { flags } from "@/lib/flags";
 import { PageTitle } from "@/components/admin/PageTitle";
-import { Stat } from "@/components/admin/ui";
+import { Stat, Panel } from "@/components/admin/ui";
 import AutomationsPanel from "@/components/admin/AutomationsPanel";
-import { summary } from "@/lib/demo/automations";
+import { log } from "@/lib/log";
 
 export const dynamic = "force-dynamic";
 
@@ -12,37 +14,65 @@ export default async function Automatizace() {
   if (!me) redirect("/login");
   if (me.role === "client") redirect("/dashboard");
 
-  const s = summary();
+  let data: Awaited<ReturnType<typeof automationSummary>> | null = null;
+  let enabled = false;
+
+  try {
+    [data, enabled] = await Promise.all([
+      automationSummary(),
+      flags().then((f) => f.automations_enabled),
+    ]);
+  } catch (err) {
+    log("error", "automatizace", "načtení selhalo", {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+
+  const list = data?.automations ?? [];
+  const risky = list.filter((a) => a.active && a.risk !== "safe").length;
 
   return (
     <>
       <PageTitle
         title="Automatizace"
-        lead="Co se v systému děje samo. U každé je vidět, co ji spustí a co pak provede — beze jmen podmínek, které nikdo neumí ověřit."
+        lead="Co se v systému děje samo. Spouštěč je konkrétní událost, ne skóre — u každé je vidět, co ji vyvolá a co pak provede."
       />
 
       <div className="adm-cards">
-        <Stat label="Zapnutých" value={String(s.active)} note={`z ${s.total} celkem`} />
-        <Stat label="Spuštění za 30 dní" value={s.runs30d.toLocaleString("cs-CZ")} />
         <Stat
-          label="Úspěšně doběhlo"
-          value={s.okRate.toFixed(1).replace(".", ",")}
-          unit="%"
-          note="běhy automatizací, ne úspěšnost tipů"
+          label="Zapnutých"
+          value={String(list.filter((a) => a.active).length)}
+          note={`z ${list.length} celkem`}
+        />
+        <Stat label="Běhů za 30 dní" value={String(data?.runs30d ?? 0)} />
+        <Stat
+          label="Selhalo"
+          value={String(data?.failed ?? 0)}
+          tone={(data?.failed ?? 0) > 0 ? "bad" : "neutral"}
         />
         <Stat
           label="Sahá na peníze nebo tipy"
-          value={String(s.risky)}
-          note="vyžadují potvrzení při zapnutí"
-          tone="warn"
+          value={String(risky)}
+          note="vyžadují schválení"
+          tone={risky > 0 ? "warn" : "neutral"}
         />
       </div>
 
-      <AutomationsPanel />
+      {list.length === 0 ? (
+        <Panel
+          title="Zatím žádné automatizace"
+          lead="Jakmile nějakou založíš, objeví se tady i s historií běhů. Ukázkové se nedoplňují."
+        >
+          <span />
+        </Panel>
+      ) : (
+        <AutomationsPanel automations={list} enabled={enabled} />
+      )}
 
       <p className="adm-todo__note" style={{ marginTop: 20 }}>
-        Automatizace jsou zatím ukázkové. Nahradí je tabulka <span className="data">automations</span>,
-        která je v databázovém skriptu už připravená.
+        Engine čte doménové události a je idempotentní — tatáž událost akci
+        nespustí dvakrát. Rizikové akce čekají na schválení bez ohledu na to,
+        jestli jsou automatizace zapnuté.
       </p>
     </>
   );

@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
 
+
   // Statické soubory Next.js jsou hashované, takže je lze cachovat natrvalo.
   // Vše ostatní řeší servisní worker a ten stránky záměrně neukládá.
   async headers() {

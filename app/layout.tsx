@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Outfit, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ClientBoot from "@/components/pwa/Register";
+import AktualizaceVerze from "@/components/pwa/AktualizaceVerze";
 
 /* Tři role písma:
    Outfit        — display, nese identitu značky
@@ -73,6 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-dvh antialiased">
+        <AktualizaceVerze />
         {children}
         <ClientBoot />
       </body>

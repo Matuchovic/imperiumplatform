@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { oznacRozdelanou, uvolniRozdelanou } from "@/lib/rozdelanaPrace";
 
 export type Settings = {
   platform_name: string;
@@ -40,6 +41,14 @@ export default function SettingsPanel({ initial }: { initial: Settings }) {
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
+
+  // Lišta aktualizace se ptá, jestli je co ztratit. Bez tohohle by
+  // obnovení zahodilo rozepsané nastavení bez varování.
+  useEffect(() => {
+    if (dirty) oznacRozdelanou("nastaveni");
+    else uvolniRozdelanou("nastaveni");
+    return () => uvolniRozdelanou("nastaveni");
+  }, [dirty]);
 
   function set<K extends keyof Settings>(key: K, value: Settings[K]) {
     setForm((f) => ({ ...f, [key]: value }));
