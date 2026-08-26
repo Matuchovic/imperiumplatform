@@ -261,11 +261,50 @@ create index if not exists automation_runs_recent
 alter table app_settings add column if not exists automations_paused boolean not null default false;
 
 
--- ── 9. ŘÍZENÍ PŘÍSTUPU ───────────────────────────────────────
+-- ── 9. PÁSMA KURZŮ A ROZESÍLÁNÍ ──────────────────────────────
+-- Stejná výhoda se v každém pásmu chová jinak: při kurzu 4.00 přijde
+-- běžně 16 proher v řadě, při 1.30 jsou to tři. Klient si proto volí,
+-- co odebírá, a u tiketu zůstává zapsané, ze kterého pásma přišel.
+
+alter table candidates add column if not exists band text
+  check (band in ('zaklad','standard','rozsireny','odvazny'));
+alter table tickets    add column if not exists band text
+  check (band in ('zaklad','standard','rozsireny','odvazny'));
+
+create index if not exists candidates_band on candidates (band, status, created_at desc);
+
+alter table profiles add column if not exists subscribed_bands text[]
+  not null default array['zaklad','standard'];
+
+-- Která pásma smí odejít bez schválení člověkem.
+alter table app_settings add column if not exists auto_bands text[]
+  not null default array['zaklad','standard'];
+
+-- Stopa po každém automatickém běhu. Bez ní se po měsíci nedozvíš,
+-- proč v úterý neodešlo nic.
+create table if not exists engine_runs (
+  id           bigserial primary key,
+  started_at   timestamptz not null default now(),
+  scanned      integer not null default 0,
+  found        integer not null default 0,
+  auto_sent    integer not null default 0,
+  awaiting     integer not null default 0,
+  tickets      integer not null default 0,
+  paused       boolean not null default false,
+  error        text
+);
+
+create index if not exists engine_runs_recent on engine_runs (started_at desc);
+
+alter table engine_runs enable row level security;
+
+
+-- ── 10. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
 -- Zásada: klientský klíč nevidí nic než vlastní řádky.
 -- Zapnuté RLS bez politiky = tabulka je pro anon klíč neviditelná.
 
 alter table automations     enable row level security;
+alter table engine_runs     enable row level security;
 alter table automation_runs enable row level security;
 alter table profiles       enable row level security;
 alter table tickets        enable row level security;
@@ -305,7 +344,7 @@ create policy "vlastni tikety" on tickets
 -- jen server přes service_role.
 
 
--- ── 10. PRVNÍ ADMIN ──────────────────────────────────────────
+-- ── 11. PRVNÍ ADMIN ──────────────────────────────────────────
 -- Uprav e-mail na svůj.
 
 update profiles set role = 'admin'

@@ -1514,3 +1514,64 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
+
+/* ============================================================
+   PÁSMA KURZŮ
+   ============================================================ */
+
+.bd {
+  border-radius: 12px;
+  padding: 15px;
+  background: rgba(12, 19, 16, 0.78);
+  border: 1px solid rgba(126, 240, 168, 0.12);
+}
+.bd__head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.bd__name { font-size: 15px; font-weight: 500; color: #f2fff7; }
+.bd__range { font-size: 11.5px; color: var(--color-signal); }
+
+.bd__count { margin: 8px 0 10px; font-size: 22px; line-height: 1; color: var(--color-signal); }
+.bd__count span { font-size: 12px; color: var(--color-ash); margin-left: 5px; }
+
+.bd__fact {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 11.5px;
+}
+.bd__fact > span:first-child { color: #5b6c61; }
+
+.bd__list { margin-top: 10px; }
+.bd__tip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+  font-size: 12px;
+}
+.bd__odds { color: var(--color-signal); flex-shrink: 0; }
+.bd__event { flex: 1; min-width: 0; color: #cfe6d8; }
+.bd__event span { color: #5b6c61; }
+
+.bd__empty {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: rgba(255, 107, 107, 0.07);
+  border: 1px solid rgba(255, 107, 107, 0.22);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #ffb4b4;
+}
+.bd__mode {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5b6c61;
+}

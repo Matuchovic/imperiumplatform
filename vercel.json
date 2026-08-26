@@ -1,5 +1,7 @@
 {
   "crons": [
-    { "path": "/api/engine/scan", "schedule": "*/15 * * * *" }
+    { "path": "/api/engine/dispatch", "schedule": "*/15 * * * *" },
+    { "path": "/api/engine/settle", "schedule": "0 * * * *" },
+    { "path": "/api/engine/closing", "schedule": "*/10 * * * *" }
   ]
 }
