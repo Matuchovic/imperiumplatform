@@ -31,6 +31,57 @@ export class SportsGameOddsProvider implements OddsProvider {
     return this.get("/events", { leagueID: sport, oddsAvailable: "true", limit: "1" });
   }
 
+  /**
+   * Co se dnes doopravdy hraje.
+   *
+   * Pevný seznam lig je past: v srpnu má NBA i NHL mimosezónu, takže
+   * dvě třetiny dotazů vrátí prázdno a vypadá to jako chyba motoru.
+   * Tohle se zeptá poskytovatele, místo aby hádalo.
+   */
+  async discoverToday(): Promise<{ leagues: string[]; counts: Record<string, number> }> {
+    const now = new Date();
+    const end = new Date(now.getTime() + 36 * 60 * 60 * 1000);
+
+    const counts: Record<string, number> = {};
+    let cursor: string | undefined;
+
+    // Stránkuje se, dokud poskytovatel nabízí další — jinak by se
+    // objevily jen ligy z první stránky.
+    for (let page = 0; page < 5; page++) {
+      const params: Record<string, string> = {
+        oddsAvailable: "true",
+        startsAfter: now.toISOString(),
+        startsBefore: end.toISOString(),
+        limit: "100",
+      };
+      if (cursor) params.cursor = cursor;
+
+      let raw: any;
+      try {
+        raw = await this.get("/events", params);
+      } catch (err) {
+        console.error("[sgo] objevování lig:", err);
+        break;
+      }
+
+      const events: any[] = raw?.data ?? raw?.events ?? [];
+      for (const e of events) {
+        const id = e?.leagueID ?? e?.league?.leagueID;
+        if (id) counts[id] = (counts[id] ?? 0) + 1;
+      }
+
+      cursor = raw?.nextCursor ?? raw?.cursor;
+      if (!cursor || events.length === 0) break;
+    }
+
+    // Nejvytíženější ligy první — kvóta se má utratit tam, kde je co hledat.
+    const leagues = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([id]) => id);
+
+    return { leagues, counts };
+  }
+
   async fetchOdds(leagues: string[]): Promise<MatchOdds[]> {
     const out: MatchOdds[] = [];
 

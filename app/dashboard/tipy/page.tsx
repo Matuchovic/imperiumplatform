@@ -1,75 +1,113 @@
 import { redirect } from "next/navigation";
 import { roleOf } from "@/lib/auth/guard";
-import { scanForValue } from "@/lib/engine/scan";
-import { bandSummary } from "@/lib/engine/dispatch";
+import { serviceClient } from "@/lib/supabase/server";
+import { BANDS, type BandKey } from "@/lib/engine/bands";
 import { PageTitle } from "@/components/admin/PageTitle";
-import { Alert } from "@/components/admin/ui";
 import BandCard from "@/components/admin/BandCard";
+import ScanButton from "@/components/admin/ScanButton";
+import type { Candidate } from "@/lib/engine/types";
 
 export const dynamic = "force-dynamic";
+
+type Row = {
+  id: string;
+  event_name: string;
+  market: string;
+  selection: string;
+  offered_odds: number;
+  threshold_odds: number;
+  ev: number;
+  units: number;
+  band: string | null;
+  created_at: string;
+};
 
 export default async function Tipy() {
   const me = await roleOf();
   if (!me) redirect("/login");
   if (me.role === "client") redirect("/dashboard");
 
-  const scan = await scanForValue();
-  const groups = bandSummary(scan.candidates);
-  const total = groups.reduce((s, g) => s + g.items.length, 0);
+  // Čte se z databáze, ne z živého skenu. Každý průchod stojí kvótu
+  // u poskytovatele a otevření stránky ji nesmí utrácet.
+  let rows: Row[] = [];
+  let lastRun: string | null = null;
 
-  // "Nula nálezů" má dva úplně různé důvody a z obrazovky se nedaly
-  // rozlišit: buď dnes hodnota není, nebo adaptér nečte kurzy.
-  // Bez porovnaných nabídek nemá motor co srovnávat.
-  const brokenFeed = scan.live && scan.scannedBooks === 0;
-  const thinFeed = scan.live && scan.scannedMatches > 0 && scan.scannedBooks < scan.scannedMatches * 2;
+  try {
+    const db = serviceClient();
+    const since = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+
+    const { data } = await db
+      .from("candidates")
+      .select("id, event_name, market, selection, offered_odds, threshold_odds, ev, units, band, created_at")
+      .gte("created_at", since)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(60);
+
+    rows = (data ?? []) as Row[];
+
+    const { data: run } = await db
+      .from("engine_runs")
+      .select("started_at")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ started_at: string }>();
+
+    lastRun = run?.started_at ?? null;
+  } catch (err) {
+    console.error("[tipy]", err);
+  }
+
+  const asCandidate = (r: Row): Candidate => ({
+    id: r.id,
+    matchId: r.id,
+    sport: "",
+    event: r.event_name,
+    market: r.market,
+    selection: r.selection,
+    sharpOdds: 0,
+    fairProb: 0,
+    offeredOdds: Number(r.offered_odds),
+    offeredBy: "",
+    ev: Number(r.ev),
+    thresholdOdds: Number(r.threshold_odds),
+    units: Number(r.units),
+    commenceTime: r.created_at,
+  });
+
+  const groups = BANDS.map((band) => ({
+    band,
+    items: rows.filter((r) => (r.band as BandKey) === band.key).map(asCandidate),
+  }));
+
+  const total = groups.reduce((s, g) => s + g.items.length, 0);
+  const ago = lastRun
+    ? Math.round((Date.now() - new Date(lastRun).getTime()) / 60000)
+    : null;
 
   return (
     <>
       <PageTitle
-        title="Dnešní nálezy podle pásma"
-        lead={`Motor prošel ${scan.scannedMatches} zápasů. Nálezy se třídí podle kurzu — v každém pásmu vypadá stejná výhoda jinak a klient to musí vědět předem.`}
+        title="Nálezy podle pásma"
+        lead="Hledání se spouští tlačítkem. Každý průchod stojí kvótu u poskytovatele kurzů, takže neběží na pozadí ani při otevření stránky."
       />
 
-      {!scan.live && (
-        <Alert
-          tone="warn"
-          title="Běží na ukázkových datech."
-          detail="Doplň ODDS_API_KEY a motor začne skenovat živě. Výpočet je v obou případech stejný."
-          action="Nastavit"
-        />
-      )}
+      <ScanButton />
 
-      {brokenFeed && (
-        <Alert
-          tone="bad"
-          title="Motor nečte kurzy."
-          detail={`Prošel ${scan.scannedMatches} zápasů, ale neporovnal ani jednu nabídku. Odpověď poskytovatele má nejspíš jiný tvar, než adaptér očekává — ověř ji přes /api/engine/probe.`}
-          action="Ověřit"
-        />
-      )}
-
-      {!brokenFeed && thinFeed && (
-        <Alert
-          tone="warn"
-          title="Málo nabídek k porovnání."
-          detail={`${scan.scannedBooks} nabídek na ${scan.scannedMatches} zápasů. Bez ostré knihovny v datech nejde spočítat férová pravděpodobnost.`}
-          action="Ověřit"
-        />
-      )}
-
-      <div className="tip-diag">
-        <span><span>Poskytovatel</span> {scan.provider}</span>
-        <span><span>Zápasů</span> {scan.scannedMatches}</span>
-        <span><span>Nabídek porovnáno</span> {scan.scannedBooks}</span>
-        <span><span>Kandidátů</span> {scan.candidates.length}</span>
-      </div>
+      <p className="scan-last">
+        {ago === null
+          ? "Zatím neproběhlo žádné hledání."
+          : ago < 1
+          ? "Poslední hledání právě teď."
+          : `Poslední hledání před ${ago} min. Zobrazeny nálezy za posledních 12 hodin.`}
+      </p>
 
       <div
         style={{
           display: "grid",
           gap: 12,
           gridTemplateColumns: "repeat(auto-fit,minmax(270px,1fr))",
-          marginTop: 18,
+          marginTop: 16,
         }}
       >
         {groups.map(({ band, items }) => (
@@ -77,18 +115,12 @@ export default async function Tipy() {
         ))}
       </div>
 
-      <div className="adm-actions">
-        <button className="adm-btn adm-btn--primary" disabled={total === 0}>
-          Schválit a rozeslat {total > 0 ? total : ""}
-        </button>
-        <button className="adm-btn">Zobrazit výpočet</button>
-      </div>
-
-      <p className="adm-todo__note" style={{ marginTop: 16 }}>
-        Základ a Standard odcházejí automaticky každých 15 minut. Rozšířený
-        a Odvážný čekají na schválení — mají série proher přes dvacet tiketů
-        a odeslaný tip se nedá vzít zpátky.
-      </p>
+      {total > 0 && (
+        <div className="adm-actions">
+          <button className="adm-btn adm-btn--primary">Schválit a rozeslat {total}</button>
+          <button className="adm-btn">Zobrazit výpočet</button>
+        </div>
+      )}
     </>
   );
 }

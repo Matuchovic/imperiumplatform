@@ -1595,3 +1595,44 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   color: #5b6c61;
   margin-right: 7px;
 }
+
+/* ---------- výsledek ručního hledání ---------- */
+.scan-last {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #5b6c61;
+}
+.scan-out {
+  margin-top: 12px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  background: rgba(12, 19, 16, 0.7);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+}
+.scan-out__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: var(--color-chalk);
+}
+.scan-out__row > span > span {
+  color: #5b6c61;
+  margin-right: 6px;
+}
+.scan-out__leagues {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-ash);
+}
+.scan-out__leagues strong { color: var(--color-signal); font-weight: 500; }
+.scan-out__note {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(126, 240, 168, 0.08);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5b6c61;
+}

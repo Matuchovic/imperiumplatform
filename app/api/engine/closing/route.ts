@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  * Ručně to nikdo dělat nebude, proto to musí běžet samo, těsně
  * před výkopem.
  */
-export async function POST(req: Request) {
+async function run(req: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret || req.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Nepovoleno." }, { status: 401 });
@@ -55,3 +55,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Sběr selhal." }, { status: 500 });
   }
 }
+
+/**
+ * Vercel spouští cron metodou GET, ne POST. Bez GET by se sběr uzavíracích kurzů
+ * tiše nikdy nespustilo — route by vracela 405 a v logu by nebylo nic,
+ * co by na to upozornilo.
+ *
+ * POST zůstává pro ruční spuštění z terminálu.
+ */
+export const GET = run;
+export const POST = run;

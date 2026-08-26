@@ -1,5 +1,6 @@
 import { serviceClient } from "@/lib/supabase/server";
 import { BANDS, bandFor, type Band } from "./bands";
+import { composeMessage, sendBatch, type TipLine } from "@/lib/notify/telegram";
 import type { Candidate } from "./types";
 
 /**
@@ -13,14 +14,18 @@ export type DispatchResult = {
   candidates: number;
   clients: number;
   tickets: number;
+  notified: number;
+  notifyFailed: number;
   skipped: { reason: string; count: number }[];
 };
 
 type Profile = {
   id: string;
+  name: string | null;
   bankroll: number;
   unit_pct: number;
   subscribed_bands: string[] | null;
+  telegram_chat_id: string | null;
   role: string;
 };
 
@@ -31,16 +36,22 @@ export async function dispatchCandidates(cands: Candidate[]): Promise<DispatchRe
 
   const { data: profiles } = await db
     .from("profiles")
-    .select("id, bankroll, unit_pct, subscribed_bands, role")
+    .select("id, name, bankroll, unit_pct, subscribed_bands, telegram_chat_id, role")
     .eq("role", "client")
     .gt("bankroll", 0);
 
   const clients = (profiles ?? []) as Profile[];
   if (clients.length === 0 || cands.length === 0) {
-    return { candidates: cands.length, clients: clients.length, tickets: 0, skipped: [] };
+    return {
+      candidates: cands.length, clients: clients.length,
+      tickets: 0, notified: 0, notifyFailed: 0, skipped: [],
+    };
   }
 
   const rows: Record<string, unknown>[] = [];
+  // Tipy se sbírají po klientech, ať dostane jednu zprávu za běh
+  // místo jedné za každý tip.
+  const perClient = new Map<string, { profile: Profile; tips: TipLine[] }>();
 
   for (const c of cands) {
     if (c.blocked) { note("blokovaný kandidát"); continue; }
@@ -67,6 +78,23 @@ export async function dispatchCandidates(cands: Candidate[]): Promise<DispatchRe
         state: "open",
         band: band.key,
       });
+
+      if (p.telegram_chat_id) {
+        const entry = perClient.get(p.id) ?? { profile: p, tips: [] };
+        entry.tips.push({
+          event: c.event,
+          market: c.market,
+          selection: c.selection,
+          odds: c.offeredOdds,
+          thresholdOdds: c.thresholdOdds,
+          stake,
+          units: c.units,
+          band: band.key,
+        });
+        perClient.set(p.id, entry);
+      } else {
+        note("bez napojeného Telegramu");
+      }
     }
   }
 
@@ -77,10 +105,28 @@ export async function dispatchCandidates(cands: Candidate[]): Promise<DispatchRe
     else tickets = count ?? rows.length;
   }
 
+  // Zprávy odcházejí až po zápisu. Kdyby to bylo obráceně a zápis
+  // selhal, klient by dostal tip, který v systému neexistuje.
+  let notified = 0;
+  let notifyFailed = 0;
+
+  if (tickets > 0 && perClient.size > 0) {
+    const batch = [...perClient.values()].map(({ profile, tips }) => ({
+      chatId: profile.telegram_chat_id!,
+      text: composeMessage(profile.name ?? "", tips),
+    }));
+    const res = await sendBatch(batch);
+    notified = res.sent;
+    notifyFailed = res.failed;
+    if (res.skipped > 0) note("Telegram není nastavený");
+  }
+
   return {
     candidates: cands.length,
     clients: clients.length,
     tickets,
+    notified,
+    notifyFailed,
     skipped: [...skipped].map(([reason, count]) => ({ reason, count })),
   };
 }

@@ -12,7 +12,21 @@ export type ScanResult = {
   scannedBooks: number;
   candidates: Candidate[];
   scannedAt: string;
+  /** Ligy, které dnes mají zápasy s kurzy. */
+  leaguesAvailable: string[];
+  /** Ligy prohledané v tomhle běhu — kvůli kvótě jen část. */
+  leaguesScanned: string[];
 };
+
+/**
+ * Kolik lig se projde v jednom běhu.
+ *
+ * Prohledat všechny sporty každých 15 minut znamená 46× překročit
+ * měsíční kvótu free tieru — motor by umlkl během prvního dne.
+ * Místo omezení výběru se ligy střídají: každý běh vezme další díl,
+ * takže se za pár hodin projdou všechny.
+ */
+const LEAGUES_PER_RUN = Number(process.env.ENGINE_LEAGUES_PER_RUN ?? 6);
 
 /**
  * Jeden průchod: kurzy → odstranění marže z ostré knihovny →
@@ -22,9 +36,33 @@ export type ScanResult = {
 export async function scanForValue(config: EngineConfig = DEFAULT_CONFIG): Promise<ScanResult> {
   const provider = getProvider();
   let matches: MatchOdds[] = [];
+  let available: string[] = [];
+  let scanned: string[] = [];
 
   try {
-    matches = await provider.fetchOdds(SPORTS);
+    // Nejdřív zjistit, co se dnes vůbec hraje. Pevný seznam lig je past:
+    // v srpnu má NBA i NHL mimosezónu a dvě třetiny dotazů vrátí prázdno.
+    if (provider.discoverToday) {
+      const found = await provider.discoverToday();
+      available = found.leagues;
+    }
+
+    // Když objevování není k dispozici, padá se na seznam z prostředí.
+    if (available.length === 0) available = SPORTS;
+
+    // Střídání podle času — bez ukládání stavu. Každý běh posune okno
+    // o kus dál, takže se na nízkoobjemové ligy taky dostane.
+    if (available.length > LEAGUES_PER_RUN) {
+      const slices = Math.ceil(available.length / LEAGUES_PER_RUN);
+      const slice = Math.floor(Date.now() / (15 * 60 * 1000)) % slices;
+      const start = slice * LEAGUES_PER_RUN;
+      scanned = available.slice(start, start + LEAGUES_PER_RUN);
+      if (scanned.length === 0) scanned = available.slice(0, LEAGUES_PER_RUN);
+    } else {
+      scanned = available;
+    }
+
+    matches = await provider.fetchOdds(scanned);
   } catch (err) {
     console.error("[scan] zdroj kurzů selhal:", err);
   }
@@ -87,6 +125,8 @@ export async function scanForValue(config: EngineConfig = DEFAULT_CONFIG): Promi
     live: provider.live,
     scannedMatches: matches.length,
     scannedBooks: bookCount,
+    leaguesAvailable: available,
+    leaguesScanned: scanned,
     candidates: blockCorrelated(candidates),
     scannedAt: new Date().toISOString(),
   };

@@ -15,4 +15,9 @@ export interface OddsProvider {
     market: string,
     selection: string
   ): Promise<number | null>;
+  /**
+   * Ligy, které dnes mají zápasy s kurzy. Bez toho by se skenoval
+   * pevný seznam včetně těch, co mají mimosezónu.
+   */
+  discoverToday?(): Promise<{ leagues: string[]; counts: Record<string, number> }>;
 }
