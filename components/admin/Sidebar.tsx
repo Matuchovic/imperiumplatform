@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "@/components/brand/Logo";
 import { navFor, ROLE_LABEL, type Role } from "./nav";
 
@@ -10,6 +10,12 @@ export default function Sidebar({ role }: { role: Role }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const groups = navFor(role);
+
+  // Bez tohohle se pod otevřeným menu roluje stránka pod prstem.
+  useEffect(() => {
+    document.body.classList.toggle("no-scroll", open);
+    return () => document.body.classList.remove("no-scroll");
+  }, [open]);
 
   return (
     <>

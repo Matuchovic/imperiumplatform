@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CLIENTS,
   STATE_STYLE,
@@ -52,6 +52,19 @@ export default function ClientsTable() {
   }, [filter, query]);
 
   const open = CLIENTS.find((c) => c.id === openId) ?? null;
+
+  useEffect(() => {
+    document.body.classList.toggle("no-scroll", Boolean(openId));
+    return () => document.body.classList.remove("no-scroll");
+  }, [openId]);
+
+  // Detail se má zavřít Escapem, ne jen klepnutím vedle.
+  useEffect(() => {
+    if (!openId) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenId(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openId]);
 
   return (
     <>
@@ -109,7 +122,7 @@ export default function ClientsTable() {
                   onClick={() => setOpenId(c.id)}
                   className={openId === c.id ? "cl-row--on" : ""}
                 >
-                  <td>
+                  <td className="cl-cell-who">
                     <span className="cl-who">
                       <span className="cl-pic">{c.name.split(" ").map((p) => p[0]).join("")}</span>
                       <span style={{ minWidth: 0 }}>
@@ -123,7 +136,7 @@ export default function ClientsTable() {
                       </span>
                     )}
                   </td>
-                  <td>
+                  <td data-label="Tarif">
                     <span
                       className="data cl-tier"
                       style={{ background: TIER_STYLE[c.tier].bg, color: TIER_STYLE[c.tier].fg }}
@@ -131,13 +144,13 @@ export default function ClientsTable() {
                       {c.tier}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Stav">
                     <span className="cl-state" style={{ color: STATE_STYLE[c.state].color }}>
                       <span className="cl-dot" style={{ background: STATE_STYLE[c.state].color }} />
                       {STATE_STYLE[c.state].label}
                     </span>
                   </td>
-                  <td className="data cl-dim">
+                  <td className="data cl-dim" data-label="Expirace">
                     {c.expiresAt ?? "—"}
                     {c.expiresIn !== null && (
                       <span
@@ -152,10 +165,10 @@ export default function ClientsTable() {
                       </span>
                     )}
                   </td>
-                  <td className="data" style={{ textAlign: "right", color: "#ecfdf2" }}>
+                  <td className="data cl-paid" data-label="Zaplaceno">
                     {czk(c.paidTotal)} Kč
                   </td>
-                  <td style={{ textAlign: "right" }}>
+                  <td className="cl-go">
                     <i className="ti ti-chevron-right cl-chev" aria-hidden="true" />
                   </td>
                 </tr>
