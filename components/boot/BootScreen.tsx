@@ -6,8 +6,8 @@ import Veil from "@/components/effects/Veil";
 import Wordmark from "@/components/effects/Wordmark";
 
 /** Tempo sekvence. Zvýšením se obrazovka prodlouží, snížením zkrátí. */
-const INTRO_MS = 1200;
-const STEP_MS = 420;
+const INTRO_MS = 1500;
+const STEP_MS = 540;
 const OUTRO_MS = 420;
 
 /** Kroky odpovídají tomu, co se PŘED přihlášením opravdu děje. */
@@ -41,7 +41,7 @@ export default function BootScreen({ onDone }: { onDone: () => void }) {
     STEPS.forEach((_, i) => {
       timers.push(window.setTimeout(() => setStep(i), INTRO_MS + i * STEP_MS));
     });
-    timers.push(window.setTimeout(skip, INTRO_MS + STEPS.length * STEP_MS + 380));
+    timers.push(window.setTimeout(skip, INTRO_MS + STEPS.length * STEP_MS + 480));
 
     // Nápis o přeskočení tu záměrně není, ale úniková cesta zůstává.
     const onKey = (e: KeyboardEvent) => {

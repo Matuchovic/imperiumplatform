@@ -26,7 +26,7 @@ export default function ScaleField({
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    type Scale = { x: number; y: number; r: number; phase: number; deep: boolean };
+    type Scale = { x: number; y: number; r: number; phase: number; deep: boolean; angle: number };
     let scales: Scale[] = [];
     let dpr = 1;
     let raf = 0;
@@ -82,16 +82,32 @@ export default function ScaleField({
             r: SIZE * 0.42,
             phase: (travel * SPEED) % CYCLE,
             deep: (r * 7 + c * 13) % 3 === 0,
+            // Rozmáznutí míří po směru šíření vlny, ne nahodile.
+            angle: Math.atan2(dy, dx),
           });
         }
       }
       scales = next;
     }
 
-    /** Průběh hřebene: rychlý náběh, pomalejší doznění. */
-    function crest(t: number) {
-      if (t < 0 || t > 0.33) return 0;
-      return t < 0.1 ? t / 0.1 : 1 - (t - 0.1) / 0.23;
+    /*
+     * Vlna má tři fáze. Nejdřív dorazí rozmazaný pás, který šupinu
+     * roztáhne po směru šíření. Pak se roztažení stáhne a šupina se
+     * ukáže ostrá. Nakonec pomalu zhasne, než přijde další vlna.
+     *
+     * p = 0 v okamžiku, kdy k šupině vlna dorazí.
+     */
+
+    /** Roztažení — nejsilnější na náběžné hraně, do 22 % cyklu zmizí. */
+    function smear(p: number) {
+      return p < 0.22 ? 1 - p / 0.22 : 0;
+    }
+
+    /** Viditelnost — rychlý náběh, výdrž, pomalé doznění. */
+    function reveal(p: number) {
+      if (p < 0.09) return p / 0.09;
+      if (p < 0.42) return 1;
+      return Math.max(0, 1 - (p - 0.42) / 0.5);
     }
 
     function draw(nowMs: number) {
@@ -103,27 +119,41 @@ export default function ScaleField({
 
       for (let i = 0; i < scales.length; i++) {
         const s = scales[i];
-        const local = ((t + s.phase) % CYCLE) / CYCLE;
-        const k = crest(local);
+        const p = ((t + s.phase) % CYCLE) / CYCLE;
+
+        const sm = smear(p);
+        const rv = reveal(p);
 
         // Klidový stav — pole nesmí mezi vlnami zmizet úplně.
-        const base = s.deep ? 0.035 : 0.055;
-        const peak = s.deep ? 0.5 : 0.58;
-        const alpha = base + (peak - base) * k;
+        const base = s.deep ? 0.03 : 0.045;
+        const peak = s.deep ? 0.46 : 0.56;
+        const alpha = base + (peak - base) * rv;
         if (alpha < 0.02) continue;
 
-        const radius = s.r * (1 + (s.deep ? 0.1 : 0.08) * k);
+        const stretch = 1 + 2.1 * sm;
+        const radius = s.r * (1 + 0.06 * rv);
 
-        // Hloubka bez rozostření: širší a řidší tah čte oko jako neostrý
-        // objekt a stojí zlomek toho co gaussián.
-        ctx!.lineWidth = s.deep ? 2.2 - 1.2 * k : 1;
+        ctx!.lineWidth = s.deep ? 1.8 - 0.8 * rv : 1;
         ctx!.strokeStyle = s.deep
           ? "rgba(170,250,208," + alpha + ")"
           : "rgba(150,245,195," + alpha + ")";
 
-        ctx!.beginPath();
-        ctx!.arc(s.x, s.y, radius, 0, Math.PI);
-        ctx!.stroke();
+        if (stretch > 1.04) {
+          // Rozmáznutí místo gaussiánu: šupina se natáhne po směru vlny.
+          // Oko to čte jako pohybovou neostrost a stojí to zlomek.
+          ctx!.save();
+          ctx!.translate(s.x, s.y);
+          ctx!.rotate(s.angle);
+          ctx!.scale(stretch, 1);
+          ctx!.beginPath();
+          ctx!.arc(0, 0, radius, 0, Math.PI);
+          ctx!.stroke();
+          ctx!.restore();
+        } else {
+          ctx!.beginPath();
+          ctx!.arc(s.x, s.y, radius, 0, Math.PI);
+          ctx!.stroke();
+        }
       }
     }
 

@@ -349,15 +349,14 @@ body {
     0 0 26px rgba(126, 240, 168, 0.7),
     0 0 60px rgba(126, 240, 168, 0.42),
     0 0 120px rgba(94, 234, 212, 0.28);
-  animation: wm-cycle 6.4s ease-out infinite;
-  contain: paint;
+  animation: wm-cycle 4.4s ease-out infinite;
 }
 .wm__ghost { mix-blend-mode: screen; opacity: 0; }
-.wm__ghost--r { color: #ff2d55; animation: wm-gr 6.4s steps(1) infinite; }
-.wm__ghost--c { color: #00d5ff; animation: wm-gc 6.4s steps(1) infinite; }
+.wm__ghost--r { color: #ff2d55; animation: wm-gr 4.4s steps(1) infinite; }
+.wm__ghost--c { color: #00d5ff; animation: wm-gc 4.4s steps(1) infinite; }
 
 /* Druhé slovo je táž animace posunutá o půl cyklu. */
-.wm__b { animation-delay: -3.2s; }
+.wm__b { animation-delay: -2.2s; }
 
 @keyframes wm-cycle {
   0%       { opacity: 0; filter: blur(20px); letter-spacing: .30em; transform: scale(1.035); }
@@ -412,7 +411,6 @@ body {
     0 0 84px rgba(126, 240, 168, 0.22);
   animation: veil-name 950ms cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: filter, opacity;
-  contain: paint;
 }
 @keyframes veil-name {
   from { opacity: 0; filter: blur(22px); transform: translateY(10px) scale(1.03); }
