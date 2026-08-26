@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { supabaseServer } from "@/lib/supabase/server";
+import { currentUser, supabaseServer } from "@/lib/supabase/server";
 import Sidebar from "@/components/dashboard/Sidebar";
 import LogoutButton from "@/components/dashboard/LogoutButton";
 
@@ -10,10 +10,10 @@ export const dynamic = "force-dynamic";
  * jedna kontrola pro celou větev, na kterou se nedá zapomenout.
  */
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await currentUser();
   if (!user) redirect("/login");
 
+  const supabase = await supabaseServer();
   const { data: profile } = await supabase
     .from("profiles")
     .select("name, plan")
