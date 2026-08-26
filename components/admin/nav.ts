@@ -63,6 +63,8 @@ export const NAV: NavGroup[] = [
       { label: "Nastavení", href: "/dashboard/nastaveni", icon: "settings",
         roles: ["ceo", "vyvojar", "klient"] },
       { label: "Role", href: "/dashboard/role", icon: "shield-lock", roles: SPRAVA },
+      { label: "Bezpečnost", href: "/dashboard/bezpecnost", icon: "shield-lock",
+        roles: SPRAVA },
       { label: "Audit log", href: "/dashboard/audit", icon: "history",
         roles: ["ceo", "vyvojar", "ucetni"] },
     ],

@@ -2455,3 +2455,195 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 }
 
 .jd-nalez__meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; font-size: 9.5px; letter-spacing: 0.08em; color: #5a7a9e; }
+
+/* ============================================================
+   BEZPEČNOST
+   Záře nese závažnost. Drobný text s adresami zůstává ostrý —
+   glow na deseti pixelech se nedá přečíst.
+   ============================================================ */
+
+.bz { position: relative; overflow: hidden; }
+
+.bz-scan {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(126, 240, 168, 0.2), transparent);
+  animation: bz-scan 9s linear infinite;
+}
+@keyframes bz-scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(1400%); } }
+
+.bz-nadpis {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--color-chalk);
+  text-shadow: 0 0 24px rgba(126, 240, 168, 0.3);
+}
+.bz-lead { margin: 6px 0 18px; font-size: 13px; line-height: 1.6; color: var(--color-ash); max-width: 64ch; }
+
+.bz-blip {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--color-signal);
+  box-shadow: 0 0 12px var(--color-signal);
+  animation: bz-blip 2.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.bz-blip--maly { width: 5px; height: 5px; display: inline-block; margin-right: 5px; }
+@keyframes bz-blip { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+.bz-kpi-mriz { display: grid; grid-template-columns: repeat(auto-fit, minmax(146px, 1fr)); gap: 11px; }
+.bz-kpi {
+  position: relative;
+  overflow: hidden;
+  border-radius: 13px;
+  padding: 15px;
+  background: linear-gradient(168deg, rgba(14, 32, 22, 0.9), rgba(3, 11, 7, 0.95));
+  border: 1px solid rgba(126, 240, 168, 0.18);
+  box-shadow: 0 0 32px -18px rgba(126, 240, 168, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.bz-kpi::before {
+  content: "";
+  position: absolute;
+  left: 14%; right: 14%; top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+.bz-kpi--warn { border-color: rgba(255, 201, 74, 0.28); box-shadow: 0 0 32px -18px rgba(255, 201, 74, 0.9); }
+.bz-kpi--bad { border-color: rgba(255, 107, 107, 0.3); box-shadow: 0 0 32px -16px rgba(255, 107, 107, 0.95); }
+.bz-kpi__k { margin: 0; font-size: 9px; letter-spacing: 0.2em; color: #5d8f74; }
+.bz-kpi__n { margin: 8px 0 0; font-size: 26px; line-height: 1; text-shadow: 0 0 22px currentColor; }
+
+.bz-taby { display: flex; gap: 6px; margin: 20px 0 12px; }
+.bz-tab {
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  background: transparent;
+  color: var(--color-ash);
+  font-size: 12.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+.bz-tab:hover { border-color: rgba(126, 240, 168, 0.35); color: #cfe6d8; }
+.bz-tab[aria-selected="true"] {
+  background: rgba(126, 240, 168, 0.14);
+  border-color: rgba(126, 240, 168, 0.45);
+  color: var(--color-chalk);
+  box-shadow: 0 0 20px -8px rgba(126, 240, 168, 0.8);
+}
+
+.bz-seznam { display: grid; gap: 8px; }
+.bz-prazdno { margin: 24px 0; text-align: center; font-size: 13px; color: #4d5c53; }
+
+.bz-radek {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 13px;
+  border-radius: 11px;
+  background: linear-gradient(168deg, rgba(11, 26, 18, 0.82), rgba(3, 11, 7, 0.9));
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+/* Levý pruh nese závažnost — v dlouhém seznamu najdeš problém pohledem. */
+.bz-radek::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 14%; bottom: 14%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--pruh, #7ef0a8);
+  box-shadow: 0 0 12px var(--pruh, #7ef0a8);
+}
+.bz-radek:hover { border-color: rgba(126, 240, 168, 0.42); box-shadow: 0 0 26px -14px rgba(126, 240, 168, 0.9); }
+.bz-radek--pozor { border-color: rgba(255, 201, 74, 0.26); }
+.bz-radek--pozor:hover { border-color: rgba(255, 201, 74, 0.6); box-shadow: 0 0 26px -14px rgba(255, 201, 74, 0.9); }
+.bz-radek--zle { border-color: rgba(255, 107, 107, 0.3); }
+.bz-radek--zle:hover { border-color: rgba(255, 107, 107, 0.65); box-shadow: 0 0 26px -12px rgba(255, 107, 107, 0.95); }
+
+.bz-kdo { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.bz-pic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.bz-pic i { font-size: 17px; }
+.bz-jmeno { display: block; font-size: 13.5px; color: var(--color-chalk); }
+.bz-ja { font-size: 11px; color: #5b6c61; }
+
+.bz-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 13px;
+  margin-top: 5px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  color: #5b6c61;
+}
+.bz-meta > span, .bz-ip { display: inline-flex; align-items: center; gap: 4px; }
+.bz-meta i { font-size: 12px; }
+
+.bz-ip {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.bz-ip:hover { color: var(--color-signal); }
+.bz-ip:disabled { opacity: 0.5; cursor: wait; }
+
+.bz-akce { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; justify-content: flex-end; }
+.bz-tag { padding: 3px 9px; border-radius: 6px; font-size: 9.5px; letter-spacing: 0.08em; }
+
+.bz-btn {
+  min-height: 30px;
+  padding: 0 13px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 107, 107, 0.32);
+  background: rgba(255, 107, 107, 0.05);
+  color: #ff8a8a;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+.bz-btn:hover { background: rgba(255, 107, 107, 0.16); border-color: #ff8a8a; box-shadow: 0 0 20px -8px rgba(255, 107, 107, 0.9); }
+.bz-btn:disabled { opacity: 0.5; cursor: wait; }
+
+.bz-pata {
+  margin: 18px 0 0;
+  padding-top: 15px;
+  border-top: 1px solid rgba(126, 240, 168, 0.08);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  line-height: 1.7;
+  color: #4c6d5b;
+}
+
+@media (max-width: 639px) {
+  .bz-radek { grid-template-columns: 1fr; }
+  .bz-akce { justify-content: flex-start; }
+  .bz-btn { min-height: 40px; flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bz-scan, .bz-blip { animation: none; }
+  .bz-scan { display: none; }
+  .bz-blip { opacity: 1; }
+}

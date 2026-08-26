@@ -3,6 +3,8 @@ import { currentUser, supabaseServer } from "@/lib/supabase/server";
 import Shell from "@/components/admin/Shell";
 import { jeSprava, type Role } from "@/components/admin/nav";
 import { demoCount } from "@/lib/seed/write";
+import { headers } from "next/headers";
+import { zaznamenejRelaci } from "@/lib/bezpecnost/relace";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // Proužek je vidět jen adminovi. Bez něj se na smazání ukázky
   // zapomene a jednou se smíchá se skutečnými klienty.
+  // Evidence relace. Nikdy neshodí stránku — viz zaznamenejRelaci.
+  await zaznamenejRelaci(user.id, await headers());
+
   let demo = 0;
   if (jeSprava(role)) {
     try { demo = await demoCount(); } catch { demo = 0; }
