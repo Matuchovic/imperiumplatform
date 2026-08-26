@@ -256,6 +256,12 @@ create table if not exists automation_runs (
 create index if not exists automation_runs_recent
   on automation_runs (automation_id, started_at desc);
 
+-- Idempotence engine automatizací: tatáž událost nesmí spustit
+-- tutéž automatizaci dvakrát.
+create unique index if not exists automation_runs_idem
+  on automation_runs (automation_id, subject_id)
+  where subject_id is not null;
+
 -- Nouzový vypínač. Jeden řádek v nastavení místo hromadné úpravy
 -- automatizací — po znovuspuštění zůstanou zapnuté ty, co byly.
 alter table app_settings add column if not exists automations_paused boolean not null default false;
