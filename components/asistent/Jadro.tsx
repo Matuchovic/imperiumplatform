@@ -19,13 +19,16 @@ type Odpoved = {
   sekce: string | null;
   data: unknown;
   degradovano: boolean;
+  navigace: { sekce: string; filtry?: Record<string, string> } | null;
+  navrh: { akce: string; popis: string; duvod: string; endpoint: string; telo?: Record<string, unknown> } | null;
+  zWebu: boolean;
 };
 
 const RYCHLE = [
-  "Jak jsme na tom s klienty?",
   "Kdo dnes potřebuje pozornost?",
   "Které pásmo má nejlepší CLV?",
-  "Kdy naposled běžel motor?",
+  "Otevři kontakty z Brna",
+  "Ověř v ARES firmu s IČO 27082561",
 ];
 
 export default function Jadro() {
@@ -37,6 +40,7 @@ export default function Jadro() {
   const [chyba, setChyba] = useState<string | null>(null);
   const [hlas, setHlas] = useState(false);
   const [tlesk, setTlesk] = useState(false);
+  const [provadim, setProvadim] = useState(false);
   const pole = useRef<HTMLInputElement>(null);
   const poslech = useRef<Poslech | null>(null);
 
@@ -95,6 +99,13 @@ export default function Jadro() {
       else {
         const o = data as Odpoved;
         setOdp(o);
+
+        // Přepnutí sekce nic nemění, takže se provede rovnou.
+        if (o.navigace) {
+          const sp = new URLSearchParams(o.navigace.filtry ?? {});
+          const cil = sp.toString() ? `${o.navigace.sekce}?${sp}` : o.navigace.sekce;
+          setTimeout(() => { setOpen(false); router.push(cil); }, 700);
+        }
         // Mluví se jen první věta. Výhrady o velikosti vzorku
         // se lépe čtou, než poslouchají.
         if (!o.degradovano) rekni(o.text);
@@ -171,9 +182,9 @@ export default function Jadro() {
               <p className={`jd-odpoved ${odp.degradovano ? "jd-odpoved--slabe" : ""}`}>{odp.text}</p>
 
               {odp.nastroj && (
-                <span className="data jd-zdroj">
-                  <i className="ti ti-database" aria-hidden="true" />
-                  {odp.nastroj}
+                <span className={`data jd-zdroj ${odp.zWebu ? "jd-zdroj--web" : ""}`}>
+                  <i className={`ti ti-${odp.zWebu ? "world" : "database"}`} aria-hidden="true" />
+                  {odp.zWebu ? `${odp.nastroj} · z webu` : odp.nastroj}
                 </span>
               )}
 
@@ -184,7 +195,41 @@ export default function Jadro() {
                 </details>
               )}
 
-              {odp.sekce && (
+              {odp.navrh && (
+                <div className="jd-navrh">
+                  <p className="data jd-navrh__k">ČEKÁ NA SCHVÁLENÍ</p>
+                  <p className="jd-navrh__co">{odp.navrh.popis}</p>
+                  <p className="jd-navrh__proc">{odp.navrh.duvod}</p>
+                  <div className="jd-navrh__akce">
+                    <button
+                      className="jd-schval"
+                      disabled={provadim}
+                      onClick={async () => {
+                        setProvadim(true);
+                        try {
+                          const r = await fetch(odp.navrh!.endpoint, {
+                            method: odp.navrh!.telo ? "PUT" : "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: odp.navrh!.telo ? JSON.stringify(odp.navrh!.telo) : undefined,
+                          });
+                          setChyba(r.ok ? null : `Akce selhala (${r.status}).`);
+                          if (r.ok) setOdp({ ...odp, navrh: null, text: "Provedeno." });
+                        } catch {
+                          setChyba("Nepodařilo se spojit se serverem.");
+                        }
+                        setProvadim(false);
+                      }}
+                    >
+                      {provadim ? "Provádím…" : "Schválit"}
+                    </button>
+                    <button className="jd-zamitni" onClick={() => setOdp({ ...odp, navrh: null })}>
+                      Zamítnout
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {odp.sekce && !odp.navigace && (
                 <div className="adm-actions">
                   <button
                     className="adm-btn adm-btn--primary"

@@ -2315,3 +2315,47 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .jd-panel, .jd-tlacitko__jadro, .jd-core__prsten, .jd-core__stred, .jd-odeslat i { animation: none; }
   .jd-panel { transform: translateX(-50%); opacity: 1; }
 }
+
+/* Zdroj z webu se musí odlišit od našich dat. Vlastním číslům
+   věříš bezvýhradně, cizímu rejstříku ne. */
+.jd-zdroj--web { background: rgba(96, 165, 250, 0.1); color: #7aa7e0; }
+
+/* Návrh akce. Jantarová řekne dřív než text, že tohle je jiná
+   kategorie než běžná odpověď. */
+.jd-navrh {
+  margin-top: 12px;
+  padding: 13px;
+  border-radius: 10px;
+  background: rgba(255, 201, 74, 0.06);
+  border: 1px solid rgba(255, 201, 74, 0.26);
+}
+.jd-navrh__k { margin: 0 0 4px; font-size: 8.5px; letter-spacing: 0.18em; color: var(--color-amber); }
+.jd-navrh__co { margin: 0 0 3px; font-size: 13.5px; color: var(--color-chalk); }
+.jd-navrh__proc { margin: 0 0 11px; font-size: 12.5px; line-height: 1.55; color: var(--color-ash); }
+.jd-navrh__akce { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.jd-schval {
+  min-height: 34px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #2a2004;
+  background: var(--color-amber);
+}
+.jd-schval:disabled { opacity: 0.6; cursor: default; }
+.jd-zamitni {
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--color-ash);
+  background: transparent;
+}
+.jd-zamitni:hover { color: var(--color-chalk); }

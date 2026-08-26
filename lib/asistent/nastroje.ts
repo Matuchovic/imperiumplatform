@@ -19,7 +19,25 @@ export type Nastroj = {
   parametry?: Record<string, string>;
   /** Kam navigovat, když se odpověď týká konkrétní sekce. */
   sekce?: string;
+  /**
+   * Riziková akce se neprovede sama — vrátí návrh, který čeká na
+   * kliknutí člověka. U operací, které mění, co dostanou klienti,
+   * je jeden krok navíc levnější než jedna oprava.
+   */
+  vyzadujeSchvaleni?: boolean;
   spust: (p: Record<string, string>) => Promise<unknown>;
+};
+
+/** Cíl navigace i s filtry, které asistent nastaví. */
+export type Navigace = { sekce: string; filtry?: Record<string, string> };
+
+/** Návrh akce ke schválení. Provede ji až člověk. */
+export type Navrh = {
+  akce: string;
+  popis: string;
+  duvod: string;
+  endpoint: string;
+  telo?: Record<string, unknown>;
 };
 
 const OBDOBI: Record<string, number> = { "7d": 7, "30d": 30, "90d": 90, all: 3650 };
@@ -38,6 +56,39 @@ async function tikety(od: string, userId?: string): Promise<SettledTicket[]> {
 }
 
 export const NASTROJE: Nastroj[] = [
+  {
+    klic: "prejdi_na_sekci",
+    popis: "Přepne do sekce a nastaví filtry. Sekce: prehled, klienti, kontakty, analytika, motor, automatizace, ukoly, audit, nastaveni.",
+    parametry: {
+      sekce: "klíč sekce",
+      hledat: "text do vyhledávání (nepovinné)",
+      obor: "filtr oboru u kontaktů (nepovinné)",
+      mesto: "filtr města u kontaktů (nepovinné)",
+    },
+    spust: async (p) => {
+      const CESTY: Record<string, string> = {
+        prehled: "/dashboard",
+        klienti: "/dashboard/klienti",
+        kontakty: "/dashboard/kontakty",
+        analytika: "/dashboard/analytika",
+        motor: "/dashboard/motor",
+        automatizace: "/dashboard/automatizace",
+        ukoly: "/dashboard/ukoly",
+        audit: "/dashboard/audit",
+        nastaveni: "/dashboard/nastaveni",
+      };
+      const cesta = CESTY[p.sekce ?? ""];
+      if (!cesta) return { chyba: `Sekce "${p.sekce}" neexistuje.`, dostupne: Object.keys(CESTY) };
+
+      const filtry: Record<string, string> = {};
+      if (p.hledat) filtry.q = p.hledat;
+      if (p.obor) filtry.obor = p.obor;
+      if (p.mesto) filtry.mesto = p.mesto;
+
+      return { navigace: { sekce: cesta, filtry }, popis: `Přepínám do sekce ${p.sekce}.` };
+    },
+  },
+
   {
     klic: "prehled_provozu",
     popis: "Kolik je klientů, kolik kandidátů čeká na schválení, kdy naposled běžel motor.",
@@ -202,6 +253,102 @@ export const NASTROJE: Nastroj[] = [
     },
   },
 ];
+
+NASTROJE.push(
+  {
+    klic: "overit_v_ares",
+    popis: "Ověří firmu ve veřejném rejstříku ARES podle IČO nebo názvu. Vrací data z webu, ne z naší databáze.",
+    parametry: { ico: "IČO firmy", nazev: "název firmy (když IČO neznáš)" },
+    spust: async (p) => {
+      // ARES má veřejné API zdarma. Odpověď se označí jako webová,
+      // aby v rozhraní nesplynula s našimi daty.
+      try {
+        if (p.ico) {
+          const res = await fetch(
+            `https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/${encodeURIComponent(p.ico)}`,
+            { headers: { Accept: "application/json" } }
+          );
+          if (res.status === 404) return { zdroj: "web", nalezeno: false, hledano: p.ico };
+          if (!res.ok) return { zdroj: "web", chyba: `ARES odpověděl ${res.status}` };
+
+          const d = await res.json();
+          return {
+            zdroj: "web",
+            nalezeno: true,
+            nazev: d?.obchodniJmeno ?? null,
+            ico: d?.ico ?? null,
+            pravniForma: d?.pravniForma ?? null,
+            sidlo: d?.sidlo?.textovaAdresa ?? null,
+            vznik: d?.datumVzniku ?? null,
+            zanik: d?.datumZaniku ?? null,
+            aktivni: !d?.datumZaniku,
+          };
+        }
+
+        if (p.nazev) {
+          const res = await fetch(
+            "https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/vyhledat",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({ obchodniJmeno: p.nazev, pocet: 5 }),
+            }
+          );
+          if (!res.ok) return { zdroj: "web", chyba: `ARES odpověděl ${res.status}` };
+
+          const d = await res.json();
+          const firmy = (d?.ekonomickeSubjekty ?? []).map((f: Record<string, unknown>) => ({
+            nazev: f.obchodniJmeno,
+            ico: f.ico,
+            sidlo: (f.sidlo as { textovaAdresa?: string })?.textovaAdresa ?? null,
+            aktivni: !f.datumZaniku,
+          }));
+          return { zdroj: "web", nalezeno: firmy.length, firmy };
+        }
+
+        return { chyba: "Zadej IČO nebo název firmy." };
+      } catch (err) {
+        return { zdroj: "web", chyba: `ARES nedostupný: ${String(err).slice(0, 120)}` };
+      }
+    },
+  },
+  {
+    klic: "navrhni_akci",
+    popis: "Připraví rizikovou akci ke schválení člověkem. Akce: pozastavit_rozesilani, spustit_sken, zucastnit_zuctovani.",
+    parametry: { akce: "klíč akce", duvod: "proč to navrhuješ" },
+    vyzadujeSchvaleni: true,
+    spust: async (p) => {
+      const AKCE: Record<string, { popis: string; endpoint: string; telo?: Record<string, unknown> }> = {
+        pozastavit_rozesilani: {
+          popis: "Pozastavit automatické rozesílání",
+          endpoint: "/api/settings",
+          telo: { automations_paused: true },
+        },
+        spustit_sken: {
+          popis: "Spustit hledání hodnoty",
+          endpoint: "/api/engine/run",
+        },
+        zucastnit_zuctovani: {
+          popis: "Spustit zúčtování nasucho",
+          endpoint: "/api/engine/settle?dry=1",
+        },
+      };
+
+      const a = AKCE[p.akce ?? ""];
+      if (!a) return { chyba: `Akce "${p.akce}" neexistuje.`, dostupne: Object.keys(AKCE) };
+
+      return {
+        navrh: {
+          akce: p.akce,
+          popis: a.popis,
+          duvod: p.duvod ?? "Bez uvedeného důvodu.",
+          endpoint: a.endpoint,
+          telo: a.telo,
+        },
+      };
+    },
+  }
+);
 
 export const najdiNastroj = (klic: string) => NASTROJE.find((n) => n.klic === klic);
 

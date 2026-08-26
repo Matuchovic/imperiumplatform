@@ -1,4 +1,4 @@
-import { katalog, najdiNastroj } from "./nastroje";
+import { katalog, najdiNastroj, type Navigace, type Navrh } from "./nastroje";
 import { asUntrusted, validateShape, numbersAreGrounded } from "@/lib/ai/safe";
 import { throughCircuit } from "@/lib/ai/circuit";
 import { log } from "@/lib/log";
@@ -35,6 +35,12 @@ export type Odpoved = {
   sekce: string | null;
   data: unknown;
   degradovano: boolean;
+  /** Kam přepnout a s jakými filtry. */
+  navigace: Navigace | null;
+  /** Riziková akce čekající na kliknutí člověka. */
+  navrh: Navrh | null;
+  /** Odpověď obsahuje data z webu, ne jen z naší databáze. */
+  zWebu: boolean;
 };
 
 /** Poslední důvod selhání. Aby se nemuselo hádat z logu. */
@@ -113,12 +119,17 @@ Dostaneš data z databáze a stručně je převyprávíš česky, ve dvou až č
 PRAVIDLA:
 - Používej VÝHRADNĚ čísla z dodaných dat. Nic nedopočítávej ani neodhaduj.
 - Když jsou v datech intervaly nebo poznámky o velikosti vzorku, zmiň je.
+- Když data pocházejí z webu (pole zdroj: "web"), napiš to. Vlastní databázi
+  a veřejný rejstřík nemíchej do jedné věty bez rozlišení.
 - Nedoporučuj sázky. Na dotazy typu „na co vsadit" odpověz, že doporučení
   vzniká z výpočtu a schválení člověkem, ne z rozhovoru.
 - Piš věcně, bez oslovení a bez nadšených přívlastků.`;
 
 export async function zeptejSe(dotaz: string): Promise<Odpoved> {
-  const prazdna: Odpoved = { text: "", nastroj: null, sekce: null, data: null, degradovano: false };
+  const prazdna: Odpoved = {
+    text: "", nastroj: null, sekce: null, data: null,
+    degradovano: false, navigace: null, navrh: null, zWebu: false,
+  };
 
   // Dotaz je vstup od uživatele, ne pokyn systému.
   const bezpecny = asUntrusted("dotaz", dotaz);
@@ -162,6 +173,21 @@ export async function zeptejSe(dotaz: string): Promise<Odpoved> {
       text: "Dotaz do databáze selhal. Zkus to prosím znovu." };
   }
 
+  // Navigace a návrhy nesou strukturu, ne text — vytáhnou se rovnou.
+  const obal = (data ?? {}) as Record<string, unknown>;
+  const navigace = (obal.navigace as Navigace | undefined) ?? null;
+  const navrh = (obal.navrh as Navrh | undefined) ?? null;
+  const zWebu = obal.zdroj === "web";
+
+  // U navigace nemá smysl volat model podruhé — cíl je jednoznačný.
+  if (navigace) {
+    return {
+      ...prazdna,
+      text: (obal.popis as string) ?? "Přepínám.",
+      nastroj: nastroj.klic, sekce: navigace.sekce, data, navigace,
+    };
+  }
+
   const shrnuti = await groq(SHRNUTI, `Dotaz: ${dotaz}\n\nData:\n${JSON.stringify(data)}`);
 
   // Vymyšlené číslo je tady nejdražší možná chyba — člověk ho přečte
@@ -177,5 +203,8 @@ export async function zeptejSe(dotaz: string): Promise<Odpoved> {
     sekce: nastroj.sekce ?? null,
     data,
     degradovano: !ok,
+    navigace: null,
+    navrh,
+    zWebu,
   };
 }
