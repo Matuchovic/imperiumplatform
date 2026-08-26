@@ -40,6 +40,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="cs" className={`${outfit.variable} ${inter.variable} ${mono.variable}`}>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"
+        />
+      </head>
       <body className="min-h-dvh antialiased">{children}</body>
     </html>
   );

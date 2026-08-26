@@ -1,36 +1,17 @@
-/**
- * Skeleton, ne spinner. Obrysy sedí na místa, kam se obsah načte,
- * takže layout po dokončení nepodskočí.
- */
 function Block({ h, w = "100%" }: { h: number; w?: string }) {
-  return (
-    <div
-      className="skeleton rounded-xl"
-      style={{ height: h, width: w, background: "rgba(126,240,168,0.06)" }}
-    />
-  );
+  return <div className="skeleton" style={{ height: h, width: w, borderRadius: 11, background: "rgba(126,240,168,0.06)" }} />;
 }
 
+/** Skeleton, ne spinner — obrysy sedí na místa, kam se obsah načte. */
 export default function Loading() {
   return (
     <div aria-busy="true" aria-label="Načítám">
-      <div className="mb-8">
-        <Block h={12} w="90px" />
-        <div className="mt-3">
-          <Block h={26} w="220px" />
-        </div>
+      <Block h={24} w="240px" />
+      <div style={{ marginTop: 10 }}><Block h={14} w="380px" /></div>
+      <div className="adm-cards" style={{ marginTop: 22 }}>
+        <Block h={92} /><Block h={92} /><Block h={92} /><Block h={92} />
       </div>
-      <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Block h={104} />
-        <Block h={104} />
-        <Block h={104} />
-        <Block h={104} />
-      </div>
-      <div className="mb-4 grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-        <Block h={230} />
-        <Block h={230} />
-      </div>
-      <Block h={280} />
+      <div style={{ marginTop: 16 }}><Block h={190} /></div>
     </div>
   );
 }

@@ -1,86 +1,116 @@
-import { supabaseServer } from "@/lib/supabase/server";
-import { ACCOUNT, EQUITY, TICKETS, goalPct, unitSize } from "@/lib/data";
-import { Card, Disclaimer, PageHeader, Sparkline, Stat, StateBadge } from "@/components/dashboard/ui";
+import { redirect } from "next/navigation";
+import { currentUser, supabaseServer } from "@/lib/supabase/server";
+import { PageTitle } from "@/components/admin/PageTitle";
+import { Alert, Panel, Row, Stat } from "@/components/admin/ui";
+
+export const dynamic = "force-dynamic";
+
+/* Demo hodnoty. Nahradí je dotazy, až budou tabulky plněné. */
+const WEEKS = [
+  { profit: 18, churn: 6 }, { profit: 26, churn: 4 }, { profit: 12, churn: 5 },
+  { profit: -16, churn: 7 }, { profit: 22, churn: 9 }, { profit: 30, churn: 18 },
+  { profit: -13, churn: 16 }, { profit: -23, churn: 11 }, { profit: 14, churn: 26 },
+  { profit: 24, churn: 29 }, { profit: 34, churn: 14 }, { profit: 20, churn: 9 },
+];
 
 export default async function Prehled() {
+  const user = await currentUser();
+  if (!user) redirect("/login");
+
   const supabase = await supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("name, plan")
-    .eq("id", user?.id ?? "")
-    .maybeSingle<{ name: string | null; plan: string | null }>();
-  const pct = goalPct();
+    .select("name")
+    .eq("id", user.id)
+    .maybeSingle<{ name: string | null }>();
+
+  const first = (profile?.name ?? "").split(" ")[0];
+  const w = 560;
+  const step = w / WEEKS.length;
+  const bw = step - 19;
 
   return (
     <>
-      <PageHeader eyebrow="Přehled" title={`Vítej zpět, ${(profile?.name ?? "").split(" ")[0]}`} />
+      <PageTitle
+        title={first ? `Vítej zpět, ${first}` : "Přehled"}
+        lead="Dnes potřebují pozornost dvě věci — motor tři hodiny neskenuje a dvě platby neprošly."
+      />
 
-      <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Bankroll" value="34 200" unit="Kč" delta="+16 200 Kč za 30 dní" />
-        <Stat label="ROI" value="+12,4" unit="%" delta="+3,1 p. b. za 30 dní" />
-        <Stat label="Úspěšnost" value="61,8" unit="%" delta="−1,2 p. b. za 30 dní" positive={false} />
-        <Stat label="Jednotka sázky" value={unitSize().toLocaleString("cs-CZ")} unit="Kč" delta={`${ACCOUNT.unitPct} % z bankrollu`} />
+      <Alert
+        tone="bad"
+        title="Motor tři hodiny neskenuje."
+        detail="Došla kvóta u poskytovatele kurzů. Zatím to nikdo nepozná, protože prázdný sken vypadá stejně jako den bez příležitostí."
+        action="Řešit"
+      />
+      <Alert
+        tone="warn"
+        title="Dvě platby neprošly."
+        detail="Expirovaná karta, členství končí do tří dnů."
+        action="Řešit"
+      />
+
+      <div className="adm-cards" style={{ marginTop: 18 }}>
+        <Stat label="Tržby za 30 dní" value="684 200" unit="Kč" note="↗ 18,4 %" tone="good" />
+        <Stat label="Platí klientů" value="312" note="↗ +7 čistě" tone="good" />
+        <Stat label="Vydané tipy" value="148" note="3 čekají na schválení" />
+        <Stat label="Úspěšnost tipů" value="54,7" unit="%" note="± 4,1 · vzorek je malý" tone="warn" />
       </div>
 
-      <div className="mb-4 grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-        <Card className="p-5">
-          <div className="mb-4 flex items-baseline justify-between">
-            <p className="eyebrow">Vývoj bankrollu · 30 dní</p>
-            <p className="data text-[12px] text-signal">+90,0 %</p>
-          </div>
-          <Sparkline points={EQUITY} />
-        </Card>
+      <Panel
+        title="Špatný týden se v odchodech projeví až za dva"
+        lead="Zeleně zisk tipů po týdnech, dole zrušená členství. Ztrátový týden přijde zhruba devatenáctkrát ročně i při funkčním motoru — není to poplach, ale předstih na obvolání klientů."
+      >
+        <svg viewBox="0 0 560 96" style={{ width: "100%", height: 96, display: "block" }} role="img"
+             aria-label="Týdenní zisk tipů nad osou a zrušená členství pod osou, odchody následují se zpožděním dvou týdnů">
+          <line x1="0" y1="48" x2={w} y2="48" stroke="rgba(126,240,168,.16)" strokeWidth="1" />
+          {WEEKS.map((d, i) => {
+            const x = i * step + 6;
+            const h = Math.abs(d.profit);
+            return (
+              <rect key={`p${i}`} x={x} y={48 - h} width={bw} height={h} rx="3"
+                    fill={d.profit >= 0 ? "#7ef0a8" : "#ff6b6b"} opacity="0.9" />
+            );
+          })}
+          {WEEKS.map((d, i) => (
+            <rect key={`c${i}`} x={i * step + 6} y="48" width={bw} height={d.churn} rx="3"
+                  fill="#ff6b6b" opacity="0.45" />
+          ))}
+        </svg>
+      </Panel>
 
-        <Card className="p-5">
-          <p className="eyebrow">Cíl plánu</p>
-          <p className="data mt-2.5 text-[28px] font-semibold leading-none text-chalk">
-            34 200 <span className="text-[15px] font-normal text-ash-2">/ 50 000 Kč</span>
-          </p>
-          <div className="mt-5 h-2 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.05)" }}>
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: `${pct}%`,
-                background: "linear-gradient(90deg,#16a34a,#7ef0a8 60%,#5eead4)",
-                boxShadow: "0 0 16px rgba(126,240,168,0.55)",
-              }}
-            />
+      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))" }}>
+        <Panel title="Živé tipy">
+          <div style={{ marginTop: 10 }}>
+            <Row label="Real Madrid – Arsenal" value="1.86" meta="live 72′" tone="good" />
+            <Row label="Bruins – Maple Leafs" value="2.14" meta="live 58′" tone="good" />
+            <Row label="Bayern – Liverpool" value="1.72" meta="dnes 21:00" />
           </div>
-          <p className="data mt-2.5 text-[12px] text-ash">{pct} % splněno · zbývá 15 800 Kč</p>
-        </Card>
+        </Panel>
+
+        <Panel title="Čeká na tebe">
+          <div style={{ marginTop: 10 }}>
+            <Row label="Motor neskenuje" value="3 h" tone="bad" />
+            <Row label="Neprošlé platby" value="2" tone="warn" />
+            <Row label="Dotazy klientů" value="9" meta="2 přes den" />
+            <Row label="Tikety ke schválení" value="3" />
+          </div>
+        </Panel>
       </div>
 
-      <Card className="overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4">
-          <p className="eyebrow">Poslední tikety</p>
-        </div>
-        <div className="scroll-x">
-          <table className="w-full min-w-[620px] text-left">
-            <thead>
-              <tr style={{ borderTop: "1px solid rgba(126,240,168,0.08)" }}>
-                {["Tiket", "Zápas", "Sázka", "Kurz", "Jednotky", "Stav"].map((h) => (
-                  <th key={h} className="eyebrow px-5 py-3 font-normal">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {TICKETS.slice(0, 5).map((t) => (
-                <tr key={t.id} style={{ borderTop: "1px solid rgba(126,240,168,0.06)" }}>
-                  <td className="data px-5 py-3.5 text-[13px] text-ash-2">{t.id}</td>
-                  <td className="px-5 py-3.5 text-[14px] text-chalk">{t.event}</td>
-                  <td className="px-5 py-3.5 text-[13.5px] text-ash">{t.market}</td>
-                  <td className="data px-5 py-3.5 text-[13.5px] text-chalk">{t.odds.toFixed(2)}</td>
-                  <td className="data px-5 py-3.5 text-[13.5px] text-ash">{t.units.toFixed(1)}</td>
-                  <td className="px-5 py-3.5"><StateBadge state={t.state} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      <Disclaimer />
+      <div className="adm-actions">
+        <button className="adm-btn adm-btn--primary">
+          <i className="ti ti-plus" aria-hidden="true" />
+          Nový tip
+        </button>
+        <button className="adm-btn">
+          <i className="ti ti-user-plus" aria-hidden="true" />
+          Nový klient
+        </button>
+        <button className="adm-btn">
+          <i className="ti ti-file-text" aria-hidden="true" />
+          Report
+        </button>
+      </div>
     </>
   );
 }

@@ -1,5 +1,6 @@
 import { supabaseServer } from "@/lib/supabase/server";
-import { Card, PageHeader } from "@/components/dashboard/ui";
+import { Card } from "@/components/dashboard/ui";
+import { PageTitle } from "@/components/admin/PageTitle";
 
 export default async function Nastaveni() {
   const supabase = await supabaseServer();
@@ -13,7 +14,7 @@ export default async function Nastaveni() {
 
   return (
     <>
-      <PageHeader eyebrow="Účet" title="Nastavení" />
+      <PageTitle title="Nastavení" lead="Profil, zabezpečení a limity zodpovědného sázení." />
 
       <div className="mb-4 grid gap-4 xl:grid-cols-[1fr_1fr]">
         <Card className="p-5">

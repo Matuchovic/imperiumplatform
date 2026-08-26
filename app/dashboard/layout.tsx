@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 import { currentUser, supabaseServer } from "@/lib/supabase/server";
-import Sidebar from "@/components/dashboard/Sidebar";
-import LogoutButton from "@/components/dashboard/LogoutButton";
+import Sidebar from "@/components/admin/Sidebar";
+import Topbar from "@/components/admin/Topbar";
+import type { Role } from "@/components/admin/nav";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Skořápka systému. Ověření je tady, ne v jednotlivých stránkách —
- * jedna kontrola pro celou větev, na kterou se nedá zapomenout.
+ * Skořápka systému. Ověření i načtení role je tady — jedna kontrola
+ * pro celou větev, na kterou se u nové stránky nedá zapomenout.
  */
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
@@ -16,36 +17,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const supabase = await supabaseServer();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("name, plan")
+    .select("name, role")
     .eq("id", user.id)
-    .maybeSingle<{ name: string | null; plan: string | null }>();
+    .maybeSingle<{ name: string | null; role: string | null }>();
 
   const name = profile?.name || (user.user_metadata?.name as string) || user.email || "";
-  const plan = profile?.plan ?? "start";
+  const role = (profile?.role ?? "client") as Role;
 
   return (
-    <div className="relative min-h-dvh">
-      <div
-        className="pointer-events-none fixed inset-0"
-        style={{
-          background: "radial-gradient(110% 70% at 15% -10%, #0a1712 0%, transparent 55%), #050706",
-        }}
-      />
-
-      <div className="relative z-10 flex min-h-dvh">
-        <Sidebar plan={plan} />
-
-        <div className="min-w-0 flex-1">
-          <div
-            className="flex items-center justify-end gap-3 py-4 pl-24 pr-5 sm:px-8 lg:pl-8"
-            style={{ borderBottom: "1px solid rgba(126,240,168,0.07)" }}
-          >
-            <span className="hidden text-[13px] text-ash sm:inline">{name}</span>
-            <LogoutButton />
-          </div>
-
-          <main className="p-5 sm:p-8">{children}</main>
-        </div>
+    <div className="adm-shell">
+      <Sidebar role={role} />
+      <div className="adm-main">
+        <Topbar name={name} role={role} alerts={12} />
+        <div className="adm-body">{children}</div>
       </div>
     </div>
   );
