@@ -7,12 +7,6 @@ import Logo from "@/components/brand/Logo";
 
 const NAV = [
   { label: "Přehled", href: "/dashboard" },
-  { label: "Motor hodnoty", href: "/dashboard/motor" },
-  { label: "Tikety", href: "/dashboard/tikety" },
-  { label: "Můj plán", href: "/dashboard/plan" },
-  { label: "Bankroll", href: "/dashboard/bankroll" },
-  { label: "Statistiky", href: "/dashboard/statistiky" },
-  { label: "Telegram", href: "/dashboard/telegram" },
   { label: "Nastavení", href: "/dashboard/nastaveni" },
 ];
 

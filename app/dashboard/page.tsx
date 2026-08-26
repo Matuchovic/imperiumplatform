@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { ACCOUNT, EQUITY, TICKETS, goalPct, unitSize } from "@/lib/data";
 import { Card, Disclaimer, PageHeader, Sparkline, Stat, StateBadge } from "@/components/dashboard/ui";
@@ -49,18 +48,12 @@ export default async function Prehled() {
             />
           </div>
           <p className="data mt-2.5 text-[12px] text-ash">{pct} % splněno · zbývá 15 800 Kč</p>
-          <Link href="/dashboard/plan" className="mt-4 inline-block text-[13px] text-signal hover:underline">
-            Zobrazit plán
-          </Link>
         </Card>
       </div>
 
       <Card className="overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4">
           <p className="eyebrow">Poslední tikety</p>
-          <Link href="/dashboard/tikety" className="text-[13px] text-signal hover:underline">
-            Zobrazit vše
-          </Link>
         </div>
         <div className="scroll-x">
           <table className="w-full min-w-[620px] text-left">
