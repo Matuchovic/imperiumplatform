@@ -32,25 +32,40 @@ export default function LoginForm() {
 
     setBusy(true);
     setErrors({});
+
+    let res: Response;
     try {
-      const res = await fetch("/api/auth/login", {
+      res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, remember }),
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setErrors({ form: data.error ?? "Přihlášení se nepodařilo." });
-        setBusy(false);
-        return;
-      }
-      router.push(next);
-      router.refresh();
     } catch {
-      setErrors({ form: "Server neodpovídá. Zkontroluj připojení a zkus to znovu." });
+      // Sem se dostaneme jen když požadavek vůbec neodejde — skutečný výpadek sítě.
+      setErrors({ form: "Nepodařilo se spojit se serverem. Zkontroluj připojení." });
       setBusy(false);
+      return;
     }
+
+    // Odpověď nemusí být JSON (např. chybová stránka platformy). Když parsování
+    // selže, není to výpadek sítě — server odpověděl, jen jinak, než čekáme.
+    let data: { error?: string } | null = null;
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
+
+    if (!res.ok) {
+      setErrors({
+        form: data?.error ?? `Přihlášení se nepodařilo (chyba ${res.status}).`,
+      });
+      setBusy(false);
+      return;
+    }
+
+    router.push(next);
+    router.refresh();
   }
 
   return (
