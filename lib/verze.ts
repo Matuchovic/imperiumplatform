@@ -9,10 +9,10 @@
  * nedá zapomenout. Původní řešení záviselo na tom, že si někdo
  * vzpomene zvednout konstantu, a dvakrát za sebou se to nestalo.
  */
-export const VERZE = "1.0.1";
+export const VERZE = "1.0.2";
 
 /** Jedna věta o tom, co se změnilo. „Nová verze" nikoho nepřesvědčí. */
-export const VERZE_POPIS = "Asistent hlásí konkrétní důvod selhání, health testuje Groq.";
+export const VERZE_POPIS = "Model gpt-oss místo vyřazené llamy, se zálohou při výpadku.";
 
 /**
  * Důležitá oprava se nedá odložit.

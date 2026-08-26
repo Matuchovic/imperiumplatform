@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 /** Ověří Groq skutečným voláním, ne jen přítomností proměnné. */
 async function zkusGroq() {
   const key = process.env.GROQ_API_KEY;
-  const model = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+  const model = process.env.GROQ_MODEL ?? "openai/gpt-oss-120b";
   if (!key) return { klic: false, model, stav: "GROQ_API_KEY chybí" };
 
   try {

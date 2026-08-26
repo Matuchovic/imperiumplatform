@@ -15,7 +15,19 @@ import { log } from "@/lib/log";
  */
 
 const URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+/**
+ * Modely v pořadí, v jakém se zkoušejí.
+ *
+ * Groq modely pravidelně vyřazuje — llama-3.3-70b-versatile skončila
+ * 16. srpna 2026. Jediná hodnota natvrdo znamená, že příští vyřazení
+ * zase položí asistenta. Proto záložní pořadí.
+ */
+const MODELY = [
+  process.env.GROQ_MODEL,
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b",
+  "qwen/qwen3.6-27b",
+].filter(Boolean) as string[];
 
 export type Odpoved = {
   text: string;
@@ -36,41 +48,57 @@ async function groq(system: string, user: string, json = false): Promise<string 
   }
 
   return throughCircuit(async () => {
-    const res = await fetch(URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify({
-        model: MODEL,
-        temperature: json ? 0 : 0.3,
-        max_tokens: 700,
-        ...(json ? { response_format: { type: "json_object" } } : {}),
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-      }),
-    });
-    if (!res.ok) {
-      // Groq vrací důvod v těle. Bez něj se hádá mezi vyřazeným
-      // modelem, špatným klíčem a nepodporovaným formátem.
-      const telo = await res.text().catch(() => "");
-      let zprava = telo.slice(0, 200);
-      try {
-        const j = JSON.parse(telo);
-        zprava = j?.error?.message ?? j?.error?.code ?? zprava;
-      } catch { /* tělo není JSON, stačí useknutý text */ }
-
-      posledniDuvod = `Groq odpověděl ${res.status}: ${zprava}`;
-      log("error", "asistent", "volání modelu selhalo", {
-        stav: res.status, model: MODEL, jsonRezim: json, zprava,
-      });
-      return null;
+    // Vyřazený model vrátí 404. Zkusí se další v pořadí místo
+    // toho, aby asistent rovnou zmlkl.
+    for (const model of MODELY) {
+      const vysledek = await zkusModel(model, system, user, json, key);
+      if (vysledek !== "DALSI") return vysledek;
     }
-
-    posledniDuvod = null;
-    const d = await res.json();
-    return (d?.choices?.[0]?.message?.content as string) ?? null;
+    return null;
   });
+}
+
+async function zkusModel(
+  model: string, system: string, user: string, json: boolean, key: string
+): Promise<string | null | "DALSI"> {
+  const res = await fetch(URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      model,
+      temperature: json ? 0 : 0.3,
+      max_tokens: 700,
+      ...(json ? { response_format: { type: "json_object" } } : {}),
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+    }),
+  });
+  if (!res.ok) {
+    // Groq vrací důvod v těle. Bez něj se hádá mezi vyřazeným
+    // modelem, špatným klíčem a nepodporovaným formátem.
+    const telo = await res.text().catch(() => "");
+    let zprava = telo.slice(0, 200);
+    try {
+      const j = JSON.parse(telo);
+      zprava = j?.error?.message ?? j?.error?.code ?? zprava;
+    } catch { /* tělo není JSON, stačí useknutý text */ }
+
+    posledniDuvod = `Groq odpověděl ${res.status}: ${zprava}`;
+    log("warn", "asistent", "model nedostupný, zkouším další", {
+      stav: res.status, model, jsonRezim: json, zprava,
+    });
+
+    // 404 nebo vyřazení = zkusit další. Jiná chyba je skutečná
+    // závada a přeskakování by ji jen zamaskovalo.
+    const vyrazeny = res.status === 404 || /decommission|does not exist/i.test(zprava);
+    return vyrazeny ? "DALSI" : null;
+  }
+
+  posledniDuvod = null;
+  const d = await res.json();
+  return (d?.choices?.[0]?.message?.content as string) ?? null;
 }
 
 const VYBER = `Jsi směrovač dotazů v systému BETIMPERIUM.
