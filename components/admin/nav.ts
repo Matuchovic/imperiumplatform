@@ -106,7 +106,16 @@ export const jeSprava = (r: Role) => SPRAVA.includes(r);
 export const jeTym = (r: Role) => TYM.includes(r);
 
 /** Skupiny bez položek pro danou roli se vynechají celé. */
-export function navFor(role: Role): NavGroup[] {
+/**
+ * Neznámá role z databáze nesmí rozhodení UI způsobit pád ani prázdné
+ * menu. Stane se z ní klient — nejmenší možná práva.
+ */
+export function bezpecnaRole(role: string | null | undefined): Role {
+  return (role && role in ROLE_LABEL ? role : "klient") as Role;
+}
+
+export function navFor(vstup: Role | string): NavGroup[] {
+  const role = bezpecnaRole(vstup);
   return NAV.map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(role)) }))
     .filter((g) => g.items.length > 0);
 }

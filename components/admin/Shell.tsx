@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
-import type { Role } from "./nav";
+import Jadro from "@/components/asistent/Jadro";
+import { jeTym, type Role } from "./nav";
 
 /**
  * Skořápka administrace.
@@ -58,6 +59,9 @@ export default function Shell({
 
         <div className="adm-body">{children}</div>
       </div>
+
+      {/* Asistent je pro tým, ne pro klienty. */}
+      {jeTym(role) && <Jadro />}
     </div>
   );
 }

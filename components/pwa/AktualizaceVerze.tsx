@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { VERZE, BUILD_ID } from "@/lib/verze";
-import { kolikNeulozenych, sledujPraci } from "@/lib/rozdelanaPrace";
+import { sledujPraci } from "@/lib/rozdelanaPrace";
 
 /**
  * ════════════════════════════════════════════════════════════════

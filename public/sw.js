@@ -6,7 +6,9 @@
  * by je po odhlášení přečetl kdokoliv další.
  */
 
-const CACHE = "bi-static-v1";
+// Číslo zvednout při každé změně logiky workera. Aktivace pak smaže
+// všechny starší mezipaměti — viz posluchač níž.
+const CACHE = "bi-static-v3";
 const STATIC = ["/offline.html", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 // Lišta nové verze si vyžádá okamžité převzetí — bez toho by nový
@@ -33,6 +35,10 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  // Mapy zdrojů nikdy — v prohlížeči je stejně nikdo nepotřebuje
+  // a v konzoli kvůli nim svítí chyby přístupu.
+  if (url.pathname.endsWith(".map")) return;
 
   // Nikdy neukládat: přihlášení, API, autentizaci.
   if (

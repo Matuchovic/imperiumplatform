@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/brand/Logo";
 import { VERZE } from "@/lib/verze";
-import { navFor, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
+import { navFor, bezpecnaRole, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 
 export default function Sidebar({
   role,
@@ -15,8 +15,9 @@ export default function Sidebar({
   open: boolean;
   onClose: () => void;
 }) {
+  const r = bezpecnaRole(role);
   const pathname = usePathname();
-  const groups = navFor(role);
+  const groups = navFor(r);
 
   return (
     <>
@@ -58,8 +59,8 @@ export default function Sidebar({
         </nav>
 
         <div className="adm-side__foot">
-          <span className="adm-side__role" style={{ color: ROLE_BARVA[role] }}>
-            {ROLE_LABEL[role]}
+          <span className="adm-side__role" style={{ color: ROLE_BARVA[r] }}>
+            {ROLE_LABEL[r]}
           </span>
           <span className="data adm-side__verze" title="Verze aplikace">v{VERZE}</span>
         </div>

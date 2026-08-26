@@ -1994,3 +1994,220 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .rl-item--ne { color: #4d5c53; }
   .rl-item--ne i { color: #2b352e; }
 }
+
+/* ============================================================
+   ASISTENT
+   Otevírá se zkratkou a zase zmizí. V nástroji, kde se pracuje
+   celý den, nemá trvalý panel co zabírat místo.
+   ============================================================ */
+
+.jd-tlacitko {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 46px;
+  padding: 0 16px 0 12px;
+  border-radius: 24px;
+  cursor: pointer;
+  background: linear-gradient(180deg, rgba(14, 34, 23, 0.94), rgba(4, 13, 8, 0.96));
+  border: 1px solid rgba(126, 240, 168, 0.24);
+  box-shadow: 0 12px 34px -16px rgba(0, 0, 0, 0.9), 0 0 30px -14px rgba(126, 240, 168, 0.8);
+  transition: border-color 180ms ease, transform 160ms ease;
+}
+.jd-tlacitko:hover { border-color: rgba(126, 240, 168, 0.55); transform: translateY(-1px); }
+
+.jd-tlacitko__jadro {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #c9ffe3 22%, rgba(126, 240, 168, 0.8) 48%, transparent 72%);
+  box-shadow: 0 0 16px rgba(126, 240, 168, 0.85);
+  animation: jd-dech 3.2s ease-in-out infinite;
+}
+@keyframes jd-dech { 0%, 100% { opacity: 0.72; transform: scale(0.94); } 50% { opacity: 1; transform: scale(1.06); } }
+
+.jd-tlacitko__zkr { font-size: 11px; color: #7fa88f; }
+
+.jd-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 78;
+  background: rgba(1, 4, 2, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.jd-panel {
+  position: fixed;
+  z-index: 80;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  width: min(620px, 100%);
+  max-height: 82dvh;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, rgba(12, 30, 20, 0.97), rgba(3, 11, 7, 0.99));
+  border: 1px solid rgba(126, 240, 168, 0.18);
+  border-bottom: 0;
+  box-shadow: 0 -20px 60px -24px rgba(0, 0, 0, 0.95), 0 0 80px -34px rgba(126, 240, 168, 0.6);
+  animation: jd-vyjezd 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes jd-vyjezd { from { transform: translate(-50%, 24px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+@media (min-width: 768px) {
+  .jd-panel { bottom: 20px; border-radius: 16px; border-bottom: 1px solid rgba(126, 240, 168, 0.18); }
+}
+
+.jd-hlava {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.1);
+}
+
+/* Jádro: dva protiběžné prstence a zářící střed. */
+.jd-core { position: relative; width: 34px; height: 34px; flex-shrink: 0; }
+.jd-core__prsten {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(126, 240, 168, 0.3);
+}
+.jd-core__prsten--1 { inset: 0; border-style: dashed; animation: jd-toc 9s linear infinite; }
+.jd-core__prsten--2 { inset: 6px; border-color: rgba(126, 240, 168, 0.5); animation: jd-toc-zpet 6s linear infinite; }
+@keyframes jd-toc { to { transform: rotate(360deg); } }
+@keyframes jd-toc-zpet { to { transform: rotate(-360deg); } }
+
+.jd-core__stred {
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #c9ffe3 24%, rgba(126, 240, 168, 0.85) 52%, transparent 76%);
+  box-shadow: 0 0 18px rgba(126, 240, 168, 0.8);
+  animation: jd-dech 3.2s ease-in-out infinite;
+}
+.jd-core--bezi .jd-core__prsten--1 { animation-duration: 1.6s; }
+.jd-core--bezi .jd-core__prsten--2 { animation-duration: 1.1s; }
+
+.jd-nazev { display: block; font-size: 14px; font-weight: 500; color: var(--color-chalk); }
+.jd-podnazev { display: block; margin-top: 2px; font-size: 8.5px; letter-spacing: 0.16em; color: #5d8f74; }
+
+.jd-zavrit { border: 0; background: transparent; color: var(--color-ash); border-radius: 8px; cursor: pointer; }
+.jd-zavrit i { font-size: 19px; }
+
+.jd-telo { flex: 1; overflow-y: auto; padding: 16px; }
+.jd-uvod { margin: 0 0 14px; font-size: 13.5px; line-height: 1.65; color: var(--color-ash); }
+
+.jd-rychle { display: grid; gap: 7px; }
+.jd-chip {
+  min-height: 40px;
+  padding: 9px 13px;
+  border-radius: 9px;
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  background: transparent;
+  color: var(--color-ash);
+  font-size: 13px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+.jd-chip:hover { border-color: rgba(126, 240, 168, 0.45); background: rgba(126, 240, 168, 0.05); color: var(--color-chalk); }
+
+.jd-odpoved { margin: 0; font-size: 14.5px; line-height: 1.68; color: #dff5e8; }
+.jd-odpoved--slabe { color: var(--color-ash); }
+
+.jd-zdroj {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 11px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: rgba(126, 240, 168, 0.08);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--color-signal);
+}
+.jd-zdroj i { font-size: 11px; }
+
+.jd-data { margin-top: 12px; }
+.jd-data summary { cursor: pointer; font-size: 12.5px; color: #5d8f74; }
+.jd-data summary:hover { color: var(--color-ash); }
+.jd-data pre {
+  margin: 9px 0 0;
+  padding: 11px;
+  border-radius: 9px;
+  background: rgba(2, 8, 5, 0.8);
+  border: 1px solid rgba(126, 240, 168, 0.1);
+  font-family: var(--font-data);
+  font-size: 11px;
+  line-height: 1.55;
+  color: #9db3a5;
+  overflow-x: auto;
+}
+
+.jd-pata { padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(126, 240, 168, 0.1); }
+
+.jd-vstup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 8px 0 13px;
+  border-radius: 11px;
+  background: rgba(2, 8, 5, 0.8);
+  border: 1px solid rgba(126, 240, 168, 0.16);
+  transition: border-color 200ms ease, box-shadow 240ms ease;
+}
+.jd-vstup:focus-within {
+  border-color: rgba(126, 240, 168, 0.5);
+  box-shadow: 0 0 0 3px rgba(126, 240, 168, 0.08);
+}
+.jd-vstup > i { font-size: 16px; color: var(--color-signal); flex-shrink: 0; }
+.jd-vstup input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--color-chalk);
+  font-size: 16px;
+  font-family: inherit;
+}
+.jd-vstup input::placeholder { color: #456352; }
+@media (min-width: 768px) { .jd-vstup input { font-size: 14px; } }
+
+.jd-odeslat {
+  display: flex;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-signal);
+  cursor: pointer;
+}
+.jd-odeslat:disabled { opacity: 0.35; cursor: default; }
+.jd-odeslat i { font-size: 18px; }
+.jd-odeslat i.ti-loader-2 { animation: jd-toc 1s linear infinite; }
+
+.jd-prava {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 10px 0 0;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: #4d5c53;
+}
+.jd-prava--ne { color: #7a5555; }
+
+@media (prefers-reduced-motion: reduce) {
+  .jd-panel, .jd-tlacitko__jadro, .jd-core__prsten, .jd-core__stred, .jd-odeslat i { animation: none; }
+  .jd-panel { transform: translateX(-50%); opacity: 1; }
+}

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import LogoutButton from "@/components/dashboard/LogoutButton";
 import Logo from "@/components/brand/Logo";
-import { ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
+import { bezpecnaRole, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 
 /**
  * Horní lišta.
@@ -23,6 +23,7 @@ export default function Topbar({
   onMenu: () => void;
 }) {
   const [hledani, setHledani] = useState(false);
+  const r = bezpecnaRole(role);
   const initial = (name.trim()[0] ?? "?").toUpperCase();
 
   return (
@@ -52,14 +53,14 @@ export default function Topbar({
       <span className="adm-user">
         <span
           className="adm-user__pic"
-          style={{ background: `${ROLE_BARVA[role]}22`, color: ROLE_BARVA[role] }}
+          style={{ background: `${ROLE_BARVA[r]}22`, color: ROLE_BARVA[r] }}
         >
           {initial}
         </span>
         <span className="adm-user__meta">
           <span className="adm-user__name">{name}</span>
-          <span className="adm-user__role" style={{ color: ROLE_BARVA[role] }}>
-            {ROLE_LABEL[role]}
+          <span className="adm-user__role" style={{ color: ROLE_BARVA[r] }}>
+            {ROLE_LABEL[r]}
           </span>
         </span>
       </span>
