@@ -1,4 +1,4 @@
-import { katalog, najdiNastroj, type Navigace, type Navrh } from "./nastroje";
+import { katalog, najdiNastroj, type Navigace, type Navrh, type Rezim } from "./nastroje";
 import { asUntrusted, validateShape, numbersAreGrounded } from "@/lib/ai/safe";
 import { throughCircuit } from "@/lib/ai/circuit";
 import { log } from "@/lib/log";
@@ -113,6 +113,14 @@ Odpověz výhradně JSON objektem: {"klic": "...", "parametry": {...}}.
 Když žádný nástroj nesedí, vrať {"klic": "zadny", "parametry": {}}.
 Nikdy nevymýšlej klíče, které nejsou v nabídce.`;
 
+/** Co má model v daném režimu dělat. Zúžení zpřesňuje volbu. */
+const POKYN_REZIMU: Record<Rezim, string> = {
+  ask: "Režim ASK: jen odpovídáš z dat. Nic nezakládáš ani neměníš.",
+  search: "Režim SEARCH: hledáš v systému i ve veřejných rejstřících. Data z webu vždy odliš od našich.",
+  build: "Režim BUILD: zakládáš úkoly, poznámky a koncepty. Drž se toho, co uživatel řekl — nedomýšlej obsah.",
+  operate: "Režim OPERATE: připravuješ zásahy do systému. Nic neprovedeš sám, vždy vzniká návrh ke schválení.",
+};
+
 const SHRNUTI = `Jsi asistent v systému BETIMPERIUM pro správu sázkového poradenství.
 Dostaneš data z databáze a stručně je převyprávíš česky, ve dvou až čtyřech větách.
 
@@ -125,7 +133,7 @@ PRAVIDLA:
   vzniká z výpočtu a schválení člověkem, ne z rozhovoru.
 - Piš věcně, bez oslovení a bez nadšených přívlastků.`;
 
-export async function zeptejSe(dotaz: string): Promise<Odpoved> {
+export async function zeptejSe(dotaz: string, rezim: Rezim = "ask"): Promise<Odpoved> {
   const prazdna: Odpoved = {
     text: "", nastroj: null, sekce: null, data: null,
     degradovano: false, navigace: null, navrh: null, zWebu: false,
@@ -134,9 +142,14 @@ export async function zeptejSe(dotaz: string): Promise<Odpoved> {
   // Dotaz je vstup od uživatele, ne pokyn systému.
   const bezpecny = asUntrusted("dotaz", dotaz);
 
+  const nabidka = katalog(rezim);
+  if (nabidka.length === 0) {
+    return { ...prazdna, text: `V režimu ${rezim} není žádný nástroj.` };
+  }
+
   const vyber = await groq(
-    VYBER,
-    `Nabídka nástrojů:\n${JSON.stringify(katalog())}\n\n${bezpecny}`,
+    `${VYBER}\n\n${POKYN_REZIMU[rezim]}`,
+    `Nabídka nástrojů:\n${JSON.stringify(nabidka)}\n\n${bezpecny}`,
     true
   );
 
@@ -152,8 +165,9 @@ export async function zeptejSe(dotaz: string): Promise<Odpoved> {
 
   const tvar = validateShape<{ klic: string }>(volba, { klic: "string" });
   if (!tvar || tvar.klic === "zadny") {
+    const seznam = nabidka.map((n) => n.klic).join(", ");
     return { ...prazdna,
-      text: "Na tohle nemám nástroj. Umím přehled provozu, výkonnost, klienty k řešení, detail klienta, rozpad pásem, stav motoru a hledání v kontaktech." };
+      text: `V režimu ${rezim.toUpperCase()} na tohle nemám nástroj. Dostupné jsou: ${seznam}. Zkus jiný režim.` };
   }
 
   const nastroj = najdiNastroj(tvar.klic);

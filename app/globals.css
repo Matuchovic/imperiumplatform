@@ -2359,3 +2359,35 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   background: transparent;
 }
 .jd-zamitni:hover { color: var(--color-chalk); }
+
+/* ---------- režimy asistenta ---------- */
+.jd-rezimy {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.1);
+}
+.jd-rezim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 46px;
+  padding: 7px 4px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #5d8f74;
+  font-family: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.jd-rezim i { font-size: 16px; }
+.jd-rezim:hover { color: var(--color-ash); background: rgba(126, 240, 168, 0.04); }
+.jd-rezim--on {
+  background: rgba(126, 240, 168, 0.12);
+  border-color: rgba(126, 240, 168, 0.32);
+  color: var(--color-chalk);
+}

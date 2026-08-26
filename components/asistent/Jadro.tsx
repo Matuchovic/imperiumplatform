@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { rekni, zmlkni, hlasZapnut, prepniHlas, umiMluvit } from "@/lib/asistent/hlas";
 import { poslouchejTlesk, type Poslech } from "@/lib/asistent/tlesk";
+import { REZIMY, type Rezim } from "@/lib/asistent/nastroje";
 
 /**
  * Asistent.
@@ -24,12 +25,30 @@ type Odpoved = {
   zWebu: boolean;
 };
 
-const RYCHLE = [
-  "Kdo dnes potřebuje pozornost?",
-  "Otevři kontakty z Brna",
-  "Založ úkol zavolat Procházkovi zítra",
-  "Co se naposled změnilo v systému?",
-];
+const RYCHLE: Record<Rezim, string[]> = {
+  ask: [
+    "Kdo dnes potřebuje pozornost?",
+    "Které pásmo má nejlepší CLV?",
+    "Jak jsme na tom s klienty?",
+    "Kdy naposled běžel motor?",
+  ],
+  search: [
+    "Otevři kontakty z Brna",
+    "Ověř v ARES firmu s IČO 27082561",
+    "Najdi všechno ke jménu Novák",
+    "Hledej kadeřnictví",
+  ],
+  build: [
+    "Založ úkol zavolat Procházkovi zítra",
+    "Přidej Svobodovi poznámku že sází nad plán",
+    "Ukaž otevřené úkoly",
+  ],
+  operate: [
+    "Pozastav rozesílání",
+    "Spusť hledání hodnoty",
+    "Co se naposled změnilo v systému?",
+  ],
+};
 
 export default function Jadro() {
   const router = useRouter();
@@ -41,6 +60,7 @@ export default function Jadro() {
   const [hlas, setHlas] = useState(false);
   const [tlesk, setTlesk] = useState(false);
   const [provadim, setProvadim] = useState(false);
+  const [rezim, setRezim] = useState<Rezim>("ask");
   const pole = useRef<HTMLInputElement>(null);
   const poslech = useRef<Poslech | null>(null);
 
@@ -92,7 +112,7 @@ export default function Jadro() {
       const res = await fetch("/api/asistent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dotaz: text }),
+        body: JSON.stringify({ dotaz: text, rezim }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) setChyba(data?.error ?? `Asistent selhal (${res.status}).`);
@@ -114,7 +134,7 @@ export default function Jadro() {
       setChyba("Nepodařilo se spojit se serverem.");
     }
     setBezi(false);
-  }, [bezi]);
+  }, [bezi, rezim]);
 
   if (!open) {
     return (
@@ -149,7 +169,23 @@ export default function Jadro() {
           <p className="data jd-stav">
             {bezi ? "ČTU Z DATABÁZE" : odp ? "HOTOVO" : "PŘIPRAVEN"}
           </p>
-          {!odp && !bezi && <p className="jd-nazev">Asistent</p>}
+          {!odp && !bezi && <p className="jd-nazev">Imperium AI</p>}
+        </div>
+
+        <div className="jd-rezimy" role="tablist" aria-label="Režim asistenta">
+          {REZIMY.map((r) => (
+            <button
+              key={r.klic}
+              role="tab"
+              aria-selected={rezim === r.klic}
+              className={`jd-rezim ${rezim === r.klic ? "jd-rezim--on" : ""}`}
+              onClick={() => { setRezim(r.klic); setOdp(null); setChyba(null); }}
+              title={r.popis}
+            >
+              <i className={`ti ti-${r.ikona}`} aria-hidden="true" />
+              {r.nazev}
+            </button>
+          ))}
         </div>
 
         <div className="jd-telo">
@@ -164,11 +200,10 @@ export default function Jadro() {
           {!odp && !bezi && !chyba && (
             <>
               <p className="jd-uvod">
-                Zeptejte se na cokoli ze systému. Odpověď vždycky vychází z dat,
-                ne z odhadu — a je u ní vidět, odkud pochází.
+                {REZIMY.find((r) => r.klic === rezim)?.popis}
               </p>
               <div className="jd-rychle">
-                {RYCHLE.map((r) => (
+                {RYCHLE[rezim].map((r) => (
                   <button key={r} className="jd-chip" onClick={() => { setDotaz(r); zeptej(r); }}>
                     {r}
                   </button>

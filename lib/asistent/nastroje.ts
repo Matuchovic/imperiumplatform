@@ -12,8 +12,27 @@ import { BANDS } from "@/lib/engine/bands";
  * se stejnou jistotou správně i špatně a nikdo by nepoznal rozdíl.
  */
 
+/**
+ * Režimy asistenta.
+ *
+ * Nejde o kosmetiku — režim omezuje, ze kterých nástrojů si model
+ * smí vybrat. V režimu ASK tedy nemá jak něco zapsat, i kdyby chtěl.
+ * Zúžení výběru zároveň zpřesňuje volbu: mezi pěti nástroji se model
+ * trefí líp než mezi osmnácti.
+ */
+export type Rezim = "ask" | "search" | "build" | "operate";
+
+export const REZIMY: { klic: Rezim; nazev: string; popis: string; ikona: string }[] = [
+  { klic: "ask", nazev: "Ask", popis: "Odpovídá z dat. Nic nemění.", ikona: "message-circle" },
+  { klic: "search", nazev: "Search", popis: "Hledá v systému i na webu.", ikona: "search" },
+  { klic: "build", nazev: "Build", popis: "Zakládá úkoly, poznámky, koncepty.", ikona: "pencil-plus" },
+  { klic: "operate", nazev: "Operate", popis: "Ovládá systém. Rizikové akce čekají na tebe.", ikona: "settings-bolt" },
+];
+
 export type Nastroj = {
   klic: string;
+  /** Ve kterých režimech je nástroj dostupný. */
+  rezimy: Rezim[];
   popis: string;
   /** Parametry, které model smí doplnit. Nic jiného neprojde. */
   parametry?: Record<string, string>;
@@ -58,6 +77,7 @@ async function tikety(od: string, userId?: string): Promise<SettledTicket[]> {
 export const NASTROJE: Nastroj[] = [
   {
     klic: "prejdi_na_sekci",
+    rezimy: ["ask", "search", "build", "operate"] as Rezim[],
     popis: "Přepne do sekce a nastaví filtry. Sekce: prehled, klienti, kontakty, analytika, motor, automatizace, ukoly, audit, nastaveni.",
     parametry: {
       sekce: "klíč sekce",
@@ -91,6 +111,7 @@ export const NASTROJE: Nastroj[] = [
 
   {
     klic: "prehled_provozu",
+    rezimy: ["ask", "search"] as Rezim[],
     popis: "Kolik je klientů, kolik kandidátů čeká na schválení, kdy naposled běžel motor.",
     sekce: "/dashboard",
     spust: async () => {
@@ -112,6 +133,7 @@ export const NASTROJE: Nastroj[] = [
   },
   {
     klic: "vykonnost",
+    rezimy: ["ask", "search"] as Rezim[],
     popis: "CLV, ROI s intervalem spolehlivosti a velikost vzorku za období.",
     parametry: { obdobi: "7d | 30d | 90d | all" },
     sekce: "/dashboard/analytika",
@@ -132,6 +154,7 @@ export const NASTROJE: Nastroj[] = [
   },
   {
     klic: "klienti_k_reseni",
+    rezimy: ["ask", "search"] as Rezim[],
     popis: "Kdo potřebuje pozornost: noví v propadu, kdo sází mimo plán, kdo dosáhl cíle.",
     sekce: "/dashboard/klienti",
     spust: async () => {
@@ -161,6 +184,7 @@ export const NASTROJE: Nastroj[] = [
   },
   {
     klic: "klient_detail",
+    rezimy: ["ask", "search"] as Rezim[],
     popis: "Profil jednoho klienta: bankroll, tikety, CLV, stáří účtu. Hledá podle jména.",
     parametry: { jmeno: "část jména klienta" },
     sekce: "/dashboard/klienti",
@@ -199,6 +223,7 @@ export const NASTROJE: Nastroj[] = [
   },
   {
     klic: "rozpad_pasem",
+    rezimy: ["ask", "search"] as Rezim[],
     popis: "Jak si vede které pásmo kurzů a co se od něj dá čekat.",
     sekce: "/dashboard/analytika",
     spust: async () => {
@@ -228,6 +253,7 @@ export const NASTROJE: Nastroj[] = [
   },
   {
     klic: "stav_systemu",
+    rezimy: ["ask", "search", "operate"] as Rezim[],
     popis: "Poslední sken motoru, kolik našel, jestli něco vypadá špatně.",
     sekce: "/dashboard/motor",
     spust: async () => {
@@ -240,6 +266,7 @@ export const NASTROJE: Nastroj[] = [
   },
   {
     klic: "hledat_kontakt",
+    rezimy: ["ask", "search"] as Rezim[],
     popis: "Najde firmu v databázi kontaktů podle názvu nebo IČO.",
     parametry: { dotaz: "název firmy nebo IČO" },
     sekce: "/dashboard/kontakty",
@@ -257,6 +284,7 @@ export const NASTROJE: Nastroj[] = [
 NASTROJE.push(
   {
     klic: "overit_v_ares",
+    rezimy: ["search"] as Rezim[],
     popis: "Ověří firmu ve veřejném rejstříku ARES podle IČO nebo názvu. Vrací data z webu, ne z naší databáze.",
     parametry: { ico: "IČO firmy", nazev: "název firmy (když IČO neznáš)" },
     spust: async (p) => {
@@ -314,6 +342,7 @@ NASTROJE.push(
   },
   {
     klic: "navrhni_akci",
+    rezimy: ["operate"] as Rezim[],
     popis: "Připraví rizikovou akci ke schválení člověkem. Akce: pozastavit_rozesilani, spustit_sken, zucastnit_zuctovani.",
     parametry: { akce: "klíč akce", duvod: "proč to navrhuješ" },
     vyzadujeSchvaleni: true,
@@ -353,6 +382,7 @@ NASTROJE.push(
 NASTROJE.push(
   {
     klic: "otevri_klienta",
+    rezimy: ["ask", "search", "build", "operate"] as Rezim[],
     popis: "Otevře detail konkrétního klienta podle jména. Přepne do sekce i s filtrem.",
     parametry: { jmeno: "část jména klienta" },
     spust: async (p) => {
@@ -375,6 +405,7 @@ NASTROJE.push(
   },
   {
     klic: "nastav_obdobi",
+    rezimy: ["ask", "search"] as Rezim[],
     popis: "Přepne analytiku na jiné období: 7d, 30d, 90d nebo all.",
     parametry: { obdobi: "7d | 30d | 90d | all" },
     spust: async (p) => {
@@ -390,6 +421,7 @@ NASTROJE.push(
   },
   {
     klic: "zalozi_ukol",
+    rezimy: ["build"] as Rezim[],
     popis: "Založí úkol s termínem a prioritou. Volitelně navázaný na klienta.",
     parametry: {
       nazev: "co se má udělat",
@@ -423,6 +455,7 @@ NASTROJE.push(
   },
   {
     klic: "pridej_poznamku",
+    rezimy: ["build"] as Rezim[],
     popis: "Přidá poznámku ke klientovi. Připojí ji k té stávající, nepřepíše ji.",
     parametry: { jmeno: "jméno klienta", text: "text poznámky" },
     spust: async (p) => {
@@ -447,6 +480,7 @@ NASTROJE.push(
   },
   {
     klic: "otevrene_ukoly",
+    rezimy: ["ask", "build"] as Rezim[],
     popis: "Vypíše nesplněné úkoly seřazené podle termínu.",
     sekce: "/dashboard/ukoly",
     spust: async () => {
@@ -459,6 +493,7 @@ NASTROJE.push(
   },
   {
     klic: "hledej_vsude",
+    rezimy: ["ask", "search"] as Rezim[],
     popis: "Prohledá klienty, kontakty i úkoly jedním dotazem.",
     parametry: { dotaz: "hledaný text" },
     spust: async (p) => {
@@ -482,6 +517,7 @@ NASTROJE.push(
   },
   {
     klic: "posledni_zmeny",
+    rezimy: ["ask", "operate"] as Rezim[],
     popis: "Co se v systému naposled změnilo — kdo, co a kdy.",
     sekce: "/dashboard/audit",
     parametry: { pocet: "kolik záznamů (výchozí 10)" },
@@ -496,6 +532,7 @@ NASTROJE.push(
   },
   {
     klic: "schval_kandidata",
+    rezimy: ["operate"] as Rezim[],
     popis: "Připraví schválení nebo zamítnutí kandidáta ke kliknutí člověkem.",
     parametry: { udalost: "název zápasu", rozhodnuti: "approved | rejected" },
     vyzadujeSchvaleni: true,
@@ -524,6 +561,12 @@ NASTROJE.push(
 
 export const najdiNastroj = (klic: string) => NASTROJE.find((n) => n.klic === klic);
 
-/** Seznam pro model. Jen klíč, popis a povolené parametry. */
-export const katalog = () =>
-  NASTROJE.map((n) => ({ klic: n.klic, popis: n.popis, parametry: n.parametry ?? {} }));
+/** Seznam pro model — jen nástroje povolené v daném režimu. */
+export const katalog = (rezim: Rezim) =>
+  NASTROJE
+    .filter((n) => n.rezimy.includes(rezim))
+    .map((n) => ({ klic: n.klic, popis: n.popis, parametry: n.parametry ?? {} }));
+
+/** Kolik nástrojů má režim k dispozici. Pro rozhraní. */
+export const pocetVRezimu = (rezim: Rezim) =>
+  NASTROJE.filter((n) => n.rezimy.includes(rezim)).length;
