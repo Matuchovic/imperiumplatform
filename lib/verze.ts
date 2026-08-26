@@ -1,23 +1,31 @@
 /**
  * Verze aplikace.
  *
- * Zvednout při každém nasazení. Podle ní pozná běžící aplikace, že
- * vyšla novější — viz `AktualizaceVerze`. Bez zvednutí se lišta
- * s nabídkou obnovení neobjeví.
+ * VERZE je pro člověka — ukazuje se v liště a v patičce. Zvedej ji,
+ * když se změní něco, o čem má smysl dát vědět.
+ *
+ * O tom, JESTLI lišta naskočí, ale rozhoduje `buildId` — hash commitu
+ * z Vercelu. Ten se mění při každém nasazení sám, takže se na lištu
+ * nedá zapomenout. Původní řešení záviselo na tom, že si někdo
+ * vzpomene zvednout konstantu, a dvakrát za sebou se to nestalo.
  */
-export const VERZE = "2.5.1";
+export const VERZE = "2.6.0";
 
-/**
- * Jedna věta o tom, co se změnilo. „Nová verze" nikoho nepřesvědčí,
- * aby přerušil práci — konkrétní důvod ano.
- */
-export const VERZE_POPIS = "Databáze kontaktů a nová lišta aktualizace.";
+/** Jedna věta o tom, co se změnilo. „Nová verze" nikoho nepřesvědčí. */
+export const VERZE_POPIS = "Databáze kontaktů, nové logo a úklid v navigaci.";
 
 /**
  * Důležitá oprava se nedá odložit.
  *
  * Nastavit na true jedině tehdy, když stará verze počítá špatně nebo
  * ukazuje neplatná data. Když bude důležité všechno, přestane to
- * znamenat cokoliv a lidé se naučí lištu odklikávat.
+ * znamenat cokoliv.
  */
 export const VERZE_DULEZITA = false;
+
+/**
+ * Otisk nasazení. Vercel dodá hash commitu, lokálně zůstane "dev" —
+ * při vývoji tedy lišta neotravuje.
+ */
+export const BUILD_ID =
+  process.env.NEXT_PUBLIC_BUILD_ID ?? "dev";

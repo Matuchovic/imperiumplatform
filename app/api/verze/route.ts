@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { VERZE, VERZE_POPIS, VERZE_DULEZITA } from "@/lib/verze";
+import { VERZE, VERZE_POPIS, VERZE_DULEZITA, BUILD_ID } from "@/lib/verze";
 
 /**
  * Verze, která je právě nasazená na serveru.
@@ -13,7 +13,7 @@ export const revalidate = 0;
 
 export async function GET() {
   return new NextResponse(
-    JSON.stringify({ verze: VERZE, popis: VERZE_POPIS, dulezita: VERZE_DULEZITA }),
+    JSON.stringify({ verze: VERZE, popis: VERZE_POPIS, dulezita: VERZE_DULEZITA, build: BUILD_ID }),
     {
       status: 200,
       headers: {

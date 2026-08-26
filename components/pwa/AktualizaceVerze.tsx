@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { VERZE } from "@/lib/verze";
+import { VERZE, BUILD_ID } from "@/lib/verze";
 import { kolikNeulozenych, sledujPraci } from "@/lib/rozdelanaPrace";
 
 /**
@@ -35,7 +35,7 @@ const INTERVAL_MS = 60_000;
 const PRVNI_MS = 8_000;
 const ODLOZIT_MS = 15 * 60_000;
 
-type Nova = { verze: string; popis: string; dulezita: boolean };
+type Nova = { verze: string; popis: string; dulezita: boolean; build: string };
 
 export default function AktualizaceVerze() {
   const [nova, setNova] = useState<Nova | null>(null);
@@ -54,11 +54,19 @@ export default function AktualizaceVerze() {
       const res = await fetch("/api/verze", { cache: "no-store" });
       if (!res.ok) return;
       const data = (await res.json()) as Partial<Nova>;
-      if (data.verze && data.verze !== VERZE) {
+
+      // Rozhoduje otisk nasazení, ne číslo verze. Číslo se zvedá ručně
+      // a dvakrát za sebou se na to zapomnělo — otisk se mění sám.
+      // Lokálně je "dev" na obou stranách, takže se lišta neukáže.
+      const jineNasazeni = Boolean(data.build) && data.build !== BUILD_ID;
+      const jinaVerze = Boolean(data.verze) && data.verze !== VERZE;
+
+      if (BUILD_ID !== "dev" && (jineNasazeni || jinaVerze)) {
         setNova({
-          verze: data.verze,
+          verze: data.verze ?? VERZE,
           popis: data.popis ?? "",
           dulezita: Boolean(data.dulezita),
+          build: data.build ?? "",
         });
       }
     } catch {
@@ -132,7 +140,8 @@ export default function AktualizaceVerze() {
 
       <span className="akt__text">
         <strong>
-          {nova.dulezita ? "Důležitá oprava" : "Nová verze"} {VERZE} → {nova.verze}
+          {nova.dulezita ? "Důležitá oprava" : "Nová verze"}
+          {nova.verze !== VERZE ? ` ${VERZE} → ${nova.verze}` : ` ${nova.verze}`}
         </strong>
         {nova.popis && <span className="akt__popis"> {nova.popis}</span>}
         {blokuje && (
