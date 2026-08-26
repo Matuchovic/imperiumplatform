@@ -12,22 +12,9 @@ import { BANDS } from "@/lib/engine/bands";
  * se stejnou jistotou správně i špatně a nikdo by nepoznal rozdíl.
  */
 
-/**
- * Režimy asistenta.
- *
- * Nejde o kosmetiku — režim omezuje, ze kterých nástrojů si model
- * smí vybrat. V režimu ASK tedy nemá jak něco zapsat, i kdyby chtěl.
- * Zúžení výběru zároveň zpřesňuje volbu: mezi pěti nástroji se model
- * trefí líp než mezi osmnácti.
- */
-export type Rezim = "ask" | "search" | "build" | "operate";
+import { type Rezim } from "./rezimy";
 
-export const REZIMY: { klic: Rezim; nazev: string; popis: string; ikona: string }[] = [
-  { klic: "ask", nazev: "Ask", popis: "Odpovídá z dat. Nic nemění.", ikona: "message-circle" },
-  { klic: "search", nazev: "Search", popis: "Hledá v systému i na webu.", ikona: "search" },
-  { klic: "build", nazev: "Build", popis: "Zakládá úkoly, poznámky, koncepty.", ikona: "pencil-plus" },
-  { klic: "operate", nazev: "Operate", popis: "Ovládá systém. Rizikové akce čekají na tebe.", ikona: "settings-bolt" },
-];
+export type { Rezim };
 
 export type Nastroj = {
   klic: string;

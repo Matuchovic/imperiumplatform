@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { rekni, zmlkni, hlasZapnut, prepniHlas, umiMluvit } from "@/lib/asistent/hlas";
 import { poslouchejTlesk, type Poslech } from "@/lib/asistent/tlesk";
-import { REZIMY, type Rezim } from "@/lib/asistent/nastroje";
+import { REZIMY, type Rezim } from "@/lib/asistent/rezimy";
 
 /**
  * Asistent.

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { zeptejSe } from "@/lib/asistent/jadro";
-import { REZIMY, type Rezim } from "@/lib/asistent/nastroje";
+import { jeRezim, type Rezim } from "@/lib/asistent/rezimy";
 import { roleOf } from "@/lib/auth/guard";
 import { jeTym, type Role } from "@/components/admin/nav";
 import { newRunId, log } from "@/lib/log";
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if (!dotaz) return NextResponse.json({ error: "Prázdný dotaz." }, { status: 400 });
 
   // Neznámý režim spadne na ask — nejužší oprávnění, ne nejširší.
-  const rezim = (REZIMY.some((r) => r.klic === body.rezim) ? body.rezim : "ask") as Rezim;
+  const rezim: Rezim = jeRezim(body.rezim) ? body.rezim : "ask";
 
   const runId = newRunId();
   const start = Date.now();
