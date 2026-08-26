@@ -1575,3 +1575,23 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   text-transform: uppercase;
   color: #5b6c61;
 }
+
+/* Diagnostický řádek — bez něj se "0 nálezů" nedá odlišit
+   od nefunkčního adaptéru. */
+.tip-diag {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: rgba(12, 19, 16, 0.6);
+  border: 1px solid rgba(126, 240, 168, 0.09);
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: var(--color-chalk);
+}
+.tip-diag > span > span {
+  color: #5b6c61;
+  margin-right: 7px;
+}

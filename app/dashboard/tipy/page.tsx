@@ -17,6 +17,12 @@ export default async function Tipy() {
   const groups = bandSummary(scan.candidates);
   const total = groups.reduce((s, g) => s + g.items.length, 0);
 
+  // "Nula nálezů" má dva úplně různé důvody a z obrazovky se nedaly
+  // rozlišit: buď dnes hodnota není, nebo adaptér nečte kurzy.
+  // Bez porovnaných nabídek nemá motor co srovnávat.
+  const brokenFeed = scan.live && scan.scannedBooks === 0;
+  const thinFeed = scan.live && scan.scannedMatches > 0 && scan.scannedBooks < scan.scannedMatches * 2;
+
   return (
     <>
       <PageTitle
@@ -32,6 +38,31 @@ export default async function Tipy() {
           action="Nastavit"
         />
       )}
+
+      {brokenFeed && (
+        <Alert
+          tone="bad"
+          title="Motor nečte kurzy."
+          detail={`Prošel ${scan.scannedMatches} zápasů, ale neporovnal ani jednu nabídku. Odpověď poskytovatele má nejspíš jiný tvar, než adaptér očekává — ověř ji přes /api/engine/probe.`}
+          action="Ověřit"
+        />
+      )}
+
+      {!brokenFeed && thinFeed && (
+        <Alert
+          tone="warn"
+          title="Málo nabídek k porovnání."
+          detail={`${scan.scannedBooks} nabídek na ${scan.scannedMatches} zápasů. Bez ostré knihovny v datech nejde spočítat férová pravděpodobnost.`}
+          action="Ověřit"
+        />
+      )}
+
+      <div className="tip-diag">
+        <span><span>Poskytovatel</span> {scan.provider}</span>
+        <span><span>Zápasů</span> {scan.scannedMatches}</span>
+        <span><span>Nabídek porovnáno</span> {scan.scannedBooks}</span>
+        <span><span>Kandidátů</span> {scan.candidates.length}</span>
+      </div>
 
       <div
         style={{
