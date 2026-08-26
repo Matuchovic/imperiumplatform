@@ -17,12 +17,12 @@ export default function Sidebar({ role }: { role: Role }) {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-label={open ? "Zavřít menu" : "Otevřít menu"}
-        className="adm-burger tap lg:hidden"
+        className="adm-burger tap"
       >
         <i className={`ti ti-${open ? "x" : "menu-2"}`} aria-hidden="true" />
       </button>
 
-      {open && <div className="adm-scrim lg:hidden" onClick={() => setOpen(false)} />}
+      {open && <div className="adm-scrim" onClick={() => setOpen(false)} />}
 
       <aside className={`adm-side ${open ? "adm-side--open" : ""}`}>
         <div className="adm-side__brand">
