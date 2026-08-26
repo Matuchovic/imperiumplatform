@@ -1753,3 +1753,70 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .akt { animation: none; }
   .akt__dot { animation: none; opacity: 1; }
 }
+
+/* ============================================================
+   ZNAČKA
+   ============================================================ */
+
+.brand {
+  /* flex-start zvedne přívlastek k horní hraně. Baseline by ho
+     posadila dolů vedle účaří loga. */
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  user-select: none;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.brand__word { white-space: nowrap; }
+
+.brand__suffix {
+  font-family: var(--font-data);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  line-height: 1;
+  white-space: nowrap;
+  /* Mono má nad verzálkami mezeru — bez dorovnání by přívlastek
+     visel výš než horní hrana písmen loga. */
+  padding-top: 0.12em;
+
+  /* Světlo je posouvající se gradient ořezaný textem, ne skutečná
+     záře. Nesvítí tedy nic navíc a animuje se jen pozice pozadí. */
+  background: linear-gradient(
+    100deg,
+    #3f6a55 30%,
+    #7ef0a8 46%,
+    #eafff2 52%,
+    #7ef0a8 58%,
+    #3f6a55 74%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brand-shine 7s ease-in-out infinite;
+}
+
+@keyframes brand-shine {
+  0%, 74%   { background-position: -140% 0; }
+  94%, 100% { background-position: 240% 0; }
+}
+
+/* Na nejužších displejích se přívlastek zalomí pod logo,
+   ať se neuseká. */
+@media (max-width: 380px) {
+  .brand { flex-wrap: wrap; gap: 2px 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand__suffix {
+    animation: none;
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: #5d8f74;
+  }
+}
