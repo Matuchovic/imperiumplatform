@@ -520,7 +520,53 @@ create policy "vlastni pohyby" on bankroll_entries
   for select using (auth.uid() = user_id);
 
 
--- ── 12. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
+-- ── 12. ZÁMKY ÚLOH ───────────────────────────────────────────
+-- Řeší souběh: dvojí spuštění cronu, nebo manuální běh proti
+-- naplánovanému. Zámek má platnost, aby pád běhu úlohu nezablokoval
+-- napořád — vypršelý smí převzít kdokoli další.
+
+create table if not exists job_locks (
+  job_key      text primary key,
+  holder       text not null,
+  acquired_at  timestamptz not null default now(),
+  expires_at   timestamptz not null
+);
+
+create index if not exists job_locks_expiry on job_locks (expires_at);
+
+-- Atomické převzetí. Vrací true jen tomu, kdo zámek skutečně získal.
+create or replace function public.acquire_job_lock(
+  p_job_key text, p_holder text, p_minutes integer default 10
+) returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare got boolean;
+begin
+  insert into public.job_locks (job_key, holder, expires_at)
+  values (p_job_key, p_holder, now() + make_interval(mins => p_minutes))
+  on conflict (job_key) do update
+    set holder = excluded.holder,
+        acquired_at = now(),
+        expires_at = excluded.expires_at
+    where public.job_locks.expires_at <= now()
+  returning true into got;
+
+  return coalesce(got, false);
+end $$;
+
+create or replace function public.release_job_lock(p_job_key text, p_holder text)
+returns void
+language sql
+security definer
+set search_path = public
+as $$ delete from public.job_locks where job_key = p_job_key and holder = p_holder $$;
+
+alter table job_locks enable row level security;
+
+
+-- ── 13. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
 -- Zásada: klientský klíč nevidí nic než vlastní řádky.
 -- Zapnuté RLS bez politiky = tabulka je pro anon klíč neviditelná.
 
@@ -565,7 +611,7 @@ create policy "vlastni tikety" on tickets
 -- jen server přes service_role.
 
 
--- ── 13. PRVNÍ ADMIN ──────────────────────────────────────────
+-- ── 14. PRVNÍ ADMIN ──────────────────────────────────────────
 -- Uprav e-mail na svůj.
 
 update profiles set role = 'admin'
