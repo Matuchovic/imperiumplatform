@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import ScaleField from "@/components/effects/ScaleField";
 import Veil from "@/components/effects/Veil";
-import { ACCOUNT, goalPct } from "@/lib/data";
 
 const INTRO_MS = 900;
 const STEP_MS = 380;
@@ -20,15 +19,17 @@ export default function WelcomeScreen({
   onDone: () => void;
 }) {
   const [step, setStep] = useState(-1);
-  const [tiles, setTiles] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const finished = useRef(false);
 
+  // Uvítání nesmí ukazovat čísla — ta se načtou až v přehledu.
+  // Vymyšlený bankroll na první obrazovce po přihlášení je to
+  // poslední, co si má klient zapamatovat.
   const steps = [
-    { label: "Historie tiketů", meta: String(ACCOUNT.ticketsTotal), warn: false },
-    { label: "Přepočet bankrollu", meta: `${ACCOUNT.bankroll.toLocaleString("cs-CZ")} Kč`, warn: false },
-    { label: "Otevřené tikety", meta: `${ACCOUNT.openTickets} čekají`, warn: ACCOUNT.openTickets > 0 },
-    { label: "Telegram napojen", meta: "aktivní", warn: false },
+    { label: "Ověřuji účet", meta: "hotovo", warn: false },
+    { label: "Načítám historii tiketů", meta: "hotovo", warn: false },
+    { label: "Přepočítávám bankroll", meta: "hotovo", warn: false },
+    { label: "Připravuji přehled", meta: "hotovo", warn: false },
   ];
 
   function skip() {
@@ -49,7 +50,6 @@ export default function WelcomeScreen({
       timers.push(window.setTimeout(() => setStep(i), INTRO_MS + i * STEP_MS));
     });
     const after = INTRO_MS + steps.length * STEP_MS;
-    timers.push(window.setTimeout(() => setTiles(true), after));
     timers.push(window.setTimeout(skip, after + TILES_MS));
 
     const onKey = (e: KeyboardEvent) => {
@@ -107,23 +107,6 @@ export default function WelcomeScreen({
 
         <div className="veil__bar">
           <div className="veil__bar-fill" style={{ width: `${pct}%` }} />
-        </div>
-
-        <div className={`veil__tiles ${tiles ? "veil__tiles--in" : ""}`}>
-          <div className="veil__tile">
-            <p className="veil__tile-k">BANKROLL</p>
-            <p className="data veil__tile-v">{ACCOUNT.bankroll.toLocaleString("cs-CZ")}</p>
-          </div>
-          <div className="veil__tile">
-            <p className="veil__tile-k">ROI</p>
-            <p className="data veil__tile-v" style={{ color: "#7ef0a8" }}>
-              +{ACCOUNT.roi.toString().replace(".", ",")} %
-            </p>
-          </div>
-          <div className="veil__tile">
-            <p className="veil__tile-k">CÍL</p>
-            <p className="data veil__tile-v">{goalPct()} %</p>
-          </div>
         </div>
       </div>
     </div>

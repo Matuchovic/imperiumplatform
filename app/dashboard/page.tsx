@@ -1,116 +1,152 @@
 import { redirect } from "next/navigation";
-import { currentUser, supabaseServer } from "@/lib/supabase/server";
+import { roleOf } from "@/lib/auth/guard";
+import { serviceClient } from "@/lib/supabase/server";
+import { performance, confidenceNote, type SettledTicket } from "@/lib/stats/performance";
 import { PageTitle } from "@/components/admin/PageTitle";
-import { Alert, Panel, Row, Stat } from "@/components/admin/ui";
+import { Stat, Panel, Row } from "@/components/admin/ui";
+import { log } from "@/lib/log";
 
 export const dynamic = "force-dynamic";
 
-/* Demo hodnoty. Nahradí je dotazy, až budou tabulky plněné. */
-const WEEKS = [
-  { profit: 18, churn: 6 }, { profit: 26, churn: 4 }, { profit: 12, churn: 5 },
-  { profit: -16, churn: 7 }, { profit: 22, churn: 9 }, { profit: 30, churn: 18 },
-  { profit: -13, churn: 16 }, { profit: -23, churn: 11 }, { profit: 14, churn: 26 },
-  { profit: 24, churn: 29 }, { profit: 34, churn: 14 }, { profit: 20, churn: 9 },
-];
-
+/**
+ * Přehled ze skutečné databáze. Když data nejsou, ukáže se prázdný
+ * stav — ne ukázková čísla.
+ */
 export default async function Prehled() {
-  const user = await currentUser();
-  if (!user) redirect("/login");
+  const me = await roleOf();
+  if (!me) redirect("/login");
 
-  const supabase = await supabaseServer();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("name")
-    .eq("id", user.id)
-    .maybeSingle<{ name: string | null }>();
+  let name = "";
+  let tickets: SettledTicket[] = [];
+  let openCount = 0;
+  let balance = 0;
+  let clients = 0;
+  let candidates = 0;
+  let lastRun: string | null = null;
+  let failed = false;
 
-  const first = (profile?.name ?? "").split(" ")[0];
-  const w = 560;
-  const step = w / WEEKS.length;
-  const bw = step - 19;
+  try {
+    const db = serviceClient();
+    const staff = me.role !== "client";
+
+    const { data: profile } = await db
+      .from("profiles").select("name").eq("id", me.id).maybeSingle<{ name: string }>();
+    name = profile?.name ?? "";
+
+    // Klient vidí své, tým celý provoz.
+    let tq = db.from("tickets").select("stake, profit, odds, clv, state");
+    if (!staff) tq = tq.eq("user_id", me.id);
+    const { data: tRows } = await tq.limit(2000);
+
+    const all = (tRows ?? []) as { stake: number; profit: number; odds: number; clv: number | null; state: string }[];
+    openCount = all.filter((t) => t.state === "open").length;
+    tickets = all
+      .filter((t) => t.state !== "open")
+      .map((t) => ({ stake: Number(t.stake), profit: Number(t.profit), odds: Number(t.odds), clv: t.clv }));
+
+    const { data: bal } = await db.rpc("bankroll_balance", { uid: me.id });
+    balance = Number(bal ?? 0);
+
+    if (staff) {
+      const { count: c } = await db
+        .from("profiles").select("id", { count: "exact", head: true }).eq("role", "client");
+      clients = c ?? 0;
+
+      const { count: cc } = await db
+        .from("candidates").select("id", { count: "exact", head: true }).eq("status", "pending");
+      candidates = cc ?? 0;
+
+      const { data: run } = await db
+        .from("engine_runs").select("started_at")
+        .order("started_at", { ascending: false }).limit(1)
+        .maybeSingle<{ started_at: string }>();
+      lastRun = run?.started_at ?? null;
+    }
+  } catch (err) {
+    failed = true;
+    log("error", "prehled", "načtení přehledu selhalo", {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+
+  const perf = performance(tickets);
+  const staff = me.role !== "client";
+  const first = name.split(" ")[0];
+  const ago = lastRun ? Math.round((Date.now() - new Date(lastRun).getTime()) / 60000) : null;
 
   return (
     <>
       <PageTitle
         title={first ? `Vítej zpět, ${first}` : "Přehled"}
-        lead="Dnes potřebují pozornost dvě věci — motor tři hodiny neskenuje a dvě platby neprošly."
+        lead={
+          perf.count === 0 && openCount === 0
+            ? "Zatím tu nejsou žádná data. Objeví se, jakmile projde první tiket."
+            : confidenceNote(perf)
+        }
       />
 
-      <Alert
-        tone="bad"
-        title="Motor tři hodiny neskenuje."
-        detail="Došla kvóta u poskytovatele kurzů. Zatím to nikdo nepozná, protože prázdný sken vypadá stejně jako den bez příležitostí."
-        action="Řešit"
-      />
-      <Alert
-        tone="warn"
-        title="Dvě platby neprošly."
-        detail="Expirovaná karta, členství končí do tří dnů."
-        action="Řešit"
-      />
+      {failed && (
+        <div className="adm-alert adm-alert--bad">
+          <span className="adm-alert__text">
+            <span className="adm-alert__title">Načtení dat selhalo.</span>{" "}
+            <span className="adm-alert__detail">Zkus stránku načíst znovu.</span>
+          </span>
+        </div>
+      )}
 
-      <div className="adm-cards" style={{ marginTop: 18 }}>
-        <Stat label="Tržby za 30 dní" value="684 200" unit="Kč" note="↗ 18,4 %" tone="good" />
-        <Stat label="Platí klientů" value="312" note="↗ +7 čistě" tone="good" />
-        <Stat label="Vydané tipy" value="148" note="3 čekají na schválení" />
-        <Stat label="Úspěšnost tipů" value="54,7" unit="%" note="± 4,1 · vzorek je malý" tone="warn" />
+      <div className="adm-cards">
+        <Stat
+          label={staff ? "Bankroll (tvůj)" : "Bankroll"}
+          value={balance.toLocaleString("cs-CZ")}
+          unit="Kč"
+          note="součet účetní knihy"
+        />
+        <Stat label="Vyhodnocené tikety" value={String(perf.count)} note={`${openCount} otevřených`} />
+        <Stat
+          label="CLV"
+          value={perf.avgClv === null ? "—" : `${perf.avgClv > 0 ? "+" : ""}${perf.avgClv}`}
+          unit={perf.avgClv === null ? undefined : "%"}
+          note={perf.clvCount ? `z ${perf.clvCount} tiketů` : "zatím bez uzavíracích kurzů"}
+          tone={perf.avgClv !== null && perf.avgClv > 0 ? "good" : "neutral"}
+        />
+        <Stat
+          label="ROI"
+          value={perf.count ? `${perf.roi > 0 ? "+" : ""}${perf.roi}` : "—"}
+          unit={perf.count ? "%" : undefined}
+          note={perf.roiInterval ? `${perf.roiInterval[0]} až ${perf.roiInterval[1]}` : "vzorek je malý"}
+          tone={perf.proven ? "good" : "warn"}
+        />
       </div>
 
-      <Panel
-        title="Špatný týden se v odchodech projeví až za dva"
-        lead="Zeleně zisk tipů po týdnech, dole zrušená členství. Ztrátový týden přijde zhruba devatenáctkrát ročně i při funkčním motoru — není to poplach, ale předstih na obvolání klientů."
-      >
-        <svg viewBox="0 0 560 96" style={{ width: "100%", height: 96, display: "block" }} role="img"
-             aria-label="Týdenní zisk tipů nad osou a zrušená členství pod osou, odchody následují se zpožděním dvou týdnů">
-          <line x1="0" y1="48" x2={w} y2="48" stroke="rgba(126,240,168,.16)" strokeWidth="1" />
-          {WEEKS.map((d, i) => {
-            const x = i * step + 6;
-            const h = Math.abs(d.profit);
-            return (
-              <rect key={`p${i}`} x={x} y={48 - h} width={bw} height={h} rx="3"
-                    fill={d.profit >= 0 ? "#7ef0a8" : "#ff6b6b"} opacity="0.9" />
-            );
-          })}
-          {WEEKS.map((d, i) => (
-            <rect key={`c${i}`} x={i * step + 6} y="48" width={bw} height={d.churn} rx="3"
-                  fill="#ff6b6b" opacity="0.45" />
-          ))}
-        </svg>
-      </Panel>
-
-      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))" }}>
-        <Panel title="Živé tipy">
+      {perf.count > 0 && (
+        <Panel title="Výsledky" lead={confidenceNote(perf)}>
           <div style={{ marginTop: 10 }}>
-            <Row label="Real Madrid – Arsenal" value="1.86" meta="live 72′" tone="good" />
-            <Row label="Bruins – Maple Leafs" value="2.14" meta="live 58′" tone="good" />
-            <Row label="Bayern – Liverpool" value="1.72" meta="dnes 21:00" />
+            <Row label="Výhry" value={String(perf.won)} tone="good" />
+            <Row label="Prohry" value={String(perf.lost)} />
+            <Row label="Zrušené" value={String(perf.void)} />
+            <Row label="Úspěšnost" value={`${perf.winRate} %`} meta={`průměrný kurz ${perf.avgOdds}`} />
+            <Row
+              label="Zisk"
+              value={`${perf.profit > 0 ? "+" : ""}${perf.profit.toLocaleString("cs-CZ")} Kč`}
+              tone={perf.profit >= 0 ? "good" : "bad"}
+              meta={`vsazeno ${perf.staked.toLocaleString("cs-CZ")} Kč`}
+            />
           </div>
         </Panel>
+      )}
 
-        <Panel title="Čeká na tebe">
+      {staff && (
+        <Panel title="Provoz">
           <div style={{ marginTop: 10 }}>
-            <Row label="Motor neskenuje" value="3 h" tone="bad" />
-            <Row label="Neprošlé platby" value="2" tone="warn" />
-            <Row label="Dotazy klientů" value="9" meta="2 přes den" />
-            <Row label="Tikety ke schválení" value="3" />
+            <Row label="Klientů" value={String(clients)} />
+            <Row label="Kandidátů ke schválení" value={String(candidates)} tone={candidates > 0 ? "warn" : "neutral"} />
+            <Row
+              label="Poslední hledání"
+              value={ago === null ? "neproběhlo" : ago < 1 ? "právě teď" : `před ${ago} min`}
+            />
           </div>
         </Panel>
-      </div>
-
-      <div className="adm-actions">
-        <button className="adm-btn adm-btn--primary">
-          <i className="ti ti-plus" aria-hidden="true" />
-          Nový tip
-        </button>
-        <button className="adm-btn">
-          <i className="ti ti-user-plus" aria-hidden="true" />
-          Nový klient
-        </button>
-        <button className="adm-btn">
-          <i className="ti ti-file-text" aria-hidden="true" />
-          Report
-        </button>
-      </div>
+      )}
     </>
   );
 }
