@@ -13,13 +13,32 @@ export async function GET() {
   return NextResponse.json({ demoClients: await demoCount() });
 }
 
-/** Naplní databázi ukázkovými daty. Jen admin. */
+/**
+ * Naplní databázi ukázkovými daty. Jen admin.
+ *
+ * Dva režimy:
+ *   výchozí        — historie pro ukázku klientovi (12 účtů, ~200 tiketů)
+ *   ?mode=pipeline — pár nálezů projde skutečnou cestou motorem,
+ *                    schválením a rozesláním; ověří, že řetězec drží
+ */
 export async function POST(req: Request) {
-  if (!(await requireAdmin())) {
+  const me = await requireAdmin();
+  if (!me) {
     return NextResponse.json({ error: "Nepovoleno." }, { status: 403 });
   }
 
   const url = new URL(req.url);
+
+  if (url.searchParams.get("mode") === "pipeline") {
+    const { runPipelineSeed } = await import("@/lib/seed/pipeline");
+    try {
+      return NextResponse.json(await runPipelineSeed(me.id));
+    } catch (err) {
+      console.error("[seed:pipeline]", err);
+      return NextResponse.json({ error: "Průchod pipeline selhal." }, { status: 500 });
+    }
+  }
+
   const count = Math.min(30, Math.max(1, Number(url.searchParams.get("clients") ?? 12)));
   const seed = Number(url.searchParams.get("seed") ?? 42);
 

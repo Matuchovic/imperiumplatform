@@ -134,7 +134,11 @@ export async function seedDemo(count = 12, seed = 42): Promise<SeedResult> {
   });
 
   const summary = sanityCheck(data);
-  log("info", "seed", "ukázková data zapsána", { clients, tickets, entries, candidates, ...summary });
+  // summary má vlastní pole `tickets` (vyhodnocené) — pod stejným jménem
+  // by přepsalo počet zapsaných. Proto vnořené, ne rozbalené.
+  log("info", "seed", "ukázková data zapsána", {
+    clients, tickets, entries, candidates, summary,
+  });
 
   return { clients, tickets, entries, candidates, summary };
 }
@@ -143,6 +147,17 @@ export async function seedDemo(count = 12, seed = 42): Promise<SeedResult> {
 export async function wipeDemo(): Promise<{ deleted: Record<string, number> }> {
   const db = serviceClient();
   const deleted: Record<string, number> = {};
+
+  // Účty z režimu pipeline vznikly v auth.users — smazat je musíme
+  // zvlášť, jinak by zůstaly osiřelé bez profilu.
+  const { data: demoProfiles } = await db
+    .from("profiles").select("id").eq("is_demo", true);
+
+  for (const p of (demoProfiles ?? []) as { id: string }[]) {
+    await db.auth.admin.deleteUser(p.id).catch(() => {
+      // Profil bez účtu v auth je běžný — generátor historie je tak vyrábí.
+    });
+  }
 
   // Pořadí podle závislostí — nejdřív potomci.
   for (const table of ["bankroll_entries", "tickets", "candidates", "profiles"]) {
