@@ -10,11 +10,12 @@ const STEPS = [
   { label: "Navazuji zabezpečené spojení", meta: "TLS" },
   { label: "Načítám systém", meta: "v2.4.1" },
   { label: "Synchronizuji kurzy", meta: "6 zdrojů" },
+  { label: "Kontroluji dostupnost kurzů", meta: "online" },
   { label: "Připravuji přihlášení", meta: "" },
 ];
 
-const STEP_MS = 260;
-const INTRO_MS = 900;
+const STEP_MS = 420;
+const INTRO_MS = 1400;
 const OUTRO_MS = 420;
 
 export default function BootScreen({ onDone }: { onDone: () => void }) {
@@ -41,7 +42,7 @@ export default function BootScreen({ onDone }: { onDone: () => void }) {
     STEPS.forEach((_, i) => {
       timers.push(window.setTimeout(() => setStep(i), INTRO_MS + i * STEP_MS));
     });
-    timers.push(window.setTimeout(skip, INTRO_MS + STEPS.length * STEP_MS + 260));
+    timers.push(window.setTimeout(skip, INTRO_MS + STEPS.length * STEP_MS + 420));
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "Enter") skip();

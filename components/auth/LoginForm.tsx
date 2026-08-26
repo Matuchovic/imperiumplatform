@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import WelcomeScreen from "@/components/welcome/WelcomeScreen";
 
 type Errors = { email?: string; password?: string; form?: string };
 
@@ -16,6 +17,7 @@ export default function LoginForm() {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+  const [welcome, setWelcome] = useState<{ name: string; plan: string } | null>(null);
 
   function validate(): boolean {
     const e: Errors = {};
@@ -49,7 +51,7 @@ export default function LoginForm() {
 
     // Odpověď nemusí být JSON (např. chybová stránka platformy). Když parsování
     // selže, není to výpadek sítě — server odpověděl, jen jinak, než čekáme.
-    let data: { error?: string } | null = null;
+    let data: { error?: string; user?: { name: string; plan: string } } | null = null;
     try {
       data = await res.json();
     } catch {
@@ -64,8 +66,23 @@ export default function LoginForm() {
       return;
     }
 
-    router.push(next);
-    router.refresh();
+    // Uvítání běží, zatímco se na pozadí přednačítá dashboard —
+    // po dokončení sekvence je přechod okamžitý.
+    router.prefetch(next);
+    setWelcome({ name: data?.user?.name ?? "", plan: data?.user?.plan ?? "" });
+  }
+
+  if (welcome) {
+    return (
+      <WelcomeScreen
+        name={welcome.name}
+        plan={welcome.plan}
+        onDone={() => {
+          router.push(next);
+          router.refresh();
+        }}
+      />
+    );
   }
 
   return (

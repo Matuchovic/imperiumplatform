@@ -653,3 +653,157 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .skeleton { animation: none; }
 }
+
+/* ============================================================
+   UVÍTÁNÍ — po přihlášení. Sdílí řádky a pruh s bootem,
+   ale je klidné: systém tě poznal, nic se neláme.
+   ============================================================ */
+
+.wel {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(90% 70% at 50% 30%, #0a1a12 0%, #050706 65%);
+  transition: opacity 420ms ease, filter 420ms ease;
+}
+.wel--out { opacity: 0; filter: blur(10px); pointer-events: none; }
+
+.wel__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(126, 240, 168, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(126, 240, 168, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(85% 75% at 50% 40%, #000 15%, transparent 82%);
+  -webkit-mask-image: radial-gradient(85% 75% at 50% 40%, #000 15%, transparent 82%);
+}
+.wel__scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(rgba(126, 240, 168, 0), rgba(126, 240, 168, 0.045), rgba(126, 240, 168, 0));
+  animation: boot-scan 8s linear infinite;
+}
+
+.wel__center {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.wel__eyebrow {
+  margin: 0;
+  font-family: var(--font-data);
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(126, 240, 168, 0.7);
+  animation: wel-eyebrow 700ms ease-out both;
+}
+@keyframes wel-eyebrow {
+  from { opacity: 0; letter-spacing: 0.6em; }
+  to   { opacity: 1; letter-spacing: 0.34em; }
+}
+
+.wel__name-wrap { position: relative; overflow: hidden; margin-top: 12px; padding: 2px 10px; }
+
+.wel__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 7vw, 42px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: #f2fff7;
+  text-shadow: 0 0 30px rgba(126, 240, 168, 0.45);
+  animation: wel-name 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes wel-name {
+  from { opacity: 0; filter: blur(20px); transform: translateY(10px); }
+  to   { opacity: 1; filter: blur(0);    transform: none; }
+}
+
+.wel__sweep {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+  mix-blend-mode: screen;
+  filter: blur(6px);
+  animation: wel-sweep 1200ms ease-out 500ms both;
+}
+@keyframes wel-sweep {
+  from { transform: translateX(-160%) skewX(-16deg); }
+  to   { transform: translateX(320%)  skewX(-16deg); }
+}
+
+.wel__sub {
+  margin: 12px 0 0;
+  font-family: var(--font-data);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(143, 163, 150, 0.6);
+  animation: wel-eyebrow 700ms ease-out 150ms both;
+}
+
+.wel__list {
+  width: 100%;
+  max-width: 400px;
+  margin: 30px 0 0;
+  padding: 16px 0 0;
+  list-style: none;
+  border-top: 1px solid rgba(126, 240, 168, 0.12);
+}
+
+.wel__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 22px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 380ms ease, transform 380ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.wel__tiles--in { opacity: 1; transform: none; }
+
+.wel__tile {
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: rgba(12, 19, 16, 0.75);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+}
+.wel__tile-label {
+  margin: 0;
+  font-family: var(--font-data);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: #5b6c61;
+}
+.wel__tile-value {
+  margin: 5px 0 0;
+  font-family: var(--font-data);
+  font-size: 15px;
+  color: #ecfdf2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wel__scan, .wel__eyebrow, .wel__name, .wel__sweep, .wel__sub { animation: none !important; }
+  .wel__eyebrow, .wel__name, .wel__sub { opacity: 1; filter: none; transform: none; }
+  .wel__sweep { display: none; }
+  .wel__tiles { transition: none; }
+}
