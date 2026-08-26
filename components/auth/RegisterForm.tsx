@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 type Errors = {
   name?: string;
@@ -35,6 +36,7 @@ export default function RegisterForm() {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+  const [sent, setSent] = useState(false);
 
   const pw = strength(password);
 
@@ -61,34 +63,53 @@ export default function RegisterForm() {
     setBusy(true);
     setErrors({});
 
-    let res: Response;
-    try {
-      res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, birthDate, terms, marketing }),
+    const supabase = supabaseBrowser();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        // Metadata přebírá databázový trigger a založí z nich profil.
+        data: { name: name.trim(), birth_date: birthDate, marketing_ok: marketing },
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
+    });
+
+    if (error) {
+      setErrors({
+        form:
+          error.message.includes("already registered")
+            ? "Na tenhle e-mail už účet existuje. Zkus se přihlásit."
+            : `Registrace se nepodařila: ${error.message}`,
       });
-    } catch {
-      setErrors({ form: "Nepodařilo se spojit se serverem. Zkontroluj připojení." });
       setBusy(false);
       return;
     }
 
-    let data: { error?: string } | null = null;
-    try {
-      data = await res.json();
-    } catch {
-      data = null;
-    }
-
-    if (!res.ok) {
-      setErrors({ form: data?.error ?? `Registrace se nepodařila (chyba ${res.status}).` });
+    // Se zapnutým potvrzením e-mailu session zatím nevznikne.
+    if (!data.session) {
+      setSent(true);
       setBusy(false);
       return;
     }
 
     router.push("/dashboard");
     router.refresh();
+  }
+
+  if (sent) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-6 text-center">
+        <span className="pulse-dot" />
+        <p className="text-[15px] text-chalk">Zkontroluj e-mail</p>
+        <p className="max-w-xs text-[13px] leading-relaxed text-ash">
+          Poslali jsme ti odkaz na <span className="text-chalk">{email}</span>.
+          Bez potvrzení se účet neaktivuje.
+        </p>
+        <a href="/login" className="mt-2 text-[13px] text-signal hover:underline">
+          Zpět na přihlášení
+        </a>
+      </div>
+    );
   }
 
   return (

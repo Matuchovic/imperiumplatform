@@ -1,10 +1,15 @@
-import { cookies } from "next/headers";
-import { readSession, SESSION_COOKIE } from "@/lib/session";
+import { supabaseServer } from "@/lib/supabase/server";
 import { Card, PageHeader } from "@/components/dashboard/ui";
 
 export default async function Nastaveni() {
-  const store = await cookies();
-  const session = await readSession(store.get(SESSION_COOKIE)?.value);
+  const supabase = await supabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: session } = await supabase
+    .from("profiles")
+    .select("name, plan")
+    .eq("id", user!.id)
+    .maybeSingle();
+  const email = user?.email ?? "";
 
   return (
     <>
@@ -15,7 +20,7 @@ export default async function Nastaveni() {
           <p className="eyebrow mb-4">Profil</p>
           {[
             ["Jméno", session?.name ?? ""],
-            ["E-mail", session?.email ?? ""],
+            ["E-mail", email],
             ["Plán", session?.plan ?? ""],
             ["Členem od", "1. 3. 2026"],
           ].map(([k, v], i) => (

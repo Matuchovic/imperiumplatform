@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import WelcomeScreen from "@/components/welcome/WelcomeScreen";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 type Errors = { email?: string; password?: string; form?: string };
 
@@ -35,41 +36,29 @@ export default function LoginForm() {
     setBusy(true);
     setErrors({});
 
-    let res: Response;
-    try {
-      res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, remember }),
-      });
-    } catch {
-      // Sem se dostaneme jen když požadavek vůbec neodejde — skutečný výpadek sítě.
-      setErrors({ form: "Nepodařilo se spojit se serverem. Zkontroluj připojení." });
-      setBusy(false);
-      return;
-    }
+    const supabase = supabaseBrowser();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    // Odpověď nemusí být JSON (např. chybová stránka platformy). Když parsování
-    // selže, není to výpadek sítě — server odpověděl, jen jinak, než čekáme.
-    let data: { error?: string; user?: { name: string; plan: string } } | null = null;
-    try {
-      data = await res.json();
-    } catch {
-      data = null;
-    }
-
-    if (!res.ok) {
+    if (error) {
+      // Supabase vrací stejnou hlášku pro neexistující účet i špatné heslo —
+      // neprozrazuje tím, které e-maily jsou registrované.
       setErrors({
-        form: data?.error ?? `Přihlášení se nepodařilo (chyba ${res.status}).`,
+        form:
+          error.message === "Invalid login credentials"
+            ? "E-mail nebo heslo nesouhlasí."
+            : error.message === "Email not confirmed"
+            ? "Nejdřív potvrď e-mail podle odkazu, který jsme ti poslali."
+            : `Přihlášení se nepodařilo: ${error.message}`,
       });
       setBusy(false);
       return;
     }
 
-    // Uvítání běží, zatímco se na pozadí přednačítá dashboard —
-    // po dokončení sekvence je přechod okamžitý.
     router.prefetch(next);
-    setWelcome({ name: data?.user?.name ?? "", plan: data?.user?.plan ?? "" });
+    setWelcome({
+      name: (data.user?.user_metadata?.name as string) ?? email.split("@")[0],
+      plan: (data.user?.user_metadata?.plan as string) ?? "start",
+    });
   }
 
   if (welcome) {
@@ -215,7 +204,7 @@ export default function LoginForm() {
             )}
           </span>
         </span>
-        Zůstat přihlášen 30 dní
+        Zůstat přihlášen
       </label>
 
       <button type="submit" className="btn-primary mt-1" disabled={busy}>

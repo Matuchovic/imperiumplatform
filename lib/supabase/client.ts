@@ -1,17 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
-/**
- * Klient pro prohlížeč. Anon klíč je veřejný záměrně — co s ním jde
- * přečíst, určují výhradně RLS politiky v databázi. Bez nich by byl
- * veřejný klíč veřejná data.
- */
-export function browserClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !key) {
-    throw new Error("Chybí veřejné Supabase proměnné.");
-  }
-
-  return createClient(url, key);
+/** Klient pro prohlížeč. Anon klíč je veřejný, chrání ho RLS. */
+export function supabaseBrowser() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 }

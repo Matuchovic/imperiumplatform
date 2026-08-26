@@ -1,12 +1,17 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { readSession, SESSION_COOKIE } from "@/lib/session";
+import { supabaseServer } from "@/lib/supabase/server";
 import { ACCOUNT, EQUITY, TICKETS, goalPct, unitSize } from "@/lib/data";
 import { Card, Disclaimer, PageHeader, Sparkline, Stat, StateBadge } from "@/components/dashboard/ui";
 
 export default async function Prehled() {
-  const store = await cookies();
-  const session = await readSession(store.get(SESSION_COOKIE)?.value);
+  const supabase = await supabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: session } = await supabase
+    .from("profiles")
+    .select("name, plan")
+    .eq("id", user!.id)
+    .maybeSingle();
+  const email = user?.email ?? "";
   const pct = goalPct();
 
   return (
