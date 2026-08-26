@@ -6,4 +6,13 @@ export interface OddsProvider {
   fetchOdds(sports: string[]): Promise<MatchOdds[]>;
   /** Syrová odpověď pro ověření tvaru dat. Bez toho se ladí naslepo. */
   probe?(sport: string): Promise<unknown>;
+  /**
+   * Kurz těsně před výkopem — podklad pro CLV.
+   * Volitelné: ne každý poskytovatel ho umí a bez CLV motor běží dál.
+   */
+  closingOdds?(
+    eventId: string,
+    market: string,
+    selection: string
+  ): Promise<number | null>;
 }

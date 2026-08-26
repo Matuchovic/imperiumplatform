@@ -39,8 +39,8 @@ export async function POST(req: Request) {
     if (scan.candidates.length > 0) {
       await db.from("candidates").insert(
         scan.candidates.map((c) => ({
-          event_id: c.eventId,
-          league: c.league,
+          event_id: c.matchId,
+          league: c.sport,
           event_name: c.event,
           market: c.market,
           selection: c.selection,
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
           threshold_odds: c.thresholdOdds,
           ev: c.ev,
           units: c.units,
-          commence_at: c.commenceAt,
+          commence_at: c.commenceTime,
           status: c.blocked ? "rejected" : auto.includes(c) ? "approved" : "pending",
           blocked_reason: c.blocked ?? null,
         }))

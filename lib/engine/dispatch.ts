@@ -21,7 +21,6 @@ type Profile = {
   bankroll: number;
   unit_pct: number;
   subscribed_bands: string[] | null;
-  default_week_limit: number | null;
   role: string;
 };
 
