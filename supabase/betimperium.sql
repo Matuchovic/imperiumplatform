@@ -278,6 +278,7 @@ alter table tickets    add column if not exists band text
   check (band in ('zaklad','standard','rozsireny','odvazny'));
 
 create index if not exists candidates_band on candidates (band, status, created_at desc);
+create index if not exists candidates_league on candidates (league);
 
 alter table profiles add column if not exists subscribed_bands text[]
   not null default array['zaklad','standard'];
@@ -572,7 +573,30 @@ as $$ delete from public.job_locks where job_key = p_job_key and holder = p_hold
 alter table job_locks enable row level security;
 
 
--- ── 13. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
+-- ── 13. UKÁZKOVÁ DATA ────────────────────────────────────────
+-- Ukázka se od skutečných dat liší jediným příznakem. Díky němu jde
+-- smazat jedním dotazem a nikdy se nesmíchá se živým provozem.
+
+alter table profiles         add column if not exists is_demo boolean not null default false;
+alter table tickets          add column if not exists is_demo boolean not null default false;
+alter table candidates       add column if not exists is_demo boolean not null default false;
+alter table bankroll_entries add column if not exists is_demo boolean not null default false;
+
+create index if not exists profiles_demo         on profiles (is_demo) where is_demo;
+create index if not exists tickets_demo          on tickets (is_demo) where is_demo;
+create index if not exists candidates_demo       on candidates (is_demo) where is_demo;
+create index if not exists bankroll_entries_demo on bankroll_entries (is_demo) where is_demo;
+
+-- Ukázkový profil nemá účet v auth.users, takže cizí klíč musí povolit
+-- volné id. Skutečné účty vazbu dál mají přes trigger při registraci.
+alter table profiles drop constraint if exists profiles_id_fkey;
+
+-- Pozn.: CHECK s poddotazem PostgreSQL nepodporuje, takže vazbu
+-- skutečných profilů na účty hlídá trigger při registraci a příznak
+-- is_demo odlišuje ukázkové řádky.
+
+
+-- ── 14. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
 -- Zásada: klientský klíč nevidí nic než vlastní řádky.
 -- Zapnuté RLS bez politiky = tabulka je pro anon klíč neviditelná.
 
@@ -617,7 +641,7 @@ create policy "vlastni tikety" on tickets
 -- jen server přes service_role.
 
 
--- ── 14. PRVNÍ ADMIN ──────────────────────────────────────────
+-- ── 15. PRVNÍ ADMIN ──────────────────────────────────────────
 -- Uprav e-mail na svůj.
 
 update profiles set role = 'admin'
