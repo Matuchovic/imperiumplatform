@@ -23,7 +23,7 @@ export default function LoginForm() {
   function validate(): boolean {
     const e: Errors = {};
     if (!email.trim()) e.email = "Zadej e-mail.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) e.email = "Tenhle e-mail nemá platný tvar.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) e.email = "E-mail nemá platný tvar.";
     if (!password) e.password = "Zadej heslo.";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -47,7 +47,7 @@ export default function LoginForm() {
           error.message === "Invalid login credentials"
             ? "E-mail nebo heslo nesouhlasí."
             : error.message === "Email not confirmed"
-            ? "Nejdřív potvrď e-mail podle odkazu, který jsme ti poslali."
+            ? "Nejprve potvrďte e-mail podle odkazu, který jsme vám poslali."
             : `Přihlášení se nepodařilo: ${error.message}`,
       });
       setBusy(false);
@@ -112,7 +112,7 @@ export default function LoginForm() {
             type="email"
             autoComplete="email"
             inputMode="email"
-            placeholder="tvuj@email.cz"
+            placeholder="jmeno@betimperium.cz"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             aria-invalid={Boolean(errors.email)}
@@ -233,14 +233,12 @@ export default function LoginForm() {
         <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
           <path d="M21.8 4.2 2.9 11.5c-1 .4-1 1.8 0 2.2l4.8 1.6 1.8 5.5c.3.9 1.4 1.1 2 .4l2.6-2.7 4.9 3.6c.7.5 1.7.1 1.9-.7l3-15.3c.2-.9-.7-1.6-1.5-1.3Z" />
         </svg>
-        Pokračovat přes Telegram
+        Přihlásit firemním účtem
       </button>
 
-      <p className="mt-2 text-center text-[13px] text-ash">
-        Ještě nemáš účet?{" "}
-        <a href="/registrace" className="font-medium text-signal hover:underline">
-          Založ si ho
-        </a>
+      <p className="mt-4 border-t border-signal/10 pt-4 text-center text-[12.5px] leading-relaxed text-ash-2">
+        Účty zřizuje správce systému. Potřebujete-li přístup, obraťte se
+        na svého nadřízeného.
       </p>
     </form>
   );

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import LoginForm from "@/components/auth/LoginForm";
 import Logo from "@/components/brand/Logo";
+import { VERZE } from "@/lib/verze";
 import BootGate from "@/components/boot/BootGate";
 
 /* Skořápka bez uživatelských dat — může se předgenerovat
@@ -37,18 +38,26 @@ export default function LoginPage() {
                 Systém běží
               </span>
             </span>
-            <span className="data text-[11px] text-ash-2">66 členů online</span>
+            <span className="data text-[11px] text-ash-2">v{VERZE}</span>
           </div>
 
           <h1 className="display text-[26px] font-semibold leading-tight text-chalk">
-            Přihlas se ke svému účtu
+            Přihlášení
           </h1>
           <p className="mb-6 mt-1.5 text-[14px] leading-relaxed text-ash">
-            Uvidíš svůj plán, historii tiketů a stav bankrollu.
+            Zadejte přihlašovací údaje ke svému účtu.
           </p>
 
           <Suspense fallback={<div className="h-[420px]" />}>
             <LoginForm />
+
+        <p className="data mt-5 flex flex-wrap justify-center gap-x-3 gap-y-1 text-center text-[9.5px] tracking-[0.12em] text-ash-2">
+          <span>BETIMPERIUM s.r.o.</span>
+          <span aria-hidden="true">·</span>
+          {/* Až vznikne testovací instance, tohle je jediná věc, která
+              zabrání práci v ostrém provozu omylem. */}
+          <span>{process.env.NEXT_PUBLIC_PROSTREDI ?? "PRODUKČNÍ PROSTŘEDÍ"}</span>
+        </p>
           </Suspense>
         </section>
 
