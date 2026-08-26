@@ -4,12 +4,16 @@ import LoginForm from "@/components/auth/LoginForm";
 import Logo from "@/components/brand/Logo";
 import BootGate from "@/components/boot/BootGate";
 
+/* Skořápka bez uživatelských dat — může se předgenerovat
+   a servírovat z okraje sítě místo vykreslení na serveru. */
+export const dynamic = "force-static";
+
 export default function LoginPage() {
   return (
     <BootGate>
     <main className="relative flex min-h-dvh items-center justify-center px-5 py-10">
       <div className="page-bg" aria-hidden="true">
-        <ScaleField direction="out" />
+        <ScaleField variant="still" />
         <div className="page-bg__lift" />
         <div className="page-bg__edge" />
       </div>

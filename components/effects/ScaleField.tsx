@@ -13,8 +13,15 @@ import { useEffect, useRef } from "react";
  */
 export default function ScaleField({
   direction = "out",
+  variant = "wave",
 }: {
   direction?: "out" | "in";
+  /**
+   * wave  — vlna běží (úvodní obrazovky, které proběhnou a zmizí)
+   * still — jeden statický snímek (stránky, na kterých se pracuje;
+   *         pohyb za formulářem odvádí pozornost od čtení)
+   */
+  variant?: "wave" | "still";
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -24,9 +31,11 @@ export default function ScaleField({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced =
+      variant === "still" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    type Scale = { x: number; y: number; r: number; phase: number; deep: boolean; angle: number };
+    type Scale = { x: number; y: number; r: number; phase: number; deep: boolean };
     let scales: Scale[] = [];
     let dpr = 1;
     let raf = 0;
@@ -82,32 +91,16 @@ export default function ScaleField({
             r: SIZE * 0.42,
             phase: (travel * SPEED) % CYCLE,
             deep: (r * 7 + c * 13) % 3 === 0,
-            // Rozmáznutí míří po směru šíření vlny, ne nahodile.
-            angle: Math.atan2(dy, dx),
           });
         }
       }
       scales = next;
     }
 
-    /*
-     * Vlna má tři fáze. Nejdřív dorazí rozmazaný pás, který šupinu
-     * roztáhne po směru šíření. Pak se roztažení stáhne a šupina se
-     * ukáže ostrá. Nakonec pomalu zhasne, než přijde další vlna.
-     *
-     * p = 0 v okamžiku, kdy k šupině vlna dorazí.
-     */
-
-    /** Roztažení — nejsilnější na náběžné hraně, do 22 % cyklu zmizí. */
-    function smear(p: number) {
-      return p < 0.22 ? 1 - p / 0.22 : 0;
-    }
-
-    /** Viditelnost — rychlý náběh, výdrž, pomalé doznění. */
-    function reveal(p: number) {
-      if (p < 0.09) return p / 0.09;
-      if (p < 0.42) return 1;
-      return Math.max(0, 1 - (p - 0.42) / 0.5);
+    /** Průběh hřebene: rychlý náběh, pomalejší doznění. */
+    function crest(p: number) {
+      if (p > 0.33) return 0;
+      return p < 0.1 ? p / 0.1 : 1 - (p - 0.1) / 0.23;
     }
 
     function draw(nowMs: number) {
@@ -116,44 +109,30 @@ export default function ScaleField({
       ctx!.clearRect(0, 0, W, H);
 
       const t = nowMs / 1000;
+      const still = variant === "still";
 
       for (let i = 0; i < scales.length; i++) {
         const s = scales[i];
-        const p = ((t + s.phase) % CYCLE) / CYCLE;
-
-        const sm = smear(p);
-        const rv = reveal(p);
+        const k = still ? 0 : crest(((t + s.phase) % CYCLE) / CYCLE);
 
         // Klidový stav — pole nesmí mezi vlnami zmizet úplně.
-        const base = s.deep ? 0.03 : 0.045;
-        const peak = s.deep ? 0.46 : 0.56;
-        const alpha = base + (peak - base) * rv;
-        if (alpha < 0.02) continue;
+        const base = still ? (s.deep ? 0.02 : 0.03) : s.deep ? 0.035 : 0.055;
+        const peak = s.deep ? 0.5 : 0.58;
+        const alpha = base + (peak - base) * k;
+        if (alpha < 0.015) continue;
 
-        const stretch = 1 + 2.1 * sm;
-        const radius = s.r * (1 + 0.06 * rv);
+        const radius = s.r * (1 + (s.deep ? 0.1 : 0.08) * k);
 
-        ctx!.lineWidth = s.deep ? 1.8 - 0.8 * rv : 1;
+        // Hloubka bez rozostření: širší a řidší tah čte oko jako neostrý
+        // objekt a stojí zlomek toho co gaussián.
+        ctx!.lineWidth = s.deep ? 2.2 - 1.2 * k : 1;
         ctx!.strokeStyle = s.deep
           ? "rgba(170,250,208," + alpha + ")"
           : "rgba(150,245,195," + alpha + ")";
 
-        if (stretch > 1.04) {
-          // Rozmáznutí místo gaussiánu: šupina se natáhne po směru vlny.
-          // Oko to čte jako pohybovou neostrost a stojí to zlomek.
-          ctx!.save();
-          ctx!.translate(s.x, s.y);
-          ctx!.rotate(s.angle);
-          ctx!.scale(stretch, 1);
-          ctx!.beginPath();
-          ctx!.arc(0, 0, radius, 0, Math.PI);
-          ctx!.stroke();
-          ctx!.restore();
-        } else {
-          ctx!.beginPath();
-          ctx!.arc(s.x, s.y, radius, 0, Math.PI);
-          ctx!.stroke();
-        }
+        ctx!.beginPath();
+        ctx!.arc(s.x, s.y, radius, 0, Math.PI);
+        ctx!.stroke();
       }
     }
 
@@ -195,7 +174,7 @@ export default function ScaleField({
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [direction]);
+  }, [direction, variant]);
 
   return (
     <div className="sf" aria-hidden="true">

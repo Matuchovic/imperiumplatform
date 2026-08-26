@@ -7,24 +7,29 @@ import ClientBoot from "@/components/pwa/Register";
    Outfit        — display, nese identitu značky
    Inter         — běžný text a UI
    JetBrains Mono — čísla, kurzy, ID tiketů (v sázkařství je číslo obsah) */
+/* Bez uvedení weight sáhne next/font po variabilní verzi: jeden soubor
+   místo čtyř na každou podmnožinu znaků. Ze šestnácti souborů písem
+   je rázem šest. */
 const outfit = Outfit({
   subsets: ["latin", "latin-ext"],
   variable: "--font-outfit",
-  weight: ["500", "600", "700", "800"],
   display: "swap",
+  preload: true,
 });
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
   variable: "--font-inter",
   display: "swap",
+  preload: true,
 });
 
 const mono = JetBrains_Mono({
   subsets: ["latin", "latin-ext"],
   variable: "--font-mono",
-  weight: ["400", "500", "600"],
   display: "swap",
+  // Mono nese jen čísla a popisky — smí dorazit až po textu.
+  preload: false,
 });
 
 export const metadata: Metadata = {

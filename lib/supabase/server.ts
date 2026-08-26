@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { requirePublicEnv } from "./env";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
@@ -26,8 +27,14 @@ export async function supabaseServer() {
   });
 }
 
-/** Přihlášený uživatel, nebo null. Nikdy nehodí výjimku. */
-export async function currentUser() {
+/**
+ * Přihlášený uživatel, nebo null. Nikdy nehodí výjimku.
+ *
+ * Obalené v cache(): layout i stránka volaly getUser() zvlášť, což byla
+ * dvě samostatná kola k Supabase na každé načtení. cache() drží výsledek
+ * po dobu jednoho požadavku, takže síť se dotkne jen prvního volání.
+ */
+export const currentUser = cache(async function currentUser() {
   try {
     const supabase = await supabaseServer();
     const { data } = await supabase.auth.getUser();
@@ -36,7 +43,7 @@ export async function currentUser() {
     console.error("[auth] čtení uživatele selhalo:", err);
     return null;
   }
-}
+});
 
 /**
  * Klient s právy service_role. Obchází RLS, běží jen na serveru
