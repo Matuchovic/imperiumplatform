@@ -17,9 +17,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: "Klienti", href: "/dashboard/klienti", icon: "users", roles: STAFF },
       { label: "Databáze kontaktů", href: "/dashboard/kontakty", icon: "address-book", roles: STAFF },
-      { label: "Předplatné", href: "/dashboard/predplatne", icon: "crown", roles: STAFF },
       { label: "Tipy", href: "/dashboard/tipy", icon: "ticket", roles: STAFF },
-      { label: "Live centrum", href: "/dashboard/live", icon: "broadcast", roles: ALL },
       { label: "Analytika", href: "/dashboard/analytika", icon: "chart-bar", roles: STAFF },
       { label: "Finance", href: "/dashboard/finance", icon: "cash", roles: ADMIN },
     ],
@@ -29,7 +27,6 @@ export const NAV: NavGroup[] = [
     items: [
       { label: "Úkoly", href: "/dashboard/ukoly", icon: "checkbox", roles: STAFF },
       { label: "Support", href: "/dashboard/support", icon: "lifebuoy", roles: STAFF },
-      { label: "Tým", href: "/dashboard/tym", icon: "user-star", roles: ADMIN },
     ],
   },
   {
