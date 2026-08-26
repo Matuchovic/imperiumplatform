@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Nepovoleno." }, { status: 403 });
   }
 
-  let body: { dotaz?: string; rezim?: string };
+  let body: { dotaz?: string; rezim?: string; vyzkum?: unknown };
   try { body = await req.json(); }
   catch { return NextResponse.json({ error: "Neplatný požadavek." }, { status: 400 }); }
 
@@ -29,7 +29,9 @@ export async function POST(req: Request) {
   const start = Date.now();
 
   try {
-    const odpoved = await zeptejSe(dotaz, rezim);
+        // Kontext výzkumu chodí od klienta, aby „porovnej to" vědělo s čím.
+    const vyzkum = (body.vyzkum ?? null) as Parameters<typeof zeptejSe>[2];
+    const odpoved = await zeptejSe(dotaz, rezim, vyzkum);
     log("info", "asistent", "dotaz zpracován", {
       runId, rezim, nastroj: odpoved.nastroj, ms: Date.now() - start, degradovano: odpoved.degradovano,
     });

@@ -13,7 +13,10 @@ import { BANDS } from "@/lib/engine/bands";
  */
 
 import { type Rezim } from "./rezimy";
-import { hledejNaWebu, prectiStranku } from "./web";
+import { hledej } from "@/lib/ai/tools/web/hledani";
+import { stahni } from "@/lib/ai/tools/web/stranka";
+import { overUrl, googleUrl } from "@/lib/ai/tools/web/validace";
+import type { VyzkumKontext } from "@/lib/ai/tools/web/typy";
 
 export type { Rezim };
 
@@ -32,7 +35,7 @@ export type Nastroj = {
    * je jeden krok navíc levnější než jedna oprava.
    */
   vyzadujeSchvaleni?: boolean;
-  spust: (p: Record<string, string>) => Promise<unknown>;
+  spust: (p: Record<string, string>, kontext?: { vyzkum?: VyzkumKontext }) => Promise<unknown>;
 };
 
 /** Cíl navigace i s filtry, které asistent nastaví. */
@@ -549,26 +552,6 @@ NASTROJE.push(
 
 NASTROJE.push(
   {
-    klic: "hledej_na_webu",
-    rezimy: ["search"] as Rezim[],
-    popis: "Vyhledá na webu. Vrací odkazy a útržky z cizích stránek, ne data z naší databáze.",
-    parametry: { dotaz: "co hledat" },
-    spust: async (p) => {
-      if (!p.dotaz) return { chyba: "Chybí dotaz." };
-      return hledejNaWebu(p.dotaz);
-    },
-  },
-  {
-    klic: "precti_stranku",
-    rezimy: ["search"] as Rezim[],
-    popis: "Stáhne konkrétní stránku a vrátí její text. Použij po hledání, když potřebuješ podrobnosti.",
-    parametry: { url: "adresa stránky" },
-    spust: async (p) => {
-      if (!p.url) return { chyba: "Chybí adresa." };
-      return prectiStranku(p.url);
-    },
-  },
-  {
     klic: "overit_insolvenci",
     rezimy: ["search"] as Rezim[],
     popis: "Ověří, zda firma není v insolvenčním řízení. Veřejný rejstřík, data z webu.",
@@ -595,6 +578,193 @@ NASTROJE.push(
       } catch (err) {
         return { zdroj: "web", chyba: `Rejstřík nedostupný: ${String(err).slice(0, 100)}` };
       }
+    },
+  }
+);
+
+NASTROJE.push(
+  {
+    klic: "hledej_na_webu",
+    rezimy: ["search"] as Rezim[],
+    popis: "Vyhledá na internetu. Vrací odkazy s útržky a hodnocením zdroje. Data z webu, ne z naší databáze.",
+    parametry: {
+      dotaz: "co hledat",
+      pocet: "kolik výsledků, výchozí 10",
+      cerstvost: "den | tyden | mesic — omezí stáří (nepovinné)",
+    },
+    spust: async (p) => {
+      if (!p.dotaz) return { chyba: "Chybí dotaz." };
+      const v = await hledej({
+        dotaz: p.dotaz,
+        maxVysledku: Math.min(15, Number(p.pocet) || 10),
+        cerstvost: ["den", "tyden", "mesic"].includes(p.cerstvost ?? "")
+          ? (p.cerstvost as "den" | "tyden" | "mesic") : undefined,
+      });
+
+      if (!v.ok) return { zdroj: "web", chyba: v.duvod };
+      return {
+        zdroj: "web",
+        vyhledavac: v.vyhledavac,
+        pocet: v.nalezy.length,
+        nalezy: v.nalezy,
+        googleUrl: googleUrl(p.dotaz),
+      };
+    },
+  },
+  {
+    klic: "precti_stranku",
+    rezimy: ["search"] as Rezim[],
+    popis: "Stáhne konkrétní stránku a vrátí její text, nadpisy a datum vydání.",
+    parametry: { url: "adresa stránky" },
+    spust: async (p) => {
+      if (!p.url) return { chyba: "Chybí adresa." };
+      const v = await stahni(p.url);
+      return v.ok ? { zdroj: "web", ...v.stranka } : { zdroj: "web", chyba: v.duvod };
+    },
+  },
+  {
+    klic: "otevri_google",
+    rezimy: ["search", "operate"] as Rezim[],
+    popis: "Otevře v prohlížeči vyhledávání na Googlu se zadaným dotazem.",
+    parametry: { dotaz: "co vyhledat" },
+    spust: async (p) => {
+      if (!p.dotaz) return { chyba: "Chybí dotaz." };
+      // Server akci jen popíše, provede ji prohlížeč.
+      return {
+        akceProhlizece: { typ: "otevri_google", dotaz: p.dotaz, url: googleUrl(p.dotaz) },
+        popis: `Otevírám Google: ${p.dotaz}`,
+      };
+    },
+  },
+  {
+    klic: "otevri_url",
+    rezimy: ["search", "operate"] as Rezim[],
+    popis: "Otevře zadanou adresu v novém panelu prohlížeče.",
+    parametry: { url: "adresa" },
+    spust: async (p) => {
+      const vstup = (p.url ?? "").trim();
+      const s = /^https?:\/\//i.test(vstup) ? vstup : `https://${vstup}`;
+      const v = overUrl(s);
+      if (!v.ok) return { chyba: v.duvod };
+      return {
+        akceProhlizece: { typ: "otevri_url", url: v.url.toString() },
+        popis: `Otevírám ${v.url.hostname}`,
+      };
+    },
+  },
+  {
+    klic: "porovnej_web_s_tiketem",
+    rezimy: ["search"] as Rezim[],
+    popis: "Načte náš tiket nebo kandidáta a postaví ho vedle toho, co se našlo na webu.",
+    parametry: { udalost: "název zápasu nebo část", dotaz: "co hledat na webu (nepovinné)" },
+    spust: async (p) => {
+      if (!p.udalost) return { chyba: "Chybí název zápasu." };
+      const db = serviceClient();
+
+      const { data: kand } = await db
+        .from("candidates")
+        .select("id, event_name, market, selection, sharp_odds, fair_prob, offered_odds, threshold_odds, ev, units, band, status, commence_at")
+        .ilike("event_name", `%${p.udalost}%`)
+        .order("created_at", { ascending: false }).limit(1)
+        .maybeSingle<Record<string, unknown>>();
+
+      if (!kand) return { nalezeno: false, hledano: p.udalost };
+
+      const v = await hledej({ dotaz: p.dotaz || `${kand.event_name} sestava zranění`, maxVysledku: 6, cerstvost: "tyden" });
+
+      return {
+        // Zdroje se nikdy nemíchají do jednoho balíku.
+        nase: {
+          zdroj: "betimperium",
+          udalost: kand.event_name,
+          trh: kand.market,
+          vyber: kand.selection,
+          ostryKurz: kand.sharp_odds,
+          fairPravdepodobnost: kand.fair_prob,
+          nabizenyKurz: kand.offered_odds,
+          prahovyKurz: kand.threshold_odds,
+          hodnota: kand.ev,
+          jednotky: kand.units,
+          pasmo: kand.band,
+          stav: kand.status,
+        },
+        web: v.ok
+          ? { zdroj: "web", vyhledavac: v.vyhledavac, nalezy: v.nalezy }
+          : { zdroj: "web", chyba: v.duvod },
+      };
+    },
+  }
+);
+
+NASTROJE.push(
+  {
+    klic: "vytvor_report",
+    rezimy: ["build"] as Rezim[],
+    popis: "Uloží report z posledního webového výzkumu. Použij po hledání.",
+    parametry: { nazev: "název reportu", shrnuti: "krátké shrnutí" },
+    spust: async (p, kontext) => {
+      const vyzkum = kontext?.vyzkum;
+      if (!vyzkum) return { chyba: "Není žádný výzkum k uložení. Nejdřív něco vyhledej." };
+
+      const db = serviceClient();
+      const { data, error } = await db.from("reporty").insert({
+        nazev: p.nazev || `Výzkum: ${vyzkum.dotaz}`,
+        dotaz: vyzkum.dotaz,
+        web_nalezy: vyzkum.nalezy,
+        shrnuti: p.shrnuti ?? null,
+        // Zdroje se ukládají s časem stažení — za měsíc se pozná,
+        // jestli byl článek v době rozhodnutí aktuální.
+        zdroje: vyzkum.nalezy.map((n) => ({
+          nazev: n.nazev, url: n.url, domena: n.domena,
+          kvalita: n.kvalita, vydano: n.vydano ?? null, stazeno: vyzkum.vznik,
+        })),
+      }).select("id, nazev").single();
+
+      if (error) return { chyba: `Report se nepodařilo uložit: ${error.message}` };
+      return { vytvoreno: true, report: data, zdroju: vyzkum.nalezy.length };
+    },
+  },
+  {
+    klic: "vytvor_koncept_tiketu",
+    rezimy: ["build"] as Rezim[],
+    popis: "Připraví koncept tiketu z existujícího kandidáta. Nikdy nepublikuje.",
+    parametry: { udalost: "název zápasu" },
+    spust: async (p, kontext) => {
+      if (!p.udalost) return { chyba: "Chybí název zápasu." };
+      const db = serviceClient();
+
+      const { data: k } = await db
+        .from("candidates")
+        .select("id, event_name, market, selection, offered_odds, threshold_odds, ev, units, band")
+        .ilike("event_name", `%${p.udalost}%`)
+        .order("created_at", { ascending: false }).limit(1)
+        .maybeSingle<Record<string, unknown>>();
+
+      // Bez kandidáta z motoru koncept nevznikne. Model si čísla
+      // vymyslet nesmí — hodnota pochází z výpočtu, ne z rozhovoru.
+      if (!k) {
+        return {
+          chyba: "K téhle události nemá motor kandidáta. Koncept se dá postavit jen z vypočtené hodnoty, ne z webu.",
+        };
+      }
+
+      const { data, error } = await db.from("koncepty_tiketu").insert({
+        candidate_id: k.id,
+        udalost: k.event_name,
+        trh: k.market,
+        vyber: k.selection,
+        kurz: k.offered_odds,
+        prahovy_kurz: k.threshold_odds,
+        ev: k.ev,
+        jednotky: k.units,
+        pasmo: k.band,
+        vyzkum: kontext?.vyzkum
+          ? { dotaz: kontext.vyzkum.dotaz, zdroju: kontext.vyzkum.nalezy.length }
+          : null,
+      }).select("id, udalost, trh, vyber, kurz, prahovy_kurz, ev, jednotky, pasmo, stav").single();
+
+      if (error) return { chyba: `Koncept se nepodařilo uložit: ${error.message}` };
+      return { vytvoreno: true, koncept: data, zdrojCisel: "motor BETIMPERIUM" };
     },
   }
 );

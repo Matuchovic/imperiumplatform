@@ -23,6 +23,25 @@ type Odpoved = {
   navigace: { sekce: string; filtry?: Record<string, string> } | null;
   navrh: { akce: string; popis: string; duvod: string; endpoint: string; telo?: Record<string, unknown> } | null;
   zWebu: boolean;
+  akce: { typ: "otevri_google"; dotaz: string; url: string } | { typ: "otevri_url"; url: string } | null;
+  vyzkum: { dotaz: string; nalezy: Nalez[]; vznik: string } | null;
+  kroky: string[];
+};
+
+type Nalez = {
+  nazev: string;
+  url: string;
+  utrzek?: string;
+  domena: string;
+  vydano?: string;
+  kvalita: "oficialni" | "duveryhodny" | "sekundarni" | "neznamy";
+};
+
+const KVALITA: Record<Nalez["kvalita"], { label: string; barva: string }> = {
+  oficialni: { label: "oficiální", barva: "#7ef0a8" },
+  duveryhodny: { label: "důvěryhodný", barva: "#60a5fa" },
+  sekundarni: { label: "sekundární", barva: "#8fa396" },
+  neznamy: { label: "neznámý", barva: "#6b7d73" },
 };
 
 const RYCHLE: Record<Rezim, string[]> = {
@@ -61,6 +80,8 @@ export default function Jadro() {
   const [tlesk, setTlesk] = useState(false);
   const [provadim, setProvadim] = useState(false);
   const [rezim, setRezim] = useState<Rezim>("ask");
+  const [blokovano, setBlokovano] = useState<string | null>(null);
+  const vyzkum = useRef<Odpoved["vyzkum"]>(null);
   const pole = useRef<HTMLInputElement>(null);
   const poslech = useRef<Poslech | null>(null);
 
@@ -112,13 +133,21 @@ export default function Jadro() {
       const res = await fetch("/api/asistent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dotaz: text, rezim }),
+        body: JSON.stringify({ dotaz: text, rezim, vyzkum: vyzkum.current }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) setChyba(data?.error ?? `Asistent selhal (${res.status}).`);
       else {
         const o = data as Odpoved;
         setOdp(o);
+        if (o.vyzkum) vyzkum.current = o.vyzkum;
+
+        // Prohlížeč blokuje otevření okna, když nevzniklo z akce
+        // uživatele. Když se to stane, nabídne se tlačítko.
+        if (o.akce) {
+          const okno = window.open(o.akce.url, "_blank", "noopener,noreferrer");
+          setBlokovano(okno ? null : o.akce.url);
+        }
 
         // Přepnutí sekce nic nemění, takže se provede rovnou.
         if (o.navigace) {
@@ -214,7 +243,24 @@ export default function Jadro() {
 
           {odp && (
             <>
+              {odp.kroky.length > 0 && (
+                <ul className="jd-kroky">
+                  {odp.kroky.map((k, i) => (
+                    <li key={i}><i className="ti ti-check" aria-hidden="true" />{k}</li>
+                  ))}
+                </ul>
+              )}
+
               <p className={`jd-odpoved ${odp.degradovano ? "jd-odpoved--slabe" : ""}`}>{odp.text}</p>
+
+              {blokovano && (
+                <div className="jd-blok">
+                  <span>Prohlížeč zablokoval otevření nové karty.</span>
+                  <a className="jd-blok__btn" href={blokovano} target="_blank" rel="noopener noreferrer">
+                    Otevřít
+                  </a>
+                </div>
+              )}
 
               {odp.nastroj && (
                 <span className={`data jd-zdroj ${odp.zWebu ? "jd-zdroj--web" : ""}`}>
@@ -225,14 +271,20 @@ export default function Jadro() {
 
               {odp.zWebu && Array.isArray((odp.data as { nalezy?: unknown[] })?.nalezy) && (
                 <div className="jd-nalezy">
-                  {((odp.data as { nalezy: { nazev: string; url: string; popis: string; odkud: string }[] }).nalezy).map((n, i) => (
+                  {((odp.data as { nalezy: Nalez[] }).nalezy).map((n, i) => (
                     <a key={i} href={n.url} target="_blank" rel="noopener noreferrer" className="jd-nalez">
                       <span className="jd-nalez__h">
                         <i className="ti ti-world" aria-hidden="true" />
                         {n.nazev}
                       </span>
-                      <span className="jd-nalez__p">{n.popis}</span>
-                      <span className="data jd-nalez__z">{n.odkud}</span>
+                      {n.utrzek && <span className="jd-nalez__p">{n.utrzek}</span>}
+                      <span className="jd-nalez__meta">
+                        <span className="data">{n.domena}</span>
+                        <span className="data" style={{ color: KVALITA[n.kvalita].barva }}>
+                          {KVALITA[n.kvalita].label}
+                        </span>
+                        {n.vydano && <span className="data">{n.vydano}</span>}
+                      </span>
                     </a>
                   ))}
                 </div>
