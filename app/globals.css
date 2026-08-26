@@ -82,178 +82,28 @@ body {
 }
 
 /* ============================================================
-   POZADÍ — "živé analytické pole"
-   Vrstvy: aurora → statický rastr → equity křivka → kurzové
-   žetony → zrno → vinětace
+   POZADÍ STRÁNEK — stejná řeč jako úvodní obrazovky
    ============================================================ */
 
-.field {
+.page-bg {
   position: fixed;
   inset: 0;
-  overflow: hidden;
-  pointer-events: none;
   z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
   background:
     radial-gradient(120% 90% at 50% -10%, #0a1712 0%, transparent 55%),
-    radial-gradient(90% 70% at 50% 110%, #071310 0%, transparent 60%),
     var(--color-ink);
 }
-
-/* --- aurora --- */
-.aurora {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.5;
-  will-change: transform;
-}
-.aurora--a {
-  width: 46vw;
-  height: 46vw;
-  min-width: 380px;
-  min-height: 380px;
-  left: -8vw;
-  top: -12vw;
-  background: radial-gradient(circle, rgba(126, 240, 168, 0.4), transparent 68%);
-  animation: drift-a 34s ease-in-out infinite;
-}
-.aurora--b {
-  width: 40vw;
-  height: 40vw;
-  min-width: 320px;
-  min-height: 320px;
-  right: -6vw;
-  top: 4vh;
-  background: radial-gradient(circle, rgba(94, 234, 212, 0.32), transparent 68%);
-  animation: drift-b 42s ease-in-out infinite;
-}
-.aurora--c {
-  width: 52vw;
-  height: 38vw;
-  min-width: 400px;
-  left: 22vw;
-  bottom: -18vw;
-  background: radial-gradient(circle, rgba(22, 163, 74, 0.34), transparent 70%);
-  animation: drift-c 50s ease-in-out infinite;
-}
-
-@keyframes drift-a {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%      { transform: translate3d(9vw, 7vh, 0) scale(1.14); }
-}
-@keyframes drift-b {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); }
-  50%      { transform: translate3d(-7vw, 11vh, 0) scale(0.9); }
-}
-@keyframes drift-c {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%      { transform: translate3d(-10vw, -6vh, 0) scale(1.18); }
-}
-
-/* --- statický rastr: textura, ne ozdoba --- */
-.raster {
+.page-bg__lift {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(rgba(126, 240, 168, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(126, 240, 168, 0.055) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: radial-gradient(80% 70% at 50% 45%, #000 10%, transparent 78%);
+  background: radial-gradient(42% 34% at 50% 44%, rgba(126, 240, 168, 0.1) 0%, transparent 70%);
 }
-
-/* --- signature: equity křivka, která se sama kreslí --- */
-.equity {
+.page-bg__edge {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.equity__line {
-  fill: none;
-  stroke: url(#equityStroke);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 2400;
-  stroke-dashoffset: 2400;
-  filter: drop-shadow(0 0 10px rgba(126, 240, 168, 0.55));
-  animation: draw 18s cubic-bezier(0.4, 0, 0.5, 1) infinite;
-}
-.equity__ghost {
-  fill: none;
-  stroke: rgba(126, 240, 168, 0.09);
-  stroke-width: 1.2;
-  stroke-dasharray: 4 7;
-}
-.equity__fill {
-  fill: url(#equityFill);
-  opacity: 0;
-  animation: fill-in 18s ease-in-out infinite;
-}
-.equity__head {
-  fill: #d9ffe9;
-  filter: drop-shadow(0 0 8px rgba(126, 240, 168, 0.9));
-}
-
-@keyframes draw {
-  0%   { stroke-dashoffset: 2400; opacity: 0; }
-  6%   { opacity: 1; }
-  62%  { stroke-dashoffset: 0; opacity: 1; }
-  88%  { stroke-dashoffset: 0; opacity: 1; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
-}
-@keyframes fill-in {
-  0%, 10% { opacity: 0; }
-  62%, 88% { opacity: 0.55; }
-  100% { opacity: 0; }
-}
-
-/* --- kurzové žetony: slovník oboru jako atmosféra --- */
-.chip {
-  position: absolute;
-  font-family: var(--font-data);
-  font-variant-numeric: tabular-nums;
-  color: rgba(126, 240, 168, 0.5);
-  border: 1px solid rgba(126, 240, 168, 0.16);
-  background: rgba(10, 20, 15, 0.42);
-  border-radius: 8px;
-  padding: 5px 10px;
-  white-space: nowrap;
-  will-change: transform, opacity;
-  animation: float-chip linear infinite;
-}
-.chip--far   { font-size: 11px; filter: blur(2.4px); opacity: 0.3; }
-.chip--mid   { font-size: 13px; filter: blur(0.9px); opacity: 0.5; }
-.chip--near  { font-size: 14px; opacity: 0.72; }
-.chip--loss  { color: rgba(255, 107, 107, 0.5); border-color: rgba(255, 107, 107, 0.16); }
-
-@keyframes float-chip {
-  0%   { transform: translate3d(0, 24px, 0); opacity: 0; }
-  14%  { opacity: var(--chip-peak, 0.6); }
-  78%  { opacity: var(--chip-peak, 0.6); }
-  100% { transform: translate3d(var(--chip-x, 20px), -120px, 0); opacity: 0; }
-}
-
-/* --- zrno + vinětace --- */
-.grain {
-  position: absolute;
-  inset: -50%;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: shift 700ms steps(4) infinite;
-}
-@keyframes shift {
-  0%   { transform: translate(0, 0); }
-  25%  { transform: translate(-2%, 1%); }
-  50%  { transform: translate(1%, -2%); }
-  75%  { transform: translate(-1%, -1%); }
-  100% { transform: translate(0, 0); }
-}
-
-.vignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(85% 70% at 50% 45%, transparent 35%, rgba(2, 4, 3, 0.72) 100%);
+  background: radial-gradient(96% 92% at 50% 46%, transparent 62%, rgba(1, 3, 2, 0.9) 100%);
 }
 
 /* ============================================================
@@ -434,14 +284,8 @@ body {
 
 /* ---------- přístupnost ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .aurora, .equity__line, .equity__fill, .chip, .grain,
-  .panel::before, .rise, .pulse-dot {
-    animation: none !important;
-  }
+  .panel::before, .rise, .pulse-dot { animation: none !important; }
   .rise { opacity: 1; transform: none; }
-  .equity__line { stroke-dashoffset: 0; }
-  .equity__fill { opacity: 0.45; }
-  .chip { opacity: 0.45; }
 }
 
 /* ============================================================

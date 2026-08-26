@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import ImperiumField from "@/components/background/ImperiumField";
+import ScaleField from "@/components/effects/ScaleField";
 import LoginForm from "@/components/auth/LoginForm";
 import Logo from "@/components/brand/Logo";
 import BootGate from "@/components/boot/BootGate";
@@ -8,7 +8,11 @@ export default function LoginPage() {
   return (
     <BootGate>
     <main className="relative flex min-h-dvh items-center justify-center px-5 py-10">
-      <ImperiumField />
+      <div className="page-bg" aria-hidden="true">
+        <ScaleField direction="out" />
+        <div className="page-bg__lift" />
+        <div className="page-bg__edge" />
+      </div>
 
       <div className="relative z-10 w-full max-w-[430px]">
         {/* značka nad panelem, aby pozadí zůstalo hlavním hrdinou */}

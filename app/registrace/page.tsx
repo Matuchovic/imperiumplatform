@@ -1,4 +1,4 @@
-import ImperiumField from "@/components/background/ImperiumField";
+import ScaleField from "@/components/effects/ScaleField";
 import RegisterForm from "@/components/auth/RegisterForm";
 import Logo from "@/components/brand/Logo";
 
@@ -10,7 +10,11 @@ export const metadata = {
 export default function RegistracePage() {
   return (
     <main className="relative flex min-h-dvh items-center justify-center px-5 py-10">
-      <ImperiumField />
+      <div className="page-bg" aria-hidden="true">
+        <ScaleField direction="out" />
+        <div className="page-bg__lift" />
+        <div className="page-bg__edge" />
+      </div>
 
       <div className="relative z-10 w-full max-w-[430px]">
         <div className="rise mb-7 flex flex-col items-center" style={{ animationDelay: "60ms" }}>
