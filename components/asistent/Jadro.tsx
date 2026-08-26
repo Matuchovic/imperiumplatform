@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { rekni, zmlkni, hlasZapnut, prepniHlas, umiMluvit } from "@/lib/asistent/hlas";
+import { poslouchejTlesk, type Poslech } from "@/lib/asistent/tlesk";
 
 /**
  * Asistent.
@@ -33,7 +35,12 @@ export default function Jadro() {
   const [bezi, setBezi] = useState(false);
   const [odp, setOdp] = useState<Odpoved | null>(null);
   const [chyba, setChyba] = useState<string | null>(null);
+  const [hlas, setHlas] = useState(false);
+  const [tlesk, setTlesk] = useState(false);
   const pole = useRef<HTMLInputElement>(null);
+  const poslech = useRef<Poslech | null>(null);
+
+  useEffect(() => setHlas(hlasZapnut()), []);
 
   useEffect(() => {
     const klavesa = (e: KeyboardEvent) => {
@@ -41,11 +48,29 @@ export default function Jadro() {
         e.preventDefault();
         setOpen((o) => !o);
       }
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") { zmlkni(); setOpen(false); }
     };
     window.addEventListener("keydown", klavesa);
     return () => window.removeEventListener("keydown", klavesa);
   }, []);
+
+  // Dvojí tlesknutí otevře asistenta a ohlásí se.
+  useEffect(() => {
+    if (!tlesk) {
+      poslech.current?.stop();
+      poslech.current = null;
+      return;
+    }
+    let zruseno = false;
+    poslouchejTlesk(() => {
+      setOpen(true);
+      rekni("Ano pane, co potřebujete?", true);
+    }).then((p) => {
+      if (zruseno) p?.stop();
+      else poslech.current = p;
+    });
+    return () => { zruseno = true; poslech.current?.stop(); poslech.current = null; };
+  }, [tlesk]);
 
   useEffect(() => {
     document.body.classList.toggle("no-scroll", open);
@@ -67,7 +92,13 @@ export default function Jadro() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) setChyba(data?.error ?? `Asistent selhal (${res.status}).`);
-      else setOdp(data as Odpoved);
+      else {
+        const o = data as Odpoved;
+        setOdp(o);
+        // Mluví se jen první věta. Výhrady o velikosti vzorku
+        // se lépe čtou, než poslouchají.
+        if (!o.degradovano) rekni(o.text);
+      }
     } catch {
       setChyba("Nepodařilo se spojit se serverem.");
     }
@@ -88,21 +119,26 @@ export default function Jadro() {
       <div className="jd-scrim" onClick={() => setOpen(false)} aria-hidden="true" />
 
       <div className="jd-panel" role="dialog" aria-label="Asistent">
-        <div className="jd-hlava">
+        <button className="jd-zavrit tap" onClick={() => setOpen(false)} aria-label="Zavřít">
+          <i className="ti ti-x" aria-hidden="true" />
+        </button>
+
+        {/* Jádro je hlavní prvek obrazovky, ne ikonka u nadpisu.
+            Ustoupí až ve chvíli, kdy je co číst. */}
+        <div className={`jd-scena ${odp || chyba ? "jd-scena--male" : ""}`}>
           <span className={`jd-core ${bezi ? "jd-core--bezi" : ""}`} aria-hidden="true">
             <span className="jd-core__prsten jd-core__prsten--1" />
             <span className="jd-core__prsten jd-core__prsten--2" />
+            <span className="jd-core__prsten jd-core__prsten--3" />
+            <span className="jd-core__lopatky" />
             <span className="jd-core__stred" />
+            <span className="jd-core__zare" />
           </span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span className="jd-nazev">Asistent</span>
-            <span className="data jd-podnazev">
-              {bezi ? "ČTU Z DATABÁZE" : "ČÍSLA POČÍTÁ DATABÁZE, NE MODEL"}
-            </span>
-          </span>
-          <button className="jd-zavrit tap" onClick={() => setOpen(false)} aria-label="Zavřít">
-            <i className="ti ti-x" aria-hidden="true" />
-          </button>
+
+          <p className="data jd-stav">
+            {bezi ? "ČTU Z DATABÁZE" : odp ? "HOTOVO" : "PŘIPRAVEN"}
+          </p>
+          {!odp && !bezi && <p className="jd-nazev">Asistent</p>}
         </div>
 
         <div className="jd-telo">
@@ -184,6 +220,28 @@ export default function Jadro() {
               <i className={`ti ti-${bezi ? "loader-2" : "arrow-up"}`} aria-hidden="true" />
             </button>
           </span>
+
+          <div className="jd-volby">
+            {umiMluvit() && (
+              <button
+                className={`jd-volba ${hlas ? "jd-volba--on" : ""}`}
+                onClick={() => { const n = !hlas; setHlas(n); prepniHlas(n); }}
+                aria-pressed={hlas}
+              >
+                <i className={`ti ti-${hlas ? "volume" : "volume-off"}`} aria-hidden="true" />
+                {hlas ? "Mluví" : "Mlčí"}
+              </button>
+            )}
+            <button
+              className={`jd-volba ${tlesk ? "jd-volba--on" : ""}`}
+              onClick={() => setTlesk((t) => !t)}
+              aria-pressed={tlesk}
+              title="Dvojím tlesknutím otevřeš asistenta"
+            >
+              <i className="ti ti-hand-click" aria-hidden="true" />
+              {tlesk ? "Poslouchá tlesknutí" : "Tlesknutí vypnuté"}
+            </button>
+          </div>
 
           <p className="data jd-prava">
             <span>ČTE DATA · NAVRHUJE AKCE</span>
