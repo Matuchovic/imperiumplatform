@@ -643,3 +643,13 @@ body {
   .boot__logo { opacity: 1; filter: none; }
   .boot__ghost { display: none; }
 }
+
+/* Skeleton — jemné dýchání, žádné běžící pruhy */
+.skeleton { animation: skeleton 1.6s ease-in-out infinite; }
+@keyframes skeleton {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
