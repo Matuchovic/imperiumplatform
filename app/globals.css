@@ -621,39 +621,71 @@ body {
 
 .adm-shell { display: flex; min-height: 100dvh; }
 
-/* ---------- postranní navigace ---------- */
+/* ---------- postranní panel ---------- */
 .adm-side {
   position: fixed;
   inset: 0 auto 0 0;
-  z-index: 40;
+  z-index: 60;
   display: flex;
   flex-direction: column;
-  width: 224px;
-  padding: 18px 12px;
+  width: min(276px, 84vw);
+  padding: 16px 12px;
+  padding-top: calc(16px + env(safe-area-inset-top));
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: #050706;
   border-right: 1px solid rgba(126, 240, 168, 0.09);
   transform: translateX(-100%);
-  transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .adm-side--open { transform: translateX(0); }
+
 @media (min-width: 1024px) {
-  .adm-side { position: sticky; top: 0; height: 100dvh; transform: none; }
+  .adm-side {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    width: 232px;
+    transform: none;
+    padding-top: 16px;
+  }
 }
 
-.adm-side__brand { padding: 0 8px 16px; }
+.adm-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(2, 5, 3, 0.66);
+  backdrop-filter: blur(2px);
+}
+@media (min-width: 1024px) { .adm-scrim { display: none; } }
+
+.adm-side__brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 8px 16px;
+}
+.adm-side__close {
+  border: 0;
+  background: transparent;
+  color: var(--color-ash);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.adm-side__close i { font-size: 19px; }
+@media (min-width: 1024px) { .adm-side__close { display: none; } }
+
 .adm-side__nav { flex: 1; }
+
 .adm-side__foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   margin-top: 16px;
-}
-.adm-side__verze {
-  flex-shrink: 0;
-  font-size: 10.5px;
-  color: #4d5c53;
 }
 .adm-side__role {
   flex: 1;
@@ -662,11 +694,11 @@ body {
   font-family: var(--font-data);
   font-size: 11px;
   letter-spacing: 0.14em;
-  color: var(--color-signal);
   background: rgba(126, 240, 168, 0.05);
   border: 1px solid rgba(126, 240, 168, 0.12);
   border-radius: 8px;
 }
+.adm-side__verze { flex-shrink: 0; font-size: 10.5px; color: #4d5c53; }
 
 .adm-group {
   margin: 16px 0 5px;
@@ -682,6 +714,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 42px;
   padding: 9px 10px;
   border-radius: 8px;
   font-size: 13.5px;
@@ -698,39 +731,36 @@ body {
   color: var(--color-chalk);
 }
 
-.adm-burger {
-  display: inline-flex;
-  position: fixed;
-  top: calc(12px + env(safe-area-inset-top));
-  left: 12px;
-  z-index: 50;
-  border-radius: 9px;
-  color: var(--color-ash);
-  background: rgba(12, 19, 16, 0.92);
-  border: 1px solid rgba(126, 240, 168, 0.14);
-}
-.adm-burger i { font-size: 18px; }
-.adm-scrim { position: fixed; inset: 0; z-index: 35; background: rgba(2, 5, 3, 0.6); }
-
-/* Vlastní media query, ne Tailwind lg:hidden — tenhle soubor se načítá
-   až za Tailwindem, takže by ho .tap { display:inline-flex } přebilo. */
-@media (min-width: 1024px) {
-  .adm-burger, .adm-scrim { display: none !important; }
-}
-/* Na mobilu logo uhne tlačítku, ať se nepřekrývají. */
-@media (max-width: 1023px) {
-  .adm-side__brand { padding-left: 48px; }
-}
-
 /* ---------- horní lišta ---------- */
 .adm-top {
+  position: sticky;
+  top: 0;
+  z-index: 40;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 18px 12px 64px;
+  padding: 10px 14px;
+  padding-top: calc(10px + env(safe-area-inset-top));
+  background: rgba(5, 7, 6, 0.94);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(126, 240, 168, 0.09);
 }
-@media (min-width: 1024px) { .adm-top { padding-left: 24px; } }
+@media (min-width: 1024px) { .adm-top { padding: 12px 24px; } }
+
+.adm-top__menu {
+  flex-shrink: 0;
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-ash);
+  cursor: pointer;
+}
+.adm-top__menu i { font-size: 18px; }
+@media (min-width: 1024px) { .adm-top__menu { display: none; } }
+
+/* Značka je v liště jen na mobilu — na desktopu ji nese panel. */
+.adm-top__brand { flex-shrink: 0; }
+@media (min-width: 1024px) { .adm-top__brand { display: none; } }
 
 .adm-search {
   flex: 1;
@@ -746,7 +776,7 @@ body {
   transition: border-color 160ms ease;
 }
 .adm-search:focus-within { border-color: rgba(126, 240, 168, 0.4); }
-.adm-search i { font-size: 16px; color: #4d5c53; }
+.adm-search i { font-size: 16px; color: #4d5c53; flex-shrink: 0; }
 .adm-search input {
   flex: 1;
   min-width: 0;
@@ -757,41 +787,52 @@ body {
   font-size: 16px;
 }
 .adm-search input::placeholder { color: #4d5c53; }
-@media (min-width: 640px) { .adm-search input { font-size: 13px; } }
+@media (min-width: 1024px) { .adm-search input { font-size: 13px; } }
 
-.adm-bell { position: relative; display: flex; color: var(--color-ash); padding: 4px; }
-.adm-bell i { font-size: 18px; }
-.adm-bell__count {
-  position: absolute;
-  top: -2px;
-  right: -4px;
-  font-size: 9.5px;
-  padding: 1px 4px;
-  border-radius: 9px;
-  background: var(--color-loss);
-  color: #2a0808;
+/* Na mobilu se pole schová pod ikonu — jinak vytlačí všechno ostatní. */
+@media (max-width: 1023px) {
+  .adm-search { display: none; }
+  .adm-search--open {
+    display: flex;
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: calc(100% + 8px);
+    z-index: 41;
+    background: #0b1410;
+  }
 }
+.adm-top__find {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ash);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.adm-top__find i { font-size: 18px; }
+@media (min-width: 1024px) { .adm-top__find { display: none; } }
 
-.adm-user { display: flex; align-items: center; gap: 8px; }
+.adm-user { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .adm-user__pic {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-signal);
-  background: rgba(126, 240, 168, 0.14);
   flex-shrink: 0;
 }
+.adm-user__meta { min-width: 0; }
+@media (max-width: 639px) { .adm-user__meta { display: none; } }
 .adm-user__name { display: block; font-size: 12.5px; color: var(--color-chalk); }
-.adm-user__role { display: block; font-size: 10.5px; color: var(--color-signal); }
+.adm-user__role { display: block; font-size: 10.5px; }
 
 /* ---------- obsah ---------- */
 .adm-main { flex: 1; min-width: 0; }
-.adm-body { padding: 22px 18px 40px; }
+.adm-body { padding: 18px 14px calc(40px + env(safe-area-inset-bottom)); }
 @media (min-width: 1024px) { .adm-body { padding: 26px 24px 48px; } }
 
 .adm-head { margin-bottom: 20px; }
@@ -1902,4 +1943,54 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 @media (max-width: 639px) {
   .rl-row { grid-template-columns: 1fr; }
   .rl-sel { min-height: 42px; }
+}
+
+/* ---------- matice rolí: dvojí podoba ---------- */
+.rl-picker { display: none; }
+.rl-list { display: none; }
+.rl-mx-wrap { display: block; margin-top: 4px; }
+
+@media (max-width: 899px) {
+  /* Sedm sloupců se na telefon nevejde. Výběr role a seznam sekcí
+     nese stejnou informaci ve tvaru, který jde přečíst. */
+  .rl-mx-wrap { display: none; }
+
+  .rl-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 12px 0 14px;
+  }
+  .rl-chip {
+    min-height: 38px;
+    padding: 8px 13px;
+    border-radius: 9px;
+    border: 1px solid rgba(126, 240, 168, 0.14);
+    background: transparent;
+    color: var(--color-ash);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+  }
+  .rl-chip--on {
+    background: rgba(126, 240, 168, 0.12);
+    border-color: rgba(126, 240, 168, 0.4);
+    color: var(--color-chalk);
+  }
+
+  .rl-list { display: block; margin: 0; padding: 0; list-style: none; }
+  .rl-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(126, 240, 168, 0.07);
+    font-size: 13.5px;
+    color: #cfe6d8;
+  }
+  .rl-item:first-child { border-top: 0; }
+  .rl-item i { font-size: 15px; color: var(--color-signal); flex-shrink: 0; }
+  .rl-item--ne { color: #4d5c53; }
+  .rl-item--ne i { color: #2b352e; }
 }

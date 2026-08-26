@@ -122,16 +122,41 @@ export default function RolePanel({ tym, jaId }: { tym: Clen[]; jaId: string }) 
         <p className="adm-panel__lead">
           Sekce, kterou role nemá, se jí v navigaci vůbec nezobrazí — nejde k ní ani přímým odkazem.
         </p>
-        <div className="scroll-x">
+
+        {/* Na telefonu se sedm sloupců nevejde. Místo tabulky výběr role
+            a seznam sekcí — stejná informace, jiný tvar. */}
+        <div className="rl-picker">
+          {ROLE_PORADI.map((r) => (
+            <button
+              key={r}
+              className={`rl-chip ${r === zvyraznit ? "rl-chip--on" : ""}`}
+              onClick={() => setZvyraznit(r)}
+              aria-pressed={r === zvyraznit}
+            >
+              {ROLE_LABEL[r]}
+            </button>
+          ))}
+        </div>
+
+        <ul className="rl-list">
+          {MATICE.map(([sekce, role]) => {
+            const ma = role.includes(zvyraznit);
+            return (
+              <li key={sekce} className={`rl-item ${ma ? "" : "rl-item--ne"}`}>
+                <i className={`ti ti-${ma ? "check" : "minus"}`} aria-hidden="true" />
+                <span>{sekce}</span>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="rl-mx-wrap scroll-x">
           <table className="rl-mx">
             <thead>
               <tr>
                 <th>Sekce</th>
                 {ROLE_PORADI.map((r) => (
-                  <th
-                    key={r}
-                    style={r === zvyraznit ? { color: ROLE_BARVA[r] } : undefined}
-                  >
+                  <th key={r} style={r === zvyraznit ? { color: ROLE_BARVA[r] } : undefined}>
                     {ROLE_LABEL[r]}
                   </th>
                 ))}

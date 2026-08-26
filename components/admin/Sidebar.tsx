@@ -2,38 +2,33 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import Logo from "@/components/brand/Logo";
-import { navFor, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 import { VERZE } from "@/lib/verze";
+import { navFor, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 
-export default function Sidebar({ role }: { role: Role }) {
+export default function Sidebar({
+  role,
+  open,
+  onClose,
+}: {
+  role: Role;
+  open: boolean;
+  onClose: () => void;
+}) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
   const groups = navFor(role);
-
-  // Bez tohohle se pod otevřeným menu roluje stránka pod prstem.
-  useEffect(() => {
-    document.body.classList.toggle("no-scroll", open);
-    return () => document.body.classList.remove("no-scroll");
-  }, [open]);
 
   return (
     <>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-label={open ? "Zavřít menu" : "Otevřít menu"}
-        className="adm-burger tap"
-      >
-        <i className={`ti ti-${open ? "x" : "menu-2"}`} aria-hidden="true" />
-      </button>
-
-      {open && <div className="adm-scrim" onClick={() => setOpen(false)} />}
+      {open && <div className="adm-scrim" onClick={onClose} aria-hidden="true" />}
 
       <aside className={`adm-side ${open ? "adm-side--open" : ""}`}>
         <div className="adm-side__brand">
           <Logo size={17} />
+          {/* Zavírací křížek jen v zásuvce — na desktopu je panel trvalý. */}
+          <button className="adm-side__close tap" onClick={onClose} aria-label="Zavřít menu">
+            <i className="ti ti-x" aria-hidden="true" />
+          </button>
         </div>
 
         <nav className="adm-side__nav">
@@ -49,7 +44,7 @@ export default function Sidebar({ role }: { role: Role }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setOpen(false)}
+                    onClick={onClose}
                     aria-current={active ? "page" : undefined}
                     className={`adm-nav ${active ? "adm-nav--on" : ""}`}
                   >
@@ -63,9 +58,9 @@ export default function Sidebar({ role }: { role: Role }) {
         </nav>
 
         <div className="adm-side__foot">
-          <span className="adm-side__role" style={{ color: ROLE_BARVA[role] }}>{ROLE_LABEL[role]}</span>
-          {/* Verze musí být vidět — bez ní se při hlášení chyby
-              nedá zjistit, co člověk vlastně používá. */}
+          <span className="adm-side__role" style={{ color: ROLE_BARVA[role] }}>
+            {ROLE_LABEL[role]}
+          </span>
           <span className="data adm-side__verze" title="Verze aplikace">v{VERZE}</span>
         </div>
       </aside>
