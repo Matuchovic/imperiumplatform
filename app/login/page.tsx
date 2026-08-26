@@ -2,9 +2,11 @@ import { Suspense } from "react";
 import ImperiumField from "@/components/background/ImperiumField";
 import LoginForm from "@/components/auth/LoginForm";
 import Logo from "@/components/brand/Logo";
+import BootGate from "@/components/boot/BootGate";
 
 export default function LoginPage() {
   return (
+    <BootGate>
     <main className="relative flex min-h-dvh items-center justify-center px-5 py-10">
       <ImperiumField />
 
@@ -60,5 +62,6 @@ export default function LoginPage() {
         </p>
       </div>
     </main>
+    </BootGate>
   );
 }
