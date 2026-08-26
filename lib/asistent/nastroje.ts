@@ -350,6 +350,178 @@ NASTROJE.push(
   }
 );
 
+NASTROJE.push(
+  {
+    klic: "otevri_klienta",
+    popis: "Otevře detail konkrétního klienta podle jména. Přepne do sekce i s filtrem.",
+    parametry: { jmeno: "část jména klienta" },
+    spust: async (p) => {
+      if (!p.jmeno) return { chyba: "Chybí jméno." };
+      const db = serviceClient();
+      const { data } = await db
+        .from("profiles").select("name").eq("role", "klient")
+        .ilike("name", `%${p.jmeno}%`).limit(3);
+
+      const nalezeni = (data ?? []) as { name: string }[];
+      if (nalezeni.length === 0) return { nalezeno: false, hledano: p.jmeno };
+      // Víc shod znamená zeptat se, ne hádat.
+      if (nalezeni.length > 1) return { vice: nalezeni.map((n) => n.name) };
+
+      return {
+        navigace: { sekce: "/dashboard/klienti", filtry: { q: nalezeni[0].name } },
+        popis: `Otevírám ${nalezeni[0].name}.`,
+      };
+    },
+  },
+  {
+    klic: "nastav_obdobi",
+    popis: "Přepne analytiku na jiné období: 7d, 30d, 90d nebo all.",
+    parametry: { obdobi: "7d | 30d | 90d | all" },
+    spust: async (p) => {
+      const platne = ["7d", "30d", "90d", "all"];
+      if (!platne.includes(p.obdobi ?? "")) {
+        return { chyba: `Období "${p.obdobi}" neexistuje.`, dostupne: platne };
+      }
+      return {
+        navigace: { sekce: "/dashboard/analytika", filtry: { obdobi: p.obdobi } },
+        popis: `Přepínám na ${p.obdobi}.`,
+      };
+    },
+  },
+  {
+    klic: "zalozi_ukol",
+    popis: "Založí úkol s termínem a prioritou. Volitelně navázaný na klienta.",
+    parametry: {
+      nazev: "co se má udělat",
+      termin: "datum ve tvaru RRRR-MM-DD (nepovinné)",
+      priorita: "nizka | bezna | vysoka",
+      klient: "jméno klienta (nepovinné)",
+    },
+    spust: async (p) => {
+      if (!p.nazev) return { chyba: "Chybí název úkolu." };
+      const db = serviceClient();
+
+      let klientId: string | null = null;
+      if (p.klient) {
+        const { data } = await db
+          .from("profiles").select("id").eq("role", "klient")
+          .ilike("name", `%${p.klient}%`).limit(1).maybeSingle<{ id: string }>();
+        klientId = data?.id ?? null;
+      }
+
+      const { data, error } = await db.from("ukoly").insert({
+        nazev: p.nazev,
+        termin: p.termin || null,
+        priorita: ["nizka", "bezna", "vysoka"].includes(p.priorita ?? "") ? p.priorita : "bezna",
+        klient_id: klientId,
+        zdroj: "asistent",
+      }).select("id, nazev, termin, priorita").single();
+
+      if (error) return { chyba: `Úkol se nepodařilo založit: ${error.message}` };
+      return { zalozeno: true, ukol: data };
+    },
+  },
+  {
+    klic: "pridej_poznamku",
+    popis: "Přidá poznámku ke klientovi. Připojí ji k té stávající, nepřepíše ji.",
+    parametry: { jmeno: "jméno klienta", text: "text poznámky" },
+    spust: async (p) => {
+      if (!p.jmeno || !p.text) return { chyba: "Chybí jméno nebo text." };
+      const db = serviceClient();
+
+      const { data } = await db
+        .from("profiles").select("id, name, poznamka").eq("role", "klient")
+        .ilike("name", `%${p.jmeno}%`).limit(1)
+        .maybeSingle<{ id: string; name: string; poznamka: string | null }>();
+
+      if (!data) return { nalezeno: false, hledano: p.jmeno };
+
+      // Přepsání by zahodilo, co tam napsal někdo jiný.
+      const datum = new Date().toLocaleDateString("cs-CZ");
+      const nova = data.poznamka ? `${data.poznamka}\n\n[${datum}] ${p.text}` : `[${datum}] ${p.text}`;
+
+      const { error } = await db.from("profiles").update({ poznamka: nova }).eq("id", data.id);
+      if (error) return { chyba: error.message };
+      return { pridano: true, klient: data.name };
+    },
+  },
+  {
+    klic: "otevrene_ukoly",
+    popis: "Vypíše nesplněné úkoly seřazené podle termínu.",
+    sekce: "/dashboard/ukoly",
+    spust: async () => {
+      const db = serviceClient();
+      const { data } = await db
+        .from("ukoly").select("nazev, termin, priorita, created_at")
+        .eq("hotovo", false).order("termin", { ascending: true, nullsFirst: false }).limit(20);
+      return { pocet: (data ?? []).length, ukoly: data ?? [] };
+    },
+  },
+  {
+    klic: "hledej_vsude",
+    popis: "Prohledá klienty, kontakty i úkoly jedním dotazem.",
+    parametry: { dotaz: "hledaný text" },
+    spust: async (p) => {
+      if (!p.dotaz) return { chyba: "Chybí dotaz." };
+      const db = serviceClient();
+      const q = `%${p.dotaz}%`;
+
+      const [k, f, u] = await Promise.all([
+        db.from("profiles").select("name, plan").eq("role", "klient").ilike("name", q).limit(5),
+        db.from("kontakty").select("company_name, ico, city").or(`company_name.ilike.${q},ico.ilike.${q}`).limit(5),
+        db.from("ukoly").select("nazev, termin").ilike("nazev", q).eq("hotovo", false).limit(5),
+      ]);
+
+      return {
+        klienti: k.data ?? [],
+        kontakty: f.data ?? [],
+        ukoly: u.data ?? [],
+        celkem: (k.data?.length ?? 0) + (f.data?.length ?? 0) + (u.data?.length ?? 0),
+      };
+    },
+  },
+  {
+    klic: "posledni_zmeny",
+    popis: "Co se v systému naposled změnilo — kdo, co a kdy.",
+    sekce: "/dashboard/audit",
+    parametry: { pocet: "kolik záznamů (výchozí 10)" },
+    spust: async (p) => {
+      const db = serviceClient();
+      const limit = Math.min(30, Math.max(1, Number(p.pocet) || 10));
+      const { data } = await db
+        .from("audit_log").select("action, entity, entity_id, source, reason, created_at")
+        .order("created_at", { ascending: false }).limit(limit);
+      return { zmeny: data ?? [] };
+    },
+  },
+  {
+    klic: "schval_kandidata",
+    popis: "Připraví schválení nebo zamítnutí kandidáta ke kliknutí člověkem.",
+    parametry: { udalost: "název zápasu", rozhodnuti: "approved | rejected" },
+    vyzadujeSchvaleni: true,
+    spust: async (p) => {
+      const db = serviceClient();
+      const { data } = await db
+        .from("candidates").select("id, event_name, market, selection, offered_odds, ev")
+        .eq("status", "pending").ilike("event_name", `%${p.udalost ?? ""}%`).limit(1)
+        .maybeSingle<Record<string, unknown>>();
+
+      if (!data) return { nalezeno: false, hledano: p.udalost };
+      const rozhodnuti = p.rozhodnuti === "rejected" ? "rejected" : "approved";
+
+      return {
+        navrh: {
+          akce: "schvalit_kandidata",
+          popis: `${rozhodnuti === "approved" ? "Schválit" : "Zamítnout"}: ${data.event_name} — ${data.selection} @ ${data.offered_odds}`,
+          duvod: `Hodnota ${((Number(data.ev)) * 100).toFixed(1)} %.`,
+          endpoint: "/api/candidates/approve",
+          telo: { candidateId: data.id, decision: rozhodnuti },
+        },
+      };
+    },
+  }
+);
+
 export const najdiNastroj = (klic: string) => NASTROJE.find((n) => n.klic === klic);
 
 /** Seznam pro model. Jen klíč, popis a povolené parametry. */

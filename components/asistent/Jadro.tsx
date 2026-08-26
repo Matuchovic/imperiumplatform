@@ -26,9 +26,9 @@ type Odpoved = {
 
 const RYCHLE = [
   "Kdo dnes potřebuje pozornost?",
-  "Které pásmo má nejlepší CLV?",
   "Otevři kontakty z Brna",
-  "Ověř v ARES firmu s IČO 27082561",
+  "Založ úkol zavolat Procházkovi zítra",
+  "Co se naposled změnilo v systému?",
 ];
 
 export default function Jadro() {
