@@ -25,9 +25,15 @@ export type Odpoved = {
   degradovano: boolean;
 };
 
+/** Poslední důvod selhání. Aby se nemuselo hádat z logu. */
+export let posledniDuvod: string | null = null;
+
 async function groq(system: string, user: string, json = false): Promise<string | null> {
   const key = process.env.GROQ_API_KEY;
-  if (!key) return null;
+  if (!key) {
+    posledniDuvod = "GROQ_API_KEY není v prostředí — proměnná chybí nebo od jejího přidání neproběhl deploy.";
+    return null;
+  }
 
   return throughCircuit(async () => {
     const res = await fetch(URL, {
@@ -44,7 +50,24 @@ async function groq(system: string, user: string, json = false): Promise<string 
         ],
       }),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      // Groq vrací důvod v těle. Bez něj se hádá mezi vyřazeným
+      // modelem, špatným klíčem a nepodporovaným formátem.
+      const telo = await res.text().catch(() => "");
+      let zprava = telo.slice(0, 200);
+      try {
+        const j = JSON.parse(telo);
+        zprava = j?.error?.message ?? j?.error?.code ?? zprava;
+      } catch { /* tělo není JSON, stačí useknutý text */ }
+
+      posledniDuvod = `Groq odpověděl ${res.status}: ${zprava}`;
+      log("error", "asistent", "volání modelu selhalo", {
+        stav: res.status, model: MODEL, jsonRezim: json, zprava,
+      });
+      return null;
+    }
+
+    posledniDuvod = null;
     const d = await res.json();
     return (d?.choices?.[0]?.message?.content as string) ?? null;
   });
@@ -80,7 +103,9 @@ export async function zeptejSe(dotaz: string): Promise<Odpoved> {
 
   if (!vyber) {
     return { ...prazdna, degradovano: true,
-      text: "Jazykový model teď není dostupný. Data v systému fungují dál — zkus to za chvíli." };
+      text: posledniDuvod
+        ? `Model neodpověděl. ${posledniDuvod}`
+        : "Model neodpověděl a nevrátil důvod. Nejspíš je otevřený circuit breaker po předchozích selháních — zkus to za pět minut." };
   }
 
   let volba: { klic?: string; parametry?: Record<string, string> } | null = null;

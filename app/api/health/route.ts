@@ -8,6 +8,33 @@ export const dynamic = "force-dynamic";
  * dlouhá — nikdy hodnotu. Slouží k rozlišení "chybí konfigurace"
  * od "je chyba v kódu", což z produkční 500 nepoznáš.
  */
+/** Ověří Groq skutečným voláním, ne jen přítomností proměnné. */
+async function zkusGroq() {
+  const key = process.env.GROQ_API_KEY;
+  const model = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+  if (!key) return { klic: false, model, stav: "GROQ_API_KEY chybí" };
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model,
+        max_tokens: 5,
+        messages: [{ role: "user", content: "ok" }],
+      }),
+    });
+    if (res.ok) return { klic: true, model, stav: "odpovídá" };
+
+    const telo = await res.text().catch(() => "");
+    let zprava = telo.slice(0, 160);
+    try { zprava = JSON.parse(telo)?.error?.message ?? zprava; } catch {}
+    return { klic: true, model, stav: `${res.status}: ${zprava}` };
+  } catch (err) {
+    return { klic: true, model, stav: `spojení selhalo: ${String(err).slice(0, 120)}` };
+  }
+}
+
 export async function GET() {
   // Výpis konfigurace nepatří veřejně ani bez hodnot — prozrazuje,
   // které služby jsou zapojené.
@@ -26,6 +53,8 @@ export async function GET() {
     SUPABASE_SERVICE_ROLE_KEY: check("SUPABASE_SERVICE_ROLE_KEY"),
     ODDS_API_KEY: check("ODDS_API_KEY"),
     CRON_SECRET: check("CRON_SECRET"),
+    GROQ_API_KEY: check("GROQ_API_KEY"),
+    GROQ_MODEL: check("GROQ_MODEL"),
   };
 
   let supabase: { dostupna: boolean; detail?: string } = { dostupna: false };
@@ -43,5 +72,7 @@ export async function GET() {
     supabase = { dostupna: false, detail: "chybí URL nebo anon klíč" };
   }
 
-  return NextResponse.json({ env, supabase, cas: new Date().toISOString() });
+  const groq = await zkusGroq();
+
+  return NextResponse.json({ env, supabase, groq, cas: new Date().toISOString() });
 }
