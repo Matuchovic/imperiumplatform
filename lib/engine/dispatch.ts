@@ -1,6 +1,9 @@
 import { serviceClient } from "@/lib/supabase/server";
 import { BANDS, bandFor, type Band } from "./bands";
 import { composeMessage, sendBatch, type TipLine } from "@/lib/notify/telegram";
+import { addEntry } from "@/lib/bankroll/ledger";
+import { keys } from "@/lib/bankroll/math";
+import { log } from "@/lib/log";
 import type { Candidate } from "./types";
 
 /**
@@ -16,7 +19,11 @@ export type DispatchResult = {
   tickets: number;
   notified: number;
   notifyFailed: number;
+  staked: number;
   skipped: { reason: string; count: number }[];
+  /** Nasucho: co by se stalo, kdyby se běh pustil naostro. */
+  dryRun: boolean;
+  plan?: { userId: string; event: string; stake: number; band: string }[];
 };
 
 type Profile = {
@@ -29,7 +36,18 @@ type Profile = {
   role: string;
 };
 
-export async function dispatchCandidates(cands: Candidate[]): Promise<DispatchResult> {
+/**
+ * Rozeslání schválených nálezů.
+ *
+ * Nasucho spočítá všechno a vrátí plán, ale nic nezapíše ani neodešle.
+ * U operace, která hýbe cizími penězi, je jeden běh navíc levnější
+ * než jedna oprava.
+ */
+export async function dispatchCandidates(
+  cands: Candidate[],
+  opts: { dryRun?: boolean } = {}
+): Promise<DispatchResult> {
+  const dryRun = opts.dryRun ?? false;
   const db = serviceClient();
   const skipped = new Map<string, number>();
   const note = (r: string) => skipped.set(r, (skipped.get(r) ?? 0) + 1);
@@ -44,7 +62,8 @@ export async function dispatchCandidates(cands: Candidate[]): Promise<DispatchRe
   if (clients.length === 0 || cands.length === 0) {
     return {
       candidates: cands.length, clients: clients.length,
-      tickets: 0, notified: 0, notifyFailed: 0, skipped: [],
+      tickets: 0, notified: 0, notifyFailed: 0, staked: 0,
+      skipped: [], dryRun,
     };
   }
 
@@ -98,11 +117,57 @@ export async function dispatchCandidates(cands: Candidate[]): Promise<DispatchRe
     }
   }
 
+  const plan = rows.map((r) => ({
+    userId: String(r.user_id),
+    event: String(r.event_name),
+    stake: Number(r.stake),
+    band: String(r.band),
+  }));
+
+  if (dryRun) {
+    log("info", "dispatch", "běh nasucho — nic se nezapsalo", {
+      wouldCreate: rows.length,
+      wouldStake: plan.reduce((s, p) => s + p.stake, 0),
+    });
+    return {
+      candidates: cands.length, clients: clients.length,
+      tickets: 0, notified: 0, notifyFailed: 0,
+      staked: 0, dryRun: true, plan,
+      skipped: [...skipped].map(([reason, count]) => ({ reason, count })),
+    };
+  }
+
   let tickets = 0;
+  let created: { id: string; user_id: string; stake: number }[] = [];
+
   if (rows.length > 0) {
-    const { error, count } = await db.from("tickets").insert(rows, { count: "exact" });
-    if (error) console.error("[dispatch]", error);
-    else tickets = count ?? rows.length;
+    // upsert místo insert: dvojí běh cronu nesmí vytvořit klientovi
+    // tentýž tiket dvakrát. Unique index to hlídá i při souběhu.
+    const { data, error } = await db
+      .from("tickets")
+      .upsert(rows, { onConflict: "user_id,candidate_id", ignoreDuplicates: true })
+      .select("id, user_id, stake");
+
+    if (error) log("error", "dispatch", "zápis tiketů selhal", { error: error.message });
+    else {
+      created = (data ?? []) as typeof created;
+      tickets = created.length;
+    }
+  }
+
+  // Vklad se odečte při vsazení, výplata přijde až při zúčtování.
+  // Klíč je odvozený od tiketu, takže opakovaný běh nic nepřipíše.
+  let staked = 0;
+  for (const t of created) {
+    const res = await addEntry({
+      userId: t.user_id,
+      kind: "stake",
+      amount: -Math.abs(Number(t.stake)),
+      ticketId: t.id,
+      idempotencyKey: keys.stake(t.id),
+      note: "Vsazeno podle doporučení",
+    });
+    if (res.ok && res.created) staked += Number(t.stake);
   }
 
   // Zprávy odcházejí až po zápisu. Kdyby to bylo obráceně a zápis
@@ -127,6 +192,8 @@ export async function dispatchCandidates(cands: Candidate[]): Promise<DispatchRe
     tickets,
     notified,
     notifyFailed,
+    staked,
+    dryRun: false,
     skipped: [...skipped].map(([reason, count]) => ({ reason, count })),
   };
 }

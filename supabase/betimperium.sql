@@ -463,7 +463,64 @@ alter table ai_runs          enable row level security;
 alter table ai_approvals     enable row level security;
 
 
--- ── 11. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
+-- ── 11. BANKROLL JAKO ÚČETNÍ KNIHA ───────────────────────────
+-- Jedno měnitelné číslo je konstrukce, ze které vznikne stav, co se
+-- nedá odsouhlasit. Tady je každý pohyb samostatný řádek s klíčem
+-- idempotence a zůstatek je součet, ne uložená hodnota.
+
+create table if not exists bankroll_entries (
+  id               bigserial primary key,
+  user_id          uuid not null references auth.users on delete cascade,
+  kind             text not null check (kind in
+                     ('deposit','withdrawal','stake','payout','refund','correction')),
+  -- Znaménko nese směr: sázka záporně, výplata kladně.
+  amount           numeric(12,2) not null check (amount <> 0),
+  ticket_id        uuid references tickets on delete set null,
+  idempotency_key  text not null,
+  note             text,
+  created_by       uuid,
+  created_at       timestamptz not null default now()
+);
+
+-- Tenhle index je celá ochrana proti dvojímu zúčtování.
+create unique index if not exists bankroll_entries_idem
+  on bankroll_entries (idempotency_key);
+
+create index if not exists bankroll_entries_user
+  on bankroll_entries (user_id, created_at desc);
+create index if not exists bankroll_entries_ticket
+  on bankroll_entries (ticket_id) where ticket_id is not null;
+
+-- Zůstatek se počítá, neukládá.
+create or replace function public.bankroll_balance(uid uuid)
+returns numeric
+language sql
+stable
+security definer
+set search_path = public
+as $$ select coalesce(sum(amount), 0)::numeric(12,2)
+     from public.bankroll_entries where user_id = uid $$;
+
+-- Doplnění počátečních vkladů z dnešní hodnoty v profilu.
+-- Klíč obsahuje slovo initial, takže opakované spuštění nic nepřidá.
+insert into bankroll_entries (user_id, kind, amount, idempotency_key, note)
+select p.id, 'deposit', p.bankroll, 'deposit:initial:' || p.id,
+       'Počáteční vklad převzatý z profilu'
+from profiles p
+where p.bankroll > 0
+  and not exists (
+    select 1 from bankroll_entries b
+    where b.user_id = p.id and b.idempotency_key = 'deposit:initial:' || p.id
+  );
+
+alter table bankroll_entries enable row level security;
+
+drop policy if exists "vlastni pohyby" on bankroll_entries;
+create policy "vlastni pohyby" on bankroll_entries
+  for select using (auth.uid() = user_id);
+
+
+-- ── 12. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
 -- Zásada: klientský klíč nevidí nic než vlastní řádky.
 -- Zapnuté RLS bez politiky = tabulka je pro anon klíč neviditelná.
 
@@ -508,7 +565,7 @@ create policy "vlastni tikety" on tickets
 -- jen server přes service_role.
 
 
--- ── 12. PRVNÍ ADMIN ──────────────────────────────────────────
+-- ── 13. PRVNÍ ADMIN ──────────────────────────────────────────
 -- Uprav e-mail na svůj.
 
 update profiles set role = 'admin'
@@ -521,3 +578,11 @@ where id = (select id from auth.users where email = 'matuchovic@betim.cz');
 select u.email, p.name, p.role, p.birth_date
 from auth.users u
 left join profiles p on p.id = u.id;
+
+-- Kontrola po nasazení účetní knihy: součet musí sedět na profil.
+-- Nesoulad = někde chybí pohyb, ne že je špatně součet.
+select p.id, p.name, p.bankroll as v_profilu,
+       public.bankroll_balance(p.id) as v_knize,
+       abs(p.bankroll - public.bankroll_balance(p.id)) < 0.01 as sedi
+from profiles p
+where p.role = 'client';
