@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import ScaleField from "@/components/effects/ScaleField";
 import Veil from "@/components/effects/Veil";
+import Wordmark from "@/components/effects/Wordmark";
 
 /** Tempo sekvence. Zvýšením se obrazovka prodlouží, snížením zkrátí. */
 const INTRO_MS = 1200;
@@ -72,11 +73,8 @@ export default function BootScreen({ onDone }: { onDone: () => void }) {
       <div className="veil__edge" aria-hidden="true" />
 
       <div className="veil__mid">
-        <span className="veil__logo">
-          <span style={{ color: "#7ef0a8" }}>BET</span>
-          <span style={{ color: "#ffffff" }}>IMPERIUM</span>
-        </span>
-        <span className="veil__sub">Sázkový management</span>
+        <Wordmark />
+        <span className="veil__sub">Sázkové poradenství</span>
 
         <ul className="veil__steps">
           {STEPS.map((label, i) => {
