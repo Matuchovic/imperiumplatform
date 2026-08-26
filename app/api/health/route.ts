@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,12 @@ export const dynamic = "force-dynamic";
  * od "je chyba v kódu", což z produkční 500 nepoznáš.
  */
 export async function GET() {
+  // Výpis konfigurace nepatří veřejně ani bez hodnot — prozrazuje,
+  // které služby jsou zapojené.
+  if (!(await requireAdmin())) {
+    return NextResponse.json({ error: "Nepovoleno." }, { status: 403 });
+  }
+
   const check = (name: string) => {
     const v = process.env[name];
     return { nastaveno: Boolean(v), delka: v?.length ?? 0 };

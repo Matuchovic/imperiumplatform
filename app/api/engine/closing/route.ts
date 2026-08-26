@@ -1,3 +1,4 @@
+import { log } from "@/lib/log";
 import { NextResponse } from "next/server";
 import { serviceClient } from "@/lib/supabase/server";
 import { getProvider } from "@/lib/providers/odds";
@@ -44,8 +45,9 @@ async function run(req: Request) {
           .eq("candidate_id", r.id)
           .is("closing_odds", null);
         captured++;
-      } catch {
+      } catch (err) {
         // Jeden nedostupný zápas nesmí shodit celý běh.
+        log("debug", "route", "Jeden nedostupný zápas nesmí shodit celý běh.", { error: String(err) });
       }
     }
 

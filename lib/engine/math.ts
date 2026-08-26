@@ -6,7 +6,14 @@
 /** Implikovaná pravděpodobnost z desetinného kurzu, včetně marže knihovny. */
 export const impliedProb = (decimalOdds: number) => 1 / decimalOdds;
 
-/** Součet implikovaných pravděpodobností. Nad 1 = marže knihovny. */
+/**
+ * SOUČET implikovaných pravděpodobností, ne přebytek nad jedničkou.
+ * Férový trh dá přesně 1, reálný víc. Marže knihovny = návratová
+ * hodnota minus 1.
+ *
+ * Slovo "overround" se v praxi používá v obou významech — proto ta
+ * poznámka. Test na to jednou naletěl.
+ */
 export const overround = (odds: number[]) =>
   odds.reduce((s, o) => s + impliedProb(o), 0);
 

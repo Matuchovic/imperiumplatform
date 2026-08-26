@@ -276,6 +276,13 @@ create index if not exists candidates_band on candidates (band, status, created_
 alter table profiles add column if not exists subscribed_bands text[]
   not null default array['zaklad','standard'];
 
+-- Kanál doručení. Bez něj tip skončí v databázi a klient ho uvidí,
+-- jen když si sám otevře aplikaci — u kurzů, které se hýbou, pozdě.
+alter table profiles add column if not exists telegram_chat_id text;
+
+create index if not exists profiles_telegram on profiles (telegram_chat_id)
+  where telegram_chat_id is not null;
+
 -- Která pásma smí odejít bez schválení člověkem.
 alter table app_settings add column if not exists auto_bands text[]
   not null default array['zaklad','standard'];
@@ -299,7 +306,164 @@ create index if not exists engine_runs_recent on engine_runs (started_at desc);
 alter table engine_runs enable row level security;
 
 
--- ── 10. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
+-- ── 10. AUDIT, UDÁLOSTI A AI VRSTVA ──────────────────────────
+-- Audit vzniká DŘÍV, než cokoli začne měnit peníze nebo stavy.
+-- Obráceně by se první chyba nedala dohledat.
+
+create table if not exists audit_log (
+  id          bigserial primary key,
+  action      text not null,
+  entity      text not null,
+  entity_id   text not null,
+  actor_id    uuid,
+  -- kdo změnu vyvolal: uživatel, cron, agent
+  source      text not null,
+  previous    jsonb,
+  next        jsonb,
+  reason      text,
+  run_id      text,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists audit_log_entity on audit_log (entity, entity_id, created_at desc);
+create index if not exists audit_log_recent on audit_log (created_at desc);
+create index if not exists audit_log_action on audit_log (action, created_at desc);
+
+-- Doménové události. Tabulka místo fronty — na Vercelu a Supabase
+-- je to přiměřené a idempotenci zajistí unique klíč.
+create table if not exists domain_events (
+  id            bigserial primary key,
+  event_key     text not null,
+  type          text not null,
+  entity        text not null,
+  entity_id     text not null,
+  payload       jsonb not null default '{}'::jsonb,
+  created_at    timestamptz not null default now(),
+  processed_at  timestamptz,
+  error         text
+);
+
+-- Tenhle index je celá idempotence: stejná událost neprojde dvakrát.
+create unique index if not exists domain_events_key on domain_events (event_key);
+create index if not exists domain_events_pending on domain_events (created_at)
+  where processed_at is null;
+
+-- Signály trhu. Odvozené hodnoty počítá TypeScript, ne model.
+create table if not exists market_signals (
+  id            bigserial primary key,
+  type          text not null,
+  event_id      text not null,
+  market_id     text not null,
+  selection_id  text not null,
+  severity      text not null check (severity in ('info','low','medium','high','critical')),
+  source        text not null,
+  metrics       jsonb not null default '{}'::jsonb,
+  dedupe_key    text not null,
+  detected_at   timestamptz not null default now()
+);
+
+create index if not exists market_signals_dedupe on market_signals (dedupe_key, detected_at desc);
+create index if not exists market_signals_market on market_signals (event_id, market_id, detected_at desc);
+
+create table if not exists market_incidents (
+  id           bigserial primary key,
+  incident_key text not null,
+  event_id     text not null,
+  market_id    text not null,
+  severity     text not null,
+  trigger      text not null,
+  status       text not null default 'open'
+               check (status in ('open','investigating','resolved')),
+  signal_ids   bigint[] not null default '{}',
+  started_at   timestamptz not null default now(),
+  resolved_at  timestamptz
+);
+
+create unique index if not exists market_incidents_key on market_incidents (incident_key);
+
+-- Každý běh agenta musí být dohledatelný.
+create table if not exists ai_runs (
+  id              bigserial primary key,
+  run_id          text not null,
+  agent           text not null,
+  task            text not null,
+  trigger_event   text,
+  model           text,
+  started_at      timestamptz not null default now(),
+  completed_at    timestamptz,
+  input_refs      jsonb,
+  tool_calls      jsonb not null default '[]'::jsonb,
+  output          jsonb,
+  action_suggested text,
+  action_executed  boolean not null default false,
+  approved_by     uuid,
+  approved_at     timestamptz,
+  error           text,
+  duration_ms     integer,
+  tokens_in       integer,
+  tokens_out      integer
+);
+
+create index if not exists ai_runs_recent on ai_runs (started_at desc);
+create index if not exists ai_runs_agent on ai_runs (agent, started_at desc);
+
+-- Návrhy čekající na člověka. Bez schválení se akce neprovede.
+create table if not exists ai_approvals (
+  id           bigserial primary key,
+  ai_run_id    bigint references ai_runs on delete cascade,
+  agent        text not null,
+  tool         text not null,
+  action_key   text not null,
+  reason       text not null,
+  severity     text not null,
+  evidence     jsonb,
+  status       text not null default 'pending'
+               check (status in ('pending','approved','rejected','expired')),
+  decided_by   uuid,
+  decided_at   timestamptz,
+  created_at   timestamptz not null default now()
+);
+
+create unique index if not exists ai_approvals_key on ai_approvals (action_key)
+  where status = 'pending';
+
+-- Vypínače rizikových podsystémů. Výchozí stav je vypnuto —
+-- zapíná se vědomě.
+alter table app_settings add column if not exists watcher_enabled     boolean not null default false;
+alter table app_settings add column if not exists automations_enabled boolean not null default false;
+alter table app_settings add column if not exists settlement_enabled  boolean not null default false;
+alter table app_settings add column if not exists ai_agents_enabled   boolean not null default false;
+alter table app_settings add column if not exists ai_write_enabled    boolean not null default false;
+
+-- Idempotence rozesílání. Bez tohohle indexu vytvoří dvojí běh cronu
+-- klientovi tentýž tiket dvakrát.
+-- Pozor: na existující duplicity migrace selže. Kontrola je níž.
+do $$
+declare dup integer;
+begin
+  select count(*) into dup from (
+    select user_id, candidate_id from tickets
+    where candidate_id is not null
+    group by user_id, candidate_id having count(*) > 1
+  ) x;
+
+  if dup > 0 then
+    raise notice 'Nalezeno % duplicitních dvojic tiketů. Index se nevytvoří, dokud se neuklidí.', dup;
+  else
+    create unique index if not exists tickets_unique_dispatch
+      on tickets (user_id, candidate_id) where candidate_id is not null;
+  end if;
+end $$;
+
+alter table audit_log        enable row level security;
+alter table domain_events    enable row level security;
+alter table market_signals   enable row level security;
+alter table market_incidents enable row level security;
+alter table ai_runs          enable row level security;
+alter table ai_approvals     enable row level security;
+
+
+-- ── 11. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
 -- Zásada: klientský klíč nevidí nic než vlastní řádky.
 -- Zapnuté RLS bez politiky = tabulka je pro anon klíč neviditelná.
 
@@ -344,7 +508,7 @@ create policy "vlastni tikety" on tickets
 -- jen server přes service_role.
 
 
--- ── 11. PRVNÍ ADMIN ──────────────────────────────────────────
+-- ── 12. PRVNÍ ADMIN ──────────────────────────────────────────
 -- Uprav e-mail na svůj.
 
 update profiles set role = 'admin'

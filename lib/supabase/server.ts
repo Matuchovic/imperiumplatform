@@ -1,3 +1,4 @@
+import { log } from "@/lib/log";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
@@ -19,8 +20,9 @@ export async function supabaseServer() {
       setAll(list: CookieToSet[]) {
         try {
           list.forEach(({ name, value, options }) => store.set(name, value, options));
-        } catch {
+        } catch (err) {
           // V server komponentě zapisovat nejde — obnovu řeší middleware.
+          log("debug", "server", "V server komponentě zapisovat nejde — obnovu řeší middleware", { error: String(err) });
         }
       },
     },

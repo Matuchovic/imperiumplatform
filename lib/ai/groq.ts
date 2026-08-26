@@ -6,6 +6,8 @@
  * Model NIKDY nepočítá kurzy, hodnotu ani sázky. To dělá lib/engine.
  */
 
+import { log } from "@/lib/log";
+
 const URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
 
@@ -48,7 +50,10 @@ function parseJson<T>(raw: string | null): T | null {
   if (!raw) return null;
   try {
     return JSON.parse(raw.replace(/```json|```/g, "").trim()) as T;
-  } catch {
+  } catch (err) {
+    // Volající null zpracuje — ale tichá chyba by skryla, že model
+    // vrací nevalidní JSON systematicky.
+    log("debug", "groq", "výstup není platný JSON", { error: String(err) });
     return null;
   }
 }
