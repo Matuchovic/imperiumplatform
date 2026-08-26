@@ -256,6 +256,12 @@ create table if not exists automation_runs (
 create index if not exists automation_runs_recent
   on automation_runs (automation_id, started_at desc);
 
+-- Idempotence engine automatizací: tatáž událost nesmí spustit
+-- tutéž automatizaci dvakrát.
+create unique index if not exists automation_runs_idem
+  on automation_runs (automation_id, subject_id)
+  where subject_id is not null;
+
 -- Nouzový vypínač. Jeden řádek v nastavení místo hromadné úpravy
 -- automatizací — po znovuspuštění zůstanou zapnuté ty, co byly.
 alter table app_settings add column if not exists automations_paused boolean not null default false;
@@ -272,6 +278,7 @@ alter table tickets    add column if not exists band text
   check (band in ('zaklad','standard','rozsireny','odvazny'));
 
 create index if not exists candidates_band on candidates (band, status, created_at desc);
+create index if not exists candidates_league on candidates (league);
 
 alter table profiles add column if not exists subscribed_bands text[]
   not null default array['zaklad','standard'];
@@ -520,7 +527,72 @@ create policy "vlastni pohyby" on bankroll_entries
   for select using (auth.uid() = user_id);
 
 
--- ── 12. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
+-- ── 12. ZÁMKY ÚLOH ───────────────────────────────────────────
+-- Řeší souběh: dvojí spuštění cronu, nebo manuální běh proti
+-- naplánovanému. Zámek má platnost, aby pád běhu úlohu nezablokoval
+-- napořád — vypršelý smí převzít kdokoli další.
+
+create table if not exists job_locks (
+  job_key      text primary key,
+  holder       text not null,
+  acquired_at  timestamptz not null default now(),
+  expires_at   timestamptz not null
+);
+
+create index if not exists job_locks_expiry on job_locks (expires_at);
+
+-- Atomické převzetí. Vrací true jen tomu, kdo zámek skutečně získal.
+create or replace function public.acquire_job_lock(
+  p_job_key text, p_holder text, p_minutes integer default 10
+) returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare got boolean;
+begin
+  insert into public.job_locks (job_key, holder, expires_at)
+  values (p_job_key, p_holder, now() + make_interval(mins => p_minutes))
+  on conflict (job_key) do update
+    set holder = excluded.holder,
+        acquired_at = now(),
+        expires_at = excluded.expires_at
+    where public.job_locks.expires_at <= now()
+  returning true into got;
+
+  return coalesce(got, false);
+end $$;
+
+create or replace function public.release_job_lock(p_job_key text, p_holder text)
+returns void
+language sql
+security definer
+set search_path = public
+as $$ delete from public.job_locks where job_key = p_job_key and holder = p_holder $$;
+
+alter table job_locks enable row level security;
+
+
+-- ── 13. UKÁZKOVÁ DATA ────────────────────────────────────────
+-- Ukázka se od skutečných dat liší jediným příznakem. Díky němu jde
+-- smazat jedním dotazem a nikdy se nesmíchá se živým provozem.
+
+alter table profiles         add column if not exists is_demo boolean not null default false;
+alter table tickets          add column if not exists is_demo boolean not null default false;
+alter table candidates       add column if not exists is_demo boolean not null default false;
+alter table bankroll_entries add column if not exists is_demo boolean not null default false;
+
+create index if not exists profiles_demo         on profiles (is_demo) where is_demo;
+create index if not exists tickets_demo          on tickets (is_demo) where is_demo;
+create index if not exists candidates_demo       on candidates (is_demo) where is_demo;
+create index if not exists bankroll_entries_demo on bankroll_entries (is_demo) where is_demo;
+
+-- Ukázkoví klienti mají skutečné účty v auth.users, takže cizí klíče
+-- zůstávají v platnosti. Příznak is_demo slouží jen k jejich odlišení
+-- a hromadnému smazání — schéma se kvůli ukázce nijak neoslabuje.
+
+
+-- ── 14. ŘÍZENÍ PŘÍSTUPU ──────────────────────────────────────
 -- Zásada: klientský klíč nevidí nic než vlastní řádky.
 -- Zapnuté RLS bez politiky = tabulka je pro anon klíč neviditelná.
 
@@ -565,7 +637,7 @@ create policy "vlastni tikety" on tickets
 -- jen server přes service_role.
 
 
--- ── 13. PRVNÍ ADMIN ──────────────────────────────────────────
+-- ── 15. PRVNÍ ADMIN ──────────────────────────────────────────
 -- Uprav e-mail na svůj.
 
 update profiles set role = 'admin'
