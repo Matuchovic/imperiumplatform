@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import RegisterSW from "@/components/pwa/Register";
+import ClientBoot from "@/components/pwa/Register";
 
 /* Tři role písma:
    Outfit        — display, nese identitu značky
@@ -56,14 +56,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="cs" className={`${outfit.variable} ${inter.variable} ${mono.variable}`}>
       <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"
-        />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
       </head>
       <body className="min-h-dvh antialiased">
         {children}
-        <RegisterSW />
+        <ClientBoot />
       </body>
     </html>
   );

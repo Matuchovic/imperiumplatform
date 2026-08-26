@@ -471,6 +471,7 @@ body {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  contain: strict;
   mask-image: radial-gradient(ellipse 46% 42% at 50% 45%, transparent 38%, rgba(0,0,0,.5) 68%, #000 92%);
   -webkit-mask-image: radial-gradient(ellipse 46% 42% at 50% 45%, transparent 38%, rgba(0,0,0,.5) 68%, #000 92%);
 }
@@ -479,13 +480,9 @@ body {
   border: 1px solid rgba(126, 240, 168, 0.1);
   border-radius: 0 0 100% 100%;
   opacity: 0.05;
-  will-change: transform, opacity;
   animation: sf-flat 4.8s ease-out infinite;
 }
-.sf__sc--deep {
-  animation-name: sf-deep;
-  will-change: transform, opacity, filter;
-}
+.sf__sc--deep { animation-name: sf-deep; }
 
 @keyframes sf-flat {
   0%   { opacity: .05; transform: scale(1);    border-color: rgba(126,240,168,.10); }
@@ -616,7 +613,7 @@ body {
 @keyframes veil-spin { to { transform: rotate(360deg); } }
 
 .veil__steps--data .veil__step { font-family: var(--font-data); font-size: 12.5px; }
-.veil__tag { width: 26px; flex-shrink: 0; color: #2b352e; }
+.veil__tag { width: 30px; flex-shrink: 0; white-space: nowrap; color: #2b352e; }
 .veil__step--done .veil__tag { color: var(--color-signal); }
 .veil__step--warn .veil__tag { color: var(--color-amber); }
 .veil__label { flex: 1; min-width: 0; }
@@ -1608,4 +1605,31 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   /* Ve vlastním okně už prohlížeč nemá lištu, obsah smí výš. */
   .adm-top { padding-top: calc(10px + env(safe-area-inset-top)); }
   body { overscroll-behavior: none; }
+}
+
+/* ============================================================
+   PLYNULOST
+   ============================================================ */
+
+/* Dlouhé stránky nemusí prohlížeč rozkládat celé najednou.
+   Odhad výšky brání poskakování posuvníku. */
+.adm-panel, .set-card, .au-item, .cl-wrap {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
+}
+
+/* Postranní navigace a plachta detailu se překreslují samostatně,
+   ne spolu se zbytkem stránky. */
+.adm-side, .cl-panel { contain: layout paint; }
+
+/* Rolování bez trhání na dotykových zařízeních. */
+.adm-side, .cl-panel, .scroll-x { -webkit-overflow-scrolling: touch; }
+
+/* Přechody jen tam, kde je vidět rozdíl. Univerzální transition na *
+   je nejčastější příčina toho, že aplikace působí těžkopádně. */
+@media (prefers-reduced-motion: no-preference) {
+  .adm-nav, .cl-tab, .set-tab, .adm-btn, .set-switch__knob {
+    transition-duration: 140ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
 }

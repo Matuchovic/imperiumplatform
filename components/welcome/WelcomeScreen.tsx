@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import ScaleField from "@/components/effects/ScaleField";
+import Veil from "@/components/effects/Veil";
 import { ACCOUNT, goalPct } from "@/lib/data";
 
 const INTRO_MS = 900;
@@ -66,6 +67,7 @@ export default function WelcomeScreen({
   const pct = Math.round((Math.max(0, step + 1) / steps.length) * 100);
 
   return (
+    <Veil>
     <div
       className={`veil ${leaving ? "veil--out" : ""}`}
       onClick={skip}
@@ -125,5 +127,6 @@ export default function WelcomeScreen({
         </div>
       </div>
     </div>
+    </Veil>
   );
 }

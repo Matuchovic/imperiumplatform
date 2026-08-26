@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import ScaleField from "@/components/effects/ScaleField";
+import Veil from "@/components/effects/Veil";
 
 /** Tempo sekvence. Zvýšením se obrazovka prodlouží, snížením zkrátí. */
 const INTRO_MS = 1200;
@@ -57,6 +58,7 @@ export default function BootScreen({ onDone }: { onDone: () => void }) {
   const pct = Math.round(((step + 1) / STEPS.length) * 96);
 
   return (
+    <Veil>
     <div
       className={`veil ${leaving ? "veil--out" : ""}`}
       onClick={skip}
@@ -104,5 +106,6 @@ export default function BootScreen({ onDone }: { onDone: () => void }) {
         </div>
       </div>
     </div>
+    </Veil>
   );
 }

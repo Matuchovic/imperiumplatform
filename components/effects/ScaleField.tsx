@@ -66,7 +66,8 @@ export default function ScaleField({
           // Rozostření je drahé, proto jen na třetině — a na mobilu vůbec.
           if (!narrow && (r * 7 + c * 13) % 3 === 0) el.classList.add("sf__sc--deep");
 
-          el.style.cssText = `left:${x}px;top:${y}px;width:${SIZE}px;height:${SIZE}px`;
+          el.style.cssText =
+            `left:${x}px;top:${y}px;width:${SIZE}px;height:${SIZE}px`;
 
           const dist = Math.hypot(dx, dy);
           const travel = direction === "in" ? maxD - dist : dist;
