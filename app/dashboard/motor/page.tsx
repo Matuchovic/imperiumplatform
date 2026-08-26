@@ -69,11 +69,12 @@ export default async function Motor() {
                 )}
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
                 {[
                   ["Ostrý kurz", c.sharpOdds.toFixed(2)],
                   ["Férová p.", pc(c.fairProb)],
                   ["Nabídka", c.offeredOdds.toFixed(2)],
+                  ["Vsaď nad", c.thresholdOdds.toFixed(2)],
                   ["Sázka", `${c.units.toFixed(1)} jed.`],
                 ].map(([k, v]) => (
                   <div key={k}>

@@ -28,6 +28,7 @@ export type Candidate = {
   offeredOdds: number;
   offeredBy: string;
   ev: number;
+  thresholdOdds: number;
   units: number;
   commenceTime: string;
   blocked?: string;

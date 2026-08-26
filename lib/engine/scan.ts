@@ -1,8 +1,9 @@
-import { devigPower, expectedValue, stakeInUnits } from "./math";
+import { devigPower, expectedValue, stakeInUnits, thresholdOdds } from "./math";
 import { DEFAULT_CONFIG, type Candidate, type EngineConfig, type MatchOdds } from "./types";
 import { getProvider } from "@/lib/providers/odds";
 
-const SPORTS = ["soccer_epl", "basketball_nba", "tennis_atp", "icehockey_nhl"];
+/** Identifikátory lig se liší podle poskytovatele — ověř přes /api/engine/probe. */
+const SPORTS = (process.env.ENGINE_LEAGUES ?? "EPL,NBA,NHL").split(",").map((s) => s.trim());
 
 export type ScanResult = {
   provider: string;
@@ -67,6 +68,7 @@ export async function scanForValue(config: EngineConfig = DEFAULT_CONFIG): Promi
           offeredOdds: outcome.price,
           offeredBy: book.bookmaker,
           ev,
+          thresholdOdds: thresholdOdds(fairProb, config.minEv),
           units: stakeInUnits(fairProb, outcome.price, {
             fraction: config.kellyFraction,
             unitPct: config.unitPct,

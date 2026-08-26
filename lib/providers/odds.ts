@@ -1,15 +1,8 @@
 import type { MatchOdds } from "@/lib/engine/types";
+import type { OddsProvider } from "./base";
+import { SportsGameOddsProvider } from "./sportsgameodds";
 
-/**
- * Zdroj kurzů. Adaptér se dá vyměnit, aniž by se sáhlo na motor.
- * Bez API klíče se použije mock — matematika běží stejná,
- * jen data nejsou živá.
- */
-export interface OddsProvider {
-  name: string;
-  live: boolean;
-  fetchOdds(sports: string[]): Promise<MatchOdds[]>;
-}
+export type { OddsProvider };
 
 type ApiOutcome = { name: string; price: number };
 type ApiMarket = { key: string; outcomes: ApiOutcome[] };
@@ -118,7 +111,19 @@ export class MockProvider implements OddsProvider {
   }
 }
 
+/**
+ * Výběr zdroje. ODDS_PROVIDER přepíná adaptér, ODDS_API_KEY nese klíč.
+ * Bez klíče jedou ukázková data — motor tím pádem funguje vždycky.
+ */
 export function getProvider(): OddsProvider {
   const key = process.env.ODDS_API_KEY;
-  return key ? new TheOddsApiProvider(key) : new MockProvider();
+  if (!key) return new MockProvider();
+
+  switch (process.env.ODDS_PROVIDER) {
+    case "theoddsapi":
+      return new TheOddsApiProvider(key);
+    case "sportsgameodds":
+    default:
+      return new SportsGameOddsProvider(key);
+  }
 }

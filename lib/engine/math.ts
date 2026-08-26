@@ -86,3 +86,11 @@ export function stakeInUnits(
 export function clv(betOdds: number, closingOdds: number): number {
   return betOdds / closingOdds - 1;
 }
+
+/**
+ * Nejnižší kurz, při kterém sázka ještě splní požadovanou hodnotu.
+ * Nutné tam, kde cílová kancelář nemá API — manažer podle toho
+ * pozná, jestli se u ní vyplatí sázet, aniž by kurz znal předem.
+ */
+export const thresholdOdds = (fairProb: number, minEv: number) =>
+  (1 + minEv) / fairProb;
