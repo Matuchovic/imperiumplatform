@@ -13,6 +13,7 @@ import { BANDS } from "@/lib/engine/bands";
  */
 
 import { type Rezim } from "./rezimy";
+import { hledejNaWebu, prectiStranku } from "./web";
 
 export type { Rezim };
 
@@ -542,6 +543,58 @@ NASTROJE.push(
           telo: { candidateId: data.id, decision: rozhodnuti },
         },
       };
+    },
+  }
+);
+
+NASTROJE.push(
+  {
+    klic: "hledej_na_webu",
+    rezimy: ["search"] as Rezim[],
+    popis: "Vyhledá na webu. Vrací odkazy a útržky z cizích stránek, ne data z naší databáze.",
+    parametry: { dotaz: "co hledat" },
+    spust: async (p) => {
+      if (!p.dotaz) return { chyba: "Chybí dotaz." };
+      return hledejNaWebu(p.dotaz);
+    },
+  },
+  {
+    klic: "precti_stranku",
+    rezimy: ["search"] as Rezim[],
+    popis: "Stáhne konkrétní stránku a vrátí její text. Použij po hledání, když potřebuješ podrobnosti.",
+    parametry: { url: "adresa stránky" },
+    spust: async (p) => {
+      if (!p.url) return { chyba: "Chybí adresa." };
+      return prectiStranku(p.url);
+    },
+  },
+  {
+    klic: "overit_insolvenci",
+    rezimy: ["search"] as Rezim[],
+    popis: "Ověří, zda firma není v insolvenčním řízení. Veřejný rejstřík, data z webu.",
+    parametry: { ico: "IČO firmy" },
+    spust: async (p) => {
+      if (!p.ico) return { chyba: "Chybí IČO." };
+      try {
+        const res = await fetch(
+          `https://isir.justice.cz/isir/common/stat.do?ic=${encodeURIComponent(p.ico)}`,
+          { signal: AbortSignal.timeout(8000) }
+        );
+        if (!res.ok) return { zdroj: "web", chyba: `Rejstřík odpověděl ${res.status}` };
+
+        const html = await res.text();
+        // Rejstřík nemá otevřené API, takže se čte odpověď stránky.
+        // Nález je potřeba vždycky ověřit ručně — proto ten odkaz.
+        const nalez = /nebyl.{0,20}nalezen|žádný záznam/i.test(html);
+        return {
+          zdroj: "web",
+          ico: p.ico,
+          rizeni: nalez ? "žádné" : "nutné ověřit ručně",
+          odkaz: `https://isir.justice.cz/isir/ueu/evidence_upadcu_readonly.do?ic=${encodeURIComponent(p.ico)}`,
+        };
+      } catch (err) {
+        return { zdroj: "web", chyba: `Rejstřík nedostupný: ${String(err).slice(0, 100)}` };
+      }
     },
   }
 );

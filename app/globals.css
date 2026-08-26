@@ -2391,3 +2391,29 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   border-color: rgba(126, 240, 168, 0.32);
   color: var(--color-chalk);
 }
+
+/* ---------- nálezy z webu ---------- */
+.jd-nalezy { display: grid; gap: 7px; margin-top: 12px; }
+.jd-nalez {
+  display: block;
+  padding: 11px 12px;
+  border-radius: 9px;
+  /* Modrá znamená web. Naše data jsou zelená — to rozlišení je
+     důvod, proč tenhle blok vypadá jinak než zbytek panelu. */
+  background: rgba(96, 165, 250, 0.05);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+.jd-nalez:hover { border-color: rgba(96, 165, 250, 0.5); background: rgba(96, 165, 250, 0.09); }
+.jd-nalez__h {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  color: #a8cdf7;
+  margin-bottom: 4px;
+}
+.jd-nalez__h i { font-size: 14px; flex-shrink: 0; }
+.jd-nalez__p { display: block; font-size: 12.5px; line-height: 1.55; color: var(--color-ash); }
+.jd-nalez__z { display: block; margin-top: 6px; font-size: 9.5px; letter-spacing: 0.1em; color: #5a7a9e; }

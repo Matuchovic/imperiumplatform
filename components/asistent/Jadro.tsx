@@ -33,10 +33,10 @@ const RYCHLE: Record<Rezim, string[]> = {
     "Kdy naposled běžel motor?",
   ],
   search: [
-    "Otevři kontakty z Brna",
+    "Najdi na webu zákon o hazardních hrách",
     "Ověř v ARES firmu s IČO 27082561",
+    "Otevři kontakty z Brna",
     "Najdi všechno ke jménu Novák",
-    "Hledej kadeřnictví",
   ],
   build: [
     "Založ úkol zavolat Procházkovi zítra",
@@ -221,6 +221,21 @@ export default function Jadro() {
                   <i className={`ti ti-${odp.zWebu ? "world" : "database"}`} aria-hidden="true" />
                   {odp.zWebu ? `${odp.nastroj} · z webu` : odp.nastroj}
                 </span>
+              )}
+
+              {odp.zWebu && Array.isArray((odp.data as { nalezy?: unknown[] })?.nalezy) && (
+                <div className="jd-nalezy">
+                  {((odp.data as { nalezy: { nazev: string; url: string; popis: string; odkud: string }[] }).nalezy).map((n, i) => (
+                    <a key={i} href={n.url} target="_blank" rel="noopener noreferrer" className="jd-nalez">
+                      <span className="jd-nalez__h">
+                        <i className="ti ti-world" aria-hidden="true" />
+                        {n.nazev}
+                      </span>
+                      <span className="jd-nalez__p">{n.popis}</span>
+                      <span className="data jd-nalez__z">{n.odkud}</span>
+                    </a>
+                  ))}
+                </div>
               )}
 
               {odp.data !== null && odp.data !== undefined && (
