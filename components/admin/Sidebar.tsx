@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Logo from "@/components/brand/Logo";
 import { navFor, ROLE_LABEL, type Role } from "./nav";
+import { VERZE } from "@/lib/verze";
 
 export default function Sidebar({ role }: { role: Role }) {
   const pathname = usePathname();
@@ -61,7 +62,12 @@ export default function Sidebar({ role }: { role: Role }) {
           ))}
         </nav>
 
-        <p className="adm-side__role">{ROLE_LABEL[role]}</p>
+        <div className="adm-side__foot">
+          <span className="adm-side__role">{ROLE_LABEL[role]}</span>
+          {/* Verze musí být vidět — bez ní se při hlášení chyby
+              nedá zjistit, co člověk vlastně používá. */}
+          <span className="data adm-side__verze" title="Verze aplikace">v{VERZE}</span>
+        </div>
       </aside>
     </>
   );

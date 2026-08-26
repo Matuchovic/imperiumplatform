@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { currentUser, serviceClient } from "@/lib/supabase/server";
 import { roleOf } from "@/lib/auth/guard";
 import { PageTitle } from "@/components/admin/PageTitle";
+import { VERZE, VERZE_POPIS } from "@/lib/verze";
 import SettingsPanel, { type Settings } from "@/components/admin/SettingsPanel";
 import { Row } from "@/components/admin/ui";
 
@@ -73,6 +74,14 @@ export default async function Nastaveni() {
       )}
 
       <SettingsPanel initial={settings} />
+
+      <div className="adm-panel">
+        <p className="adm-panel__title">O aplikaci</p>
+        <div style={{ marginTop: 10 }}>
+          <Row label="Verze" value={`v${VERZE}`} />
+          <Row label="Poslední změna" value={VERZE_POPIS} />
+        </div>
+      </div>
     </>
   );
 }
