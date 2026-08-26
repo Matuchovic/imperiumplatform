@@ -1,6 +1,9 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+
+/** Tvar, který @supabase/ssr předává do setAll. */
+type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 const URL = () => process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const ANON = () => process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -11,8 +14,10 @@ export async function supabaseServer() {
 
   return createServerClient(URL(), ANON(), {
     cookies: {
-      getAll: () => store.getAll(),
-      setAll: (list) => {
+      getAll() {
+        return store.getAll();
+      },
+      setAll(list: CookieToSet[]) {
         try {
           list.forEach(({ name, value, options }) => store.set(name, value, options));
         } catch {

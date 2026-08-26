@@ -1,5 +1,7 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+
+type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 const PROTECTED = ["/dashboard"];
 
@@ -11,8 +13,10 @@ export async function middleware(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll: () => req.cookies.getAll(),
-        setAll: (list) => {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(list: CookieToSet[]) {
           list.forEach(({ name, value }) => req.cookies.set(name, value));
           res = NextResponse.next({ request: req });
           list.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
@@ -22,8 +26,10 @@ export async function middleware(req: NextRequest) {
   );
 
   // getUser() ověřuje token u Supabase. getSession() jen čte cookie,
-  // které se dá podvrhnout — pro rozhodování o přístupu se nehodí.
-  const { data: { user } } = await supabase.auth.getUser();
+  // kterou lze podvrhnout — pro rozhodování o přístupu se nehodí.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { pathname } = req.nextUrl;
 
   if (PROTECTED.some((p) => pathname.startsWith(p)) && !user) {

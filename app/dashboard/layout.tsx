@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .from("profiles")
     .select("name, plan")
     .eq("id", user.id)
-    .maybeSingle();
+    .maybeSingle<{ name: string | null; plan: string | null }>();
 
   const name = profile?.name || (user.user_metadata?.name as string) || user.email || "";
   const plan = profile?.plan ?? "start";

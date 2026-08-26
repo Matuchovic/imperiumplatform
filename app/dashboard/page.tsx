@@ -6,17 +6,16 @@ import { Card, Disclaimer, PageHeader, Sparkline, Stat, StateBadge } from "@/com
 export default async function Prehled() {
   const supabase = await supabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: session } = await supabase
+  const { data: profile } = await supabase
     .from("profiles")
     .select("name, plan")
-    .eq("id", user!.id)
-    .maybeSingle();
-  const email = user?.email ?? "";
+    .eq("id", user?.id ?? "")
+    .maybeSingle<{ name: string | null; plan: string | null }>();
   const pct = goalPct();
 
   return (
     <>
-      <PageHeader eyebrow="Přehled" title={`Vítej zpět, ${session?.name.split(" ")[0] ?? ""}`} />
+      <PageHeader eyebrow="Přehled" title={`Vítej zpět, ${(profile?.name ?? "").split(" ")[0]}`} />
 
       <div className="mb-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="Bankroll" value="34 200" unit="Kč" delta="+16 200 Kč za 30 dní" />

@@ -4,11 +4,11 @@ import { Card, PageHeader } from "@/components/dashboard/ui";
 export default async function Nastaveni() {
   const supabase = await supabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: session } = await supabase
+  const { data: profile } = await supabase
     .from("profiles")
     .select("name, plan")
-    .eq("id", user!.id)
-    .maybeSingle();
+    .eq("id", user?.id ?? "")
+    .maybeSingle<{ name: string | null; plan: string | null }>();
   const email = user?.email ?? "";
 
   return (
@@ -19,9 +19,9 @@ export default async function Nastaveni() {
         <Card className="p-5">
           <p className="eyebrow mb-4">Profil</p>
           {[
-            ["Jméno", session?.name ?? ""],
+            ["Jméno", profile?.name ?? ""],
             ["E-mail", email],
-            ["Plán", session?.plan ?? ""],
+            ["Plán", profile?.plan ?? ""],
             ["Členem od", "1. 3. 2026"],
           ].map(([k, v], i) => (
             <div
