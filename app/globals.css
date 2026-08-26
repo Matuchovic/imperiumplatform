@@ -1,0 +1,445 @@
+@import "tailwindcss";
+
+/* ============================================================
+   BETIMPERIUM — design tokens
+   ink    #050706  základ, černá se zeleným podtónem
+   slate  #0C1310  povrch panelů
+   signal #7EF0A8  primární neon (CTA, brand, zisk)
+   mint   #5EEAD4  teal partner do gradientů
+   amber  #FFC94A  pouze pro "live / čeká na výsledek"
+   ash    #8FA396  tlumený text
+   ============================================================ */
+
+@theme {
+  --color-ink: #050706;
+  --color-ink-2: #080c0a;
+  --color-slate: #0c1310;
+  --color-slate-2: #111a15;
+  --color-signal: #7ef0a8;
+  --color-signal-dim: #4ade80;
+  --color-signal-deep: #16a34a;
+  --color-mint: #5eead4;
+  --color-amber: #ffc94a;
+  --color-ash: #8fa396;
+  --color-ash-2: #5b6c61;
+  --color-chalk: #ecfdf2;
+  --color-loss: #ff6b6b;
+
+  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-data: var(--font-mono), ui-monospace, "SF Mono", monospace;
+
+  --radius-card: 20px;
+}
+
+/* ---------- base ---------- */
+
+* {
+  border-color: color-mix(in oklab, var(--color-signal) 10%, transparent);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-chalk);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-signal) 30%, transparent);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Číslo je v sázkařství obsah, ne dekorace — proto vlastní role fontu. */
+.data {
+  font-family: var(--font-data);
+  font-feature-settings: "tnum" 1, "zero" 1;
+  letter-spacing: -0.01em;
+}
+
+.display {
+  font-family: var(--font-display);
+  letter-spacing: -0.035em;
+}
+
+.eyebrow {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-ash-2);
+}
+
+/* ============================================================
+   POZADÍ — "živé analytické pole"
+   Vrstvy: aurora → statický rastr → equity křivka → kurzové
+   žetony → zrno → vinětace
+   ============================================================ */
+
+.field {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(120% 90% at 50% -10%, #0a1712 0%, transparent 55%),
+    radial-gradient(90% 70% at 50% 110%, #071310 0%, transparent 60%),
+    var(--color-ink);
+}
+
+/* --- aurora --- */
+.aurora {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  will-change: transform;
+}
+.aurora--a {
+  width: 46vw;
+  height: 46vw;
+  min-width: 380px;
+  min-height: 380px;
+  left: -8vw;
+  top: -12vw;
+  background: radial-gradient(circle, rgba(126, 240, 168, 0.4), transparent 68%);
+  animation: drift-a 34s ease-in-out infinite;
+}
+.aurora--b {
+  width: 40vw;
+  height: 40vw;
+  min-width: 320px;
+  min-height: 320px;
+  right: -6vw;
+  top: 4vh;
+  background: radial-gradient(circle, rgba(94, 234, 212, 0.32), transparent 68%);
+  animation: drift-b 42s ease-in-out infinite;
+}
+.aurora--c {
+  width: 52vw;
+  height: 38vw;
+  min-width: 400px;
+  left: 22vw;
+  bottom: -18vw;
+  background: radial-gradient(circle, rgba(22, 163, 74, 0.34), transparent 70%);
+  animation: drift-c 50s ease-in-out infinite;
+}
+
+@keyframes drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(9vw, 7vh, 0) scale(1.14); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); }
+  50%      { transform: translate3d(-7vw, 11vh, 0) scale(0.9); }
+}
+@keyframes drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-10vw, -6vh, 0) scale(1.18); }
+}
+
+/* --- statický rastr: textura, ne ozdoba --- */
+.raster {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(126, 240, 168, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(126, 240, 168, 0.055) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(80% 70% at 50% 45%, #000 10%, transparent 78%);
+}
+
+/* --- signature: equity křivka, která se sama kreslí --- */
+.equity {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.equity__line {
+  fill: none;
+  stroke: url(#equityStroke);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2400;
+  stroke-dashoffset: 2400;
+  filter: drop-shadow(0 0 10px rgba(126, 240, 168, 0.55));
+  animation: draw 18s cubic-bezier(0.4, 0, 0.5, 1) infinite;
+}
+.equity__ghost {
+  fill: none;
+  stroke: rgba(126, 240, 168, 0.09);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 7;
+}
+.equity__fill {
+  fill: url(#equityFill);
+  opacity: 0;
+  animation: fill-in 18s ease-in-out infinite;
+}
+.equity__head {
+  fill: #d9ffe9;
+  filter: drop-shadow(0 0 8px rgba(126, 240, 168, 0.9));
+}
+
+@keyframes draw {
+  0%   { stroke-dashoffset: 2400; opacity: 0; }
+  6%   { opacity: 1; }
+  62%  { stroke-dashoffset: 0; opacity: 1; }
+  88%  { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes fill-in {
+  0%, 10% { opacity: 0; }
+  62%, 88% { opacity: 0.55; }
+  100% { opacity: 0; }
+}
+
+/* --- kurzové žetony: slovník oboru jako atmosféra --- */
+.chip {
+  position: absolute;
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: rgba(126, 240, 168, 0.5);
+  border: 1px solid rgba(126, 240, 168, 0.16);
+  background: rgba(10, 20, 15, 0.42);
+  border-radius: 8px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  will-change: transform, opacity;
+  animation: float-chip linear infinite;
+}
+.chip--far   { font-size: 11px; filter: blur(2.4px); opacity: 0.3; }
+.chip--mid   { font-size: 13px; filter: blur(0.9px); opacity: 0.5; }
+.chip--near  { font-size: 14px; opacity: 0.72; }
+.chip--loss  { color: rgba(255, 107, 107, 0.5); border-color: rgba(255, 107, 107, 0.16); }
+
+@keyframes float-chip {
+  0%   { transform: translate3d(0, 24px, 0); opacity: 0; }
+  14%  { opacity: var(--chip-peak, 0.6); }
+  78%  { opacity: var(--chip-peak, 0.6); }
+  100% { transform: translate3d(var(--chip-x, 20px), -120px, 0); opacity: 0; }
+}
+
+/* --- zrno + vinětace --- */
+.grain {
+  position: absolute;
+  inset: -50%;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: shift 700ms steps(4) infinite;
+}
+@keyframes shift {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-2%, 1%); }
+  50%  { transform: translate(1%, -2%); }
+  75%  { transform: translate(-1%, -1%); }
+  100% { transform: translate(0, 0); }
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(85% 70% at 50% 45%, transparent 35%, rgba(2, 4, 3, 0.72) 100%);
+}
+
+/* ============================================================
+   PANEL
+   ============================================================ */
+
+.panel {
+  position: relative;
+  border-radius: var(--radius-card);
+  background:
+    linear-gradient(180deg, rgba(18, 27, 22, 0.86) 0%, rgba(8, 13, 10, 0.92) 100%);
+  backdrop-filter: blur(22px) saturate(130%);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 40px 90px -30px rgba(0, 0, 0, 0.9),
+    0 0 70px -20px rgba(126, 240, 168, 0.16);
+}
+
+/* jediný mikro-detail navíc: hairline, který panel obchází jako sken */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--scan, 0deg),
+    transparent 0deg,
+    rgba(126, 240, 168, 0.06) 40deg,
+    rgba(126, 240, 168, 0.75) 82deg,
+    rgba(94, 234, 212, 0.3) 110deg,
+    rgba(126, 240, 168, 0.06) 160deg,
+    transparent 240deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: scan 9s linear infinite;
+  pointer-events: none;
+}
+
+@property --scan {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes scan {
+  to { --scan: 360deg; }
+}
+
+/* ============================================================
+   FORMULÁŘ
+   ============================================================ */
+
+.field-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: rgba(6, 11, 8, 0.7);
+  border: 1px solid rgba(126, 240, 168, 0.13);
+  transition: border-color 180ms ease, box-shadow 220ms ease, background 180ms ease;
+}
+.field-shell:hover {
+  border-color: rgba(126, 240, 168, 0.24);
+}
+.field-shell:focus-within {
+  border-color: rgba(126, 240, 168, 0.55);
+  background: rgba(8, 16, 12, 0.86);
+  box-shadow: 0 0 0 4px rgba(126, 240, 168, 0.1), 0 0 26px -6px rgba(126, 240, 168, 0.45);
+}
+.field-shell[data-invalid="true"] {
+  border-color: rgba(255, 107, 107, 0.5);
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.08);
+}
+.field-shell input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--color-chalk);
+  font-size: 15px;
+}
+.field-shell input::placeholder {
+  color: #4d5c53;
+}
+.field-shell input:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-chalk);
+  -webkit-box-shadow: 0 0 0 60px #0a120d inset;
+  caret-color: var(--color-chalk);
+}
+
+.btn-primary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 52px;
+  border-radius: 12px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 15px;
+  color: #04140a;
+  background: linear-gradient(135deg, #a5f9c4 0%, #7ef0a8 42%, #5eead4 100%);
+  box-shadow: 0 0 34px -6px rgba(126, 240, 168, 0.62), 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+  transition: transform 140ms ease, box-shadow 220ms ease, filter 160ms ease;
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 0 48px -4px rgba(126, 240, 168, 0.8), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+.btn-primary:active:not(:disabled) { transform: translateY(0) scale(0.995); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; filter: saturate(0.6); }
+
+.btn-ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #cfe6d8;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.btn-ghost:hover {
+  background: rgba(126, 240, 168, 0.07);
+  border-color: rgba(126, 240, 168, 0.3);
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-signal);
+  box-shadow: 0 0 0 0 rgba(126, 240, 168, 0.7);
+  animation: pulse 2.2s ease-out infinite;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(126, 240, 168, 0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(126, 240, 168, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(126, 240, 168, 0); }
+}
+
+/* nástup panelu při načtení stránky — jedna orchestrovaná sekvence */
+.rise {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: rise 760ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.spinner {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 2px solid rgba(4, 20, 10, 0.25);
+  border-top-color: #04140a;
+  animation: spin 620ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- přístupnost ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .aurora, .equity__line, .equity__fill, .chip, .grain,
+  .panel::before, .rise, .pulse-dot {
+    animation: none !important;
+  }
+  .rise { opacity: 1; transform: none; }
+  .equity__line { stroke-dashoffset: 0; }
+  .equity__fill { opacity: 0.45; }
+  .chip { opacity: 0.45; }
+}
