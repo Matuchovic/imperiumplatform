@@ -62,6 +62,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="cs" className={`${outfit.variable} ${inter.variable} ${mono.variable}`}>
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        {/* Pozadí přihlášení je největší vykreslený prvek stránky —
+            přednačtení ho stihne dřív, než se objeví formulář. */}
+        <link
+          rel="preload"
+          as="image"
+          href="/bg/office-1024.webp"
+          type="image/webp"
+          fetchPriority="high"
+        />
       </head>
       <body className="min-h-dvh antialiased">
         {children}

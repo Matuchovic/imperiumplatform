@@ -1,4 +1,3 @@
-import ScaleField from "@/components/effects/ScaleField";
 import RegisterForm from "@/components/auth/RegisterForm";
 import Logo from "@/components/brand/Logo";
 
@@ -15,8 +14,8 @@ export default function RegistracePage() {
   return (
     <main className="relative flex min-h-dvh items-center justify-center px-5 py-10">
       <div className="page-bg" aria-hidden="true">
-        <ScaleField variant="still" />
-        <div className="page-bg__lift" />
+        <div className="page-bg__photo" />
+        <div className="page-bg__wash" />
         <div className="page-bg__edge" />
       </div>
 
