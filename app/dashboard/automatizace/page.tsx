@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function Automatizace() {
   const me = await roleOf();
   if (!me) redirect("/login");
-  if (me.role === "client") redirect("/dashboard");
+  if (me.role === "klient") redirect("/dashboard");
 
   let data: Awaited<ReturnType<typeof automationSummary>> | null = null;
   let enabled = false;

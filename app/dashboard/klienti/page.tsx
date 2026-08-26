@@ -17,7 +17,7 @@ export default async function Klienti({
 }) {
   const me = await roleOf();
   if (!me) redirect("/login");
-  if (me.role === "client") redirect("/dashboard");
+  if (me.role === "klient") redirect("/dashboard");
 
   const params = await searchParams;
   const page = Math.max(1, Number(params.page ?? 1) || 1);
@@ -37,7 +37,7 @@ export default async function Klienti({
       .select("id, name, plan, role, bankroll, subscribed_bands, telegram_chat_id, created_at", {
         count: "exact",
       })
-      .eq("role", "client")
+      .eq("role", "klient")
       .order("created_at", { ascending: false })
       .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 

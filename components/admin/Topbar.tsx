@@ -1,5 +1,5 @@
 import LogoutButton from "@/components/dashboard/LogoutButton";
-import { ROLE_LABEL, type Role } from "./nav";
+import { ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 
 export default function Topbar({
   name,
@@ -25,10 +25,10 @@ export default function Topbar({
       </span>
 
       <span className="adm-user">
-        <span className="adm-user__pic">{initial}</span>
+        <span className="adm-user__pic" style={{ background: `${ROLE_BARVA[role]}22`, color: ROLE_BARVA[role] }}>{initial}</span>
         <span className="hidden sm:block">
           <span className="adm-user__name">{name}</span>
-          <span className="adm-user__role">{ROLE_LABEL[role]}</span>
+          <span className="adm-user__role" style={{ color: ROLE_BARVA[role] }}>{ROLE_LABEL[role]}</span>
         </span>
       </span>
 

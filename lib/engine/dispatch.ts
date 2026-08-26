@@ -55,7 +55,7 @@ export async function dispatchCandidates(
   const { data: profiles } = await db
     .from("profiles")
     .select("id, name, bankroll, unit_pct, subscribed_bands, telegram_chat_id, role")
-    .eq("role", "client")
+    .eq("role", "klient")
     .gt("bankroll", 0);
 
   const clients = (profiles ?? []) as Profile[];

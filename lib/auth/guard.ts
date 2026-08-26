@@ -1,7 +1,9 @@
 import { cache } from "react";
 import { currentUser, supabaseServer } from "@/lib/supabase/server";
 
-export type Role = "client" | "manager" | "admin";
+import { jeSprava, type Role } from "@/components/admin/nav";
+
+export type { Role };
 
 /**
  * Role se čte ze serveru, ne z klienta. Kdyby o ní rozhodoval prohlížeč,
@@ -18,11 +20,12 @@ export const roleOf = cache(async function roleOf(): Promise<{ id: string; role:
     .eq("id", user.id)
     .maybeSingle<{ role: string | null }>();
 
-  return { id: user.id, role: (data?.role ?? "client") as Role };
+  return { id: user.id, role: (data?.role ?? "klient") as Role };
 });
 
+/** Správce = CEO nebo vývojář. Jen ti smí měnit role a nastavení. */
 export async function requireAdmin() {
   const me = await roleOf();
-  if (!me || me.role !== "admin") return null;
+  if (!me || !jeSprava(me.role)) return null;
   return me;
 }

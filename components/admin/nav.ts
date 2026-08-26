@@ -1,59 +1,112 @@
-export type Role = "client" | "manager" | "admin";
+export type Role =
+  | "ceo"
+  | "vyvojar"
+  | "manazer"
+  | "marketing"
+  | "scout"
+  | "ucetni"
+  | "klient";
 
 export type NavItem = { label: string; href: string; icon: string; roles: Role[] };
 export type NavGroup = { title: string | null; items: NavItem[] };
 
-const ALL: Role[] = ["client", "manager", "admin"];
-const STAFF: Role[] = ["manager", "admin"];
-const ADMIN: Role[] = ["admin"];
+/**
+ * Role není štítek — určuje, co člověk vidí a smí.
+ *
+ * Rozdělení podle toho, co kdo skutečně potřebuje: Marketing rozesílá,
+ * takže nepotřebuje vidět bankrolly klientů. Účetní řeší peníze, ne
+ * sázky. Scout pracuje jen s databází firem.
+ */
+const VSICHNI: Role[] = ["ceo", "vyvojar", "manazer", "marketing", "scout", "ucetni", "klient"];
+const TYM: Role[] = ["ceo", "vyvojar", "manazer", "marketing", "scout", "ucetni"];
+const SPRAVA: Role[] = ["ceo", "vyvojar"];
 
 export const NAV: NavGroup[] = [
   {
     title: null,
-    items: [{ label: "Přehled", href: "/dashboard", icon: "layout-dashboard", roles: ALL }],
+    items: [{ label: "Přehled", href: "/dashboard", icon: "layout-dashboard", roles: VSICHNI }],
   },
   {
     title: "Management",
     items: [
-      { label: "Klienti", href: "/dashboard/klienti", icon: "users", roles: STAFF },
-      { label: "Databáze kontaktů", href: "/dashboard/kontakty", icon: "address-book", roles: STAFF },
-      { label: "Analytika", href: "/dashboard/analytika", icon: "chart-bar", roles: STAFF },
+      { label: "Klienti", href: "/dashboard/klienti", icon: "users",
+        roles: ["ceo", "vyvojar", "manazer"] },
+      { label: "Databáze kontaktů", href: "/dashboard/kontakty", icon: "address-book",
+        roles: ["ceo", "vyvojar", "marketing", "scout"] },
+      { label: "Analytika", href: "/dashboard/analytika", icon: "chart-bar",
+        roles: ["ceo", "vyvojar", "manazer", "marketing", "ucetni"] },
     ],
   },
   {
     title: "Operace",
     items: [
-      { label: "Úkoly", href: "/dashboard/ukoly", icon: "checkbox", roles: STAFF },
-      { label: "Support", href: "/dashboard/support", icon: "lifebuoy", roles: STAFF },
+      { label: "Úkoly", href: "/dashboard/ukoly", icon: "checkbox",
+        roles: ["ceo", "vyvojar", "manazer", "marketing", "scout"] },
+      { label: "Support", href: "/dashboard/support", icon: "lifebuoy",
+        roles: ["ceo", "vyvojar", "manazer", "marketing"] },
     ],
   },
   {
     title: "Automatizace",
     items: [
-      { label: "Motor hodnoty", href: "/dashboard/motor", icon: "cpu", roles: STAFF },
-      { label: "Automatizace", href: "/dashboard/automatizace", icon: "rotate-clockwise", roles: STAFF },
-      { label: "Email a SMS", href: "/dashboard/komunikace", icon: "mail", roles: ADMIN },
+      { label: "Motor hodnoty", href: "/dashboard/motor", icon: "cpu",
+        roles: ["ceo", "vyvojar", "manazer"] },
+      { label: "Automatizace", href: "/dashboard/automatizace", icon: "rotate-clockwise",
+        roles: SPRAVA },
+      { label: "Email a SMS", href: "/dashboard/komunikace", icon: "mail",
+        roles: ["ceo", "vyvojar", "marketing"] },
     ],
   },
   {
     title: "Nastavení",
     items: [
-      { label: "Nastavení", href: "/dashboard/nastaveni", icon: "settings", roles: ALL },
-      { label: "Role", href: "/dashboard/role", icon: "shield-lock", roles: ADMIN },
-      { label: "Audit log", href: "/dashboard/audit", icon: "history", roles: ADMIN },
+      { label: "Nastavení", href: "/dashboard/nastaveni", icon: "settings",
+        roles: ["ceo", "vyvojar", "klient"] },
+      { label: "Role", href: "/dashboard/role", icon: "shield-lock", roles: SPRAVA },
+      { label: "Audit log", href: "/dashboard/audit", icon: "history",
+        roles: ["ceo", "vyvojar", "ucetni"] },
     ],
   },
 ];
 
 export const ROLE_LABEL: Record<Role, string> = {
-  client: "Klient",
-  manager: "Manažer",
-  admin: "Super Admin",
+  ceo: "CEO",
+  vyvojar: "Vývojář",
+  manazer: "Manažer",
+  marketing: "Marketing",
+  scout: "Scout",
+  ucetni: "Účetní",
+  klient: "Klient",
 };
+
+/**
+ * Barva role. Jedna pro všechny — signální zelená z palety.
+ *
+ * Zkoušel jsem odlišit role barvami, ale v rozhraní, kde zelená znamená
+ * „v pořádku" a jantarová „pozor", by fialový nebo modrý štítek říkal
+ * něco, co neplatí. Role rozlišuje text, ne barva.
+ */
+export const ROLE_BARVA_JEDNOTNA = "#7ef0a8";
+
+export const ROLE_BARVA: Record<Role, string> = {
+  ceo: ROLE_BARVA_JEDNOTNA,
+  vyvojar: ROLE_BARVA_JEDNOTNA,
+  manazer: ROLE_BARVA_JEDNOTNA,
+  marketing: ROLE_BARVA_JEDNOTNA,
+  scout: ROLE_BARVA_JEDNOTNA,
+  ucetni: ROLE_BARVA_JEDNOTNA,
+  klient: ROLE_BARVA_JEDNOTNA,
+};
+
+export const ROLE_PORADI: Role[] = VSICHNI;
+
+/** Kdo smí měnit role a nastavení. */
+export const jeSprava = (r: Role) => SPRAVA.includes(r);
+/** Kdo patří do týmu, tedy není klient. */
+export const jeTym = (r: Role) => TYM.includes(r);
 
 /** Skupiny bez položek pro danou roli se vynechají celé. */
 export function navFor(role: Role): NavGroup[] {
-  return NAV.map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(role)) })).filter(
-    (g) => g.items.length > 0
-  );
+  return NAV.map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(role)) }))
+    .filter((g) => g.items.length > 0);
 }

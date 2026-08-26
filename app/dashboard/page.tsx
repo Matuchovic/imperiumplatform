@@ -27,7 +27,7 @@ export default async function Prehled() {
 
   try {
     const db = serviceClient();
-    const staff = me.role !== "client";
+    const staff = me.role !== "klient";
 
     const { data: profile } = await db
       .from("profiles").select("name").eq("id", me.id).maybeSingle<{ name: string }>();
@@ -49,7 +49,7 @@ export default async function Prehled() {
 
     if (staff) {
       const { count: c } = await db
-        .from("profiles").select("id", { count: "exact", head: true }).eq("role", "client");
+        .from("profiles").select("id", { count: "exact", head: true }).eq("role", "klient");
       clients = c ?? 0;
 
       const { count: cc } = await db
@@ -70,7 +70,7 @@ export default async function Prehled() {
   }
 
   const perf = performance(tickets);
-  const staff = me.role !== "client";
+  const staff = me.role !== "klient";
   const first = name.split(" ")[0];
   const ago = lastRun ? Math.round((Date.now() - new Date(lastRun).getTime()) / 60000) : null;
 

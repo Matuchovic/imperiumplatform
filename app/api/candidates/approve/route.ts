@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 /** Schválit nebo zamítnout kandidáta. Jen manažer a admin. */
 export async function POST(req: Request) {
   const me = await roleOf();
-  if (!me || me.role === "client") {
+  if (!me || me.role === "klient") {
     return NextResponse.json({ error: "Nepovoleno." }, { status: 403 });
   }
 

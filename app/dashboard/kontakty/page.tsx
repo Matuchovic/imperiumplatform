@@ -17,7 +17,7 @@ export default async function Kontakty({
 }) {
   const me = await roleOf();
   if (!me) redirect("/login");
-  if (me.role === "client") redirect("/dashboard");
+  if (me.role === "klient") redirect("/dashboard");
 
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page ?? 1) || 1);

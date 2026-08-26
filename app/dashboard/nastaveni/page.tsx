@@ -3,6 +3,7 @@ import { currentUser, serviceClient } from "@/lib/supabase/server";
 import { roleOf } from "@/lib/auth/guard";
 import { PageTitle } from "@/components/admin/PageTitle";
 import { VERZE, VERZE_POPIS } from "@/lib/verze";
+import { jeSprava, ROLE_LABEL, type Role } from "@/components/admin/nav";
 import SettingsPanel, { type Settings } from "@/components/admin/SettingsPanel";
 import { Row } from "@/components/admin/ui";
 
@@ -23,7 +24,7 @@ export default async function Nastaveni() {
 
   const me = await roleOf();
 
-  if (me?.role !== "admin") {
+  if (!me || !jeSprava(me.role as Role)) {
     return (
       <>
         <PageTitle title="Nastavení" lead="Tvůj účet a limity zodpovědného sázení." />
@@ -31,7 +32,7 @@ export default async function Nastaveni() {
           <p className="adm-panel__title">Účet</p>
           <div style={{ marginTop: 10 }}>
             <Row label="E-mail" value={user.email ?? ""} />
-            <Row label="Role" value={me?.role === "manager" ? "Manažer" : "Klient"} />
+            <Row label="Role" value={ROLE_LABEL[(me?.role ?? "klient") as Role]} />
           </div>
         </div>
         <div className="adm-panel">

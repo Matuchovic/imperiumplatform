@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Logo from "@/components/brand/Logo";
-import { navFor, ROLE_LABEL, type Role } from "./nav";
+import { navFor, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 import { VERZE } from "@/lib/verze";
 
 export default function Sidebar({ role }: { role: Role }) {
@@ -63,7 +63,7 @@ export default function Sidebar({ role }: { role: Role }) {
         </nav>
 
         <div className="adm-side__foot">
-          <span className="adm-side__role">{ROLE_LABEL[role]}</span>
+          <span className="adm-side__role" style={{ color: ROLE_BARVA[role] }}>{ROLE_LABEL[role]}</span>
           {/* Verze musí být vidět — bez ní se při hlášení chyby
               nedá zjistit, co člověk vlastně používá. */}
           <span className="data adm-side__verze" title="Verze aplikace">v{VERZE}</span>

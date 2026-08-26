@@ -57,7 +57,7 @@ export async function runPipelineSeed(approverId: string): Promise<PipelineSeedR
     const userId = created.user.id;
     await db.from("profiles").update({
       name: `Ukázkový klient ${DEMO_TAG}`,
-      role: "client",
+      role: "klient",
       bankroll: 40000,
       unit_pct: 2,
       goal: 60000,

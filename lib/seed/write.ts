@@ -57,7 +57,7 @@ export async function seedDemo(count = 12, seed = 42): Promise<SeedResult> {
       unit_pct: c.unitPct,
       subscribed_bands: c.bands,
       telegram_chat_id: c.telegram ? `demo-${i}` : null,
-      role: "client",
+      role: "klient",
       is_demo: true,
       created_at: ago(c.tenureDays),
     }).eq("id", userId);
