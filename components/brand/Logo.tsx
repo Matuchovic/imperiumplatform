@@ -1,8 +1,8 @@
 /**
  * Značka.
  *
- * Přívlastek MANAGEMENT sedí u horní hrany verzálek, ne na účaří —
- * na účaří působil jako dodatek, nahoře jako označení kategorie.
+ * Přívlastek MANAGEMENT je pod názvem. Vedle něj se do panelu
+ * širokého 232 px nevejde a ořezané slovo vypadá jako chyba.
  * Světlo po něm přejede jednou za sedm vteřin.
  *
  * Znak vlevo je samostatný soubor bez textu. Plná ikona obsahuje
@@ -26,7 +26,7 @@ export default function Logo({
         <span className="text-chalk">IMPERIUM</span>
       </span>
       {suffix && (
-        <span className="brand__suffix" style={{ fontSize: Math.max(6.5, size * 0.38) }}>
+        <span className="brand__suffix" style={{ fontSize: Math.max(7, size * 0.44) }}>
           MANAGEMENT
         </span>
       )}
@@ -42,7 +42,7 @@ export default function Logo({
         src="/icons/znak-192.png"
         alt=""
         className="brand-znak"
-        style={{ width: size * 1.75, height: size * 1.75 }}
+        style={{ width: size * 2.2, height: size * 2.2 }}
       />
       {jadro}
     </span>

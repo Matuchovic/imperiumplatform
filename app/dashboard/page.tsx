@@ -5,7 +5,6 @@ import { performance, confidenceNote, type SettledTicket } from "@/lib/stats/per
 import { PageTitle } from "@/components/admin/PageTitle";
 import { Stat, Panel, Row } from "@/components/admin/ui";
 import { log } from "@/lib/log";
-import KdoJeOnline from "@/components/pritomnost/KdoJeOnline";
 import Kalendare from "@/components/kalendar/Kalendare";
 import Poznamky from "@/components/kalendar/Poznamky";
 
@@ -149,10 +148,6 @@ export default async function Prehled() {
       {staff && (
         <>
           <div style={{ marginTop: 20 }}>
-            <KdoJeOnline jaId={me.id} />
-          </div>
-
-          <div style={{ marginTop: 12 }}>
             <Kalendare jaId={me.id} />
           </div>
           <div style={{ marginTop: 12 }}>

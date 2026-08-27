@@ -638,7 +638,9 @@ body {
   justify-content: space-between;
   gap: 10px;
   margin: 0 2px 18px;
-  padding: 13px 12px;
+  /* Vyšší blok. Značka na 30 px potřebuje kolem sebe dýchat,
+     jinak vypadá jako nálepka. */
+  padding: 18px 12px;
   border-radius: 14px;
   background:
     radial-gradient(120% 140% at 8% 20%, rgba(126, 240, 168, 0.11), transparent 62%),
@@ -1782,9 +1784,15 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 
 
 /* Přívlastek vedle názvu, u horní hrany verzálek. */
+/**
+ * Značka.
+ *
+ * Přívlastek je pod názvem, ne vedle. Vedle se do panelu širokého
+ * 232 px nevejde a ořezané MANAGEMEN vypadá jako chyba.
+ */
 .brand {
   display: inline-flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 5px;
   line-height: 1;
   min-width: 0;
@@ -1797,7 +1805,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 }
 
 .brand__suffix {
-  padding-top: 1px;
   flex-shrink: 0;
   font-family: var(--font-data);
   letter-spacing: 0.26em;
