@@ -4126,13 +4126,17 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 .va-popis { font-size: 11px; line-height: 1.5; color: #5b6c61; }
 
 
+/**
+ * Karty lidí tečou podle šířky. Pevné dva sloupce znamenaly,
+ * že se na širokém monitoru karta roztáhla na půl obrazovky
+ * a vedle jména zbylo prázdno.
+ */
 .pe-mrizka {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 8px;
   margin-top: 10px;
 }
-@media (min-width: 720px) { .pe-mrizka { grid-template-columns: 1fr 1fr; } }
 
 .pe-karta {
   display: flex;
@@ -6925,3 +6929,112 @@ textarea,
   .hb::before, .hb-jiskra { animation: none; }
   .hb-jiskra { opacity: 0; }
 }
+
+/* ============================================================
+   PŘÍTOMNOST
+   ============================================================ */
+
+.adm-online { display: none; }
+/* Pás avatarů se vejde až od tabletu — na telefonu by vytlačil jméno. */
+@media (min-width: 1100px) { .adm-online { display: block; } }
+
+.on-pas { display: flex; align-items: center; padding-right: 6px; }
+.on-av { margin-right: -8px; border-radius: 50%; box-shadow: 0 0 0 2px #050706; }
+.on-av:last-of-type { margin-right: 0; }
+.on-vic {
+  margin-left: 12px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  color: #5b6c61;
+}
+
+.on-panel {
+  border-radius: 13px;
+  padding: 15px;
+  background: rgba(12, 19, 16, 0.78);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+}
+
+.on-nadpis {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--color-chalk);
+}
+.on-pocet {
+  margin-left: auto;
+  padding: 2px 9px;
+  border-radius: 8px;
+  background: rgba(126, 240, 168, 0.12);
+  color: var(--color-signal);
+  font-size: 10.5px;
+}
+
+/* Tečka tepe — je to živý údaj, ne snímek. */
+.on-tecka {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-signal);
+  box-shadow: 0 0 10px rgba(126, 240, 168, 0.9);
+  animation: on-tep 2.4s ease-in-out infinite;
+}
+@keyframes on-tep {
+  0%, 100% { opacity: 0.45; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.on-seznam {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.on-radek {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: rgba(126, 240, 168, 0.04);
+  border: 1px solid rgba(126, 240, 168, 0.09);
+}
+
+.on-obal { position: relative; flex-shrink: 0; display: flex; }
+.on-znak {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--color-signal);
+  border: 2px solid #0d1310;
+  box-shadow: 0 0 7px rgba(126, 240, 168, 0.9);
+}
+
+.on-jmeno { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--color-chalk); }
+.on-ja {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(126, 240, 168, 0.14);
+  color: var(--color-signal);
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+.on-kde {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: #5b6c61;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) { .on-tecka { animation: none; } }

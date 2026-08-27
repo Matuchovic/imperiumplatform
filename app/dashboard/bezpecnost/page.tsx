@@ -5,6 +5,7 @@ import { jeSprava, type Role } from "@/components/admin/nav";
 import { zkratIp, trvani } from "@/lib/bezpecnost/otisk";
 import BezpecnostPanel, { type Relace, type Udalost } from "@/components/admin/BezpecnostPanel";
 import { log } from "@/lib/log";
+import KdoJeOnline from "@/components/pritomnost/KdoJeOnline";
 
 export const dynamic = "force-dynamic";
 
@@ -93,13 +94,20 @@ export default async function Bezpecnost() {
           </span>
         </div>
       ) : (
-        <BezpecnostPanel
-          zive={zive}
-          udalosti={udalosti}
-          dnes={dnes}
-          neuspechu={neuspechu}
-          zasah={zasah}
-        />
+        <>
+          {/* Živý seznam. Serverový snímek zastará v okamžiku vykreslení. */}
+          <div style={{ marginBottom: 14 }}>
+            <KdoJeOnline jaId={me.id} />
+          </div>
+
+          <BezpecnostPanel
+            zive={zive}
+            udalosti={udalosti}
+            dnes={dnes}
+            neuspechu={neuspechu}
+            zasah={zasah}
+          />
+        </>
       )}
     </>
   );

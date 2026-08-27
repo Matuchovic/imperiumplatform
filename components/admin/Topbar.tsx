@@ -8,6 +8,7 @@ import Hledani from "@/components/hledani/Hledani";
 import Zvonecek from "@/components/lista/Zvonecek";
 import Spotify from "@/components/lista/Spotify";
 import Verze from "@/components/lista/Verze";
+import KdoJeOnline from "@/components/pritomnost/KdoJeOnline";
 import type { Efekt } from "@/lib/avatar";
 import { bezpecnaRole, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 
@@ -23,10 +24,12 @@ export default function Topbar({
   name,
   role,
   efekt = "zadny",
+  jaId,
   onMenu,
   otevreneMenu = false,
 }: {
   otevreneMenu?: boolean;
+  jaId: string;
   name: string;
   efekt?: Efekt;
   role: Role;
@@ -77,6 +80,10 @@ export default function Topbar({
       {/* Nástroje vpravo. Na telefonu zůstane jen zvoneček —
           ostatní by vytlačily jméno i odhlášení. */}
       <span className="adm-nastroje">
+        {/* Kdo je zrovna na platformě. Na užší obrazovce se schová. */}
+        <span className="adm-online">
+          <KdoJeOnline jaId={jaId} kompaktni />
+        </span>
         <Verze />
         <Spotify />
         <Zvonecek />

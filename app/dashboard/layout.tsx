@@ -39,7 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <Shell name={name} role={role} demo={demo} efekt={efekt}>
+    <Shell name={name} role={role} demo={demo} efekt={efekt} jaId={user.id}>
       {children}
     </Shell>
   );

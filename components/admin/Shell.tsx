@@ -6,6 +6,7 @@ import Topbar from "./Topbar";
 import Jadro from "@/components/asistent/Jadro";
 import { jeTym, type Role } from "./nav";
 import type { Efekt } from "@/lib/avatar";
+import Tep from "@/components/pritomnost/Tep";
 
 /**
  * Skořápka administrace.
@@ -19,12 +20,14 @@ export default function Shell({
   role,
   demo,
   efekt = "zadny",
+  jaId,
   children,
 }: {
   name: string;
   role: Role;
   demo: number;
   efekt?: Efekt;
+  jaId: string;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -48,10 +51,13 @@ export default function Shell({
       <Sidebar role={role} open={open} onClose={() => setOpen(false)} />
 
       <div className="adm-main">
+        <Tep />
+
         <Topbar
           name={name}
           role={role}
           efekt={efekt}
+          jaId={jaId}
           otevreneMenu={open}
           // Křížek zavírá, hamburger otevírá — jedno tlačítko
           // pro obojí je na telefonu přirozenější než dvě.
