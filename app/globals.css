@@ -5920,203 +5920,14 @@ textarea,
   .pv, .pv__hlava, .pv-scrim { position: static; background: none; border: 0; box-shadow: none; }
 }
 
-/* ============================================================
-   VIZE
-   Dlouhý text, ne rozhraní — vlastní typografie.
-   ============================================================ */
-
-.vi-postup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 2px;
-  z-index: 90;
-  background: linear-gradient(90deg, rgba(126, 240, 168, 0.4), var(--color-signal));
-  box-shadow: 0 0 10px rgba(126, 240, 168, 0.6);
-  transition: width 120ms linear;
-}
-
-.vi { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 6px; }
-@media (min-width: 1040px) { .vi { grid-template-columns: 250px 1fr; gap: 40px; align-items: start; } }
-
-.vi-obsah { display: grid; gap: 3px; }
-@media (min-width: 1040px) { .vi-obsah { position: sticky; top: 90px; } }
-
-.vi-polozka {
-  display: flex;
-  gap: 11px;
-  padding: 11px 12px;
-  border: 0;
-  border-left: 2px solid transparent;
-  border-radius: 0 9px 9px 0;
-  background: transparent;
-  font-family: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease;
-}
-.vi-polozka:hover { background: rgba(126, 240, 168, 0.04); }
-.vi-polozka--on { border-left-color: var(--color-signal); background: rgba(126, 240, 168, 0.07); }
-
-.vi-cislo { font-size: 10px; color: #3f4d45; padding-top: 2px; }
-.vi-polozka--on .vi-cislo { color: var(--color-signal); }
-.vi-nazev { display: block; font-size: 13px; color: var(--color-ash); }
-.vi-polozka--on .vi-nazev { color: var(--color-chalk); }
-.vi-perex { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.5; color: #4d5c53; }
-
-.vi-telo { max-width: 68ch; }
-.vi-kapitola { padding-bottom: 46px; scroll-margin-top: 90px; }
-.vi-kapitola + .vi-kapitola { border-top: 1px solid rgba(126, 240, 168, 0.08); padding-top: 40px; }
-
-.vi-hlava { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
-.vi-znak {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 13px;
-  flex-shrink: 0;
-  background: rgba(126, 240, 168, 0.1);
-  color: var(--color-signal);
-  box-shadow: 0 0 24px -8px rgba(126, 240, 168, 0.9);
-}
-.vi-znak i { font-size: 20px; }
-.vi-kicker { display: block; font-size: 9px; letter-spacing: 0.22em; color: #4d5c53; }
-.vi-nadpis {
-  margin: 4px 0 0;
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  color: var(--color-chalk);
-}
-@media (max-width: 640px) { .vi-nadpis { font-size: 20px; } }
-
-.vi-podnadpis {
-  margin: 30px 0 12px;
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 600;
-  color: #d9ece1;
-}
-
-/* Text se čte, ne skenuje. */
-.vi-text { margin: 0 0 15px; font-size: 15px; line-height: 1.8; color: #cfe6d8; }
-
-.vi-zvyrazneni {
-  position: relative;
-  margin: 24px 0;
-  padding: 18px 20px 18px 24px;
-  border-radius: 12px;
-  background: rgba(126, 240, 168, 0.05);
-  border: 1px solid rgba(126, 240, 168, 0.14);
-  font-family: var(--font-display);
-  font-size: 16px;
-  line-height: 1.65;
-  font-weight: 500;
-  color: #ecfdf2;
-}
-.vi-zvyrazneni__znak {
-  position: absolute;
-  left: 0;
-  top: 18%;
-  bottom: 18%;
-  width: 2px;
-  border-radius: 2px;
-  background: var(--color-signal);
-  box-shadow: 0 0 10px var(--color-signal);
-}
-
-.vi-varovani {
-  display: flex;
-  gap: 12px;
-  margin: 22px 0;
-  padding: 15px 17px;
-  border-radius: 12px;
-  background: rgba(255, 201, 74, 0.05);
-  border: 1px solid rgba(255, 201, 74, 0.2);
-  font-size: 13.5px;
-  line-height: 1.7;
-  color: #d9b96a;
-}
-.vi-varovani i { font-size: 17px; flex-shrink: 0; margin-top: 1px; color: var(--color-amber); }
-
-.vi-seznam { margin: 0 0 15px; padding: 0; list-style: none; }
-.vi-seznam li {
-  display: flex;
-  gap: 9px;
-  padding: 6px 0;
-  font-size: 14.5px;
-  line-height: 1.7;
-  color: #cfe6d8;
-}
-.vi-seznam i { font-size: 15px; flex-shrink: 0; margin-top: 3px; color: var(--color-signal); }
-
-.vi-kroky { margin: 0 0 15px; padding: 0; list-style: none; counter-reset: krok; }
-.vi-kroky li {
-  display: flex;
-  gap: 12px;
-  padding: 8px 0;
-  font-size: 14.5px;
-  line-height: 1.7;
-  color: #cfe6d8;
-}
-.vi-krok {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  flex-shrink: 0;
-  margin-top: 1px;
-  background: rgba(126, 240, 168, 0.1);
-  color: var(--color-signal);
-  font-size: 11.5px;
-}
-
-.vi-cisla {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-  margin: 20px 0;
-}
-.vi-cislo-karta {
-  display: block;
-  padding: 14px;
-  border-radius: 12px;
-  background: rgba(12, 19, 16, 0.7);
-  border: 1px solid rgba(126, 240, 168, 0.11);
-}
-.vi-cislo-hodnota {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-signal);
-  text-transform: capitalize;
-}
-.vi-cislo-popis { display: block; margin-top: 5px; font-size: 12px; line-height: 1.6; color: #5b6c61; }
-
-@media (prefers-reduced-motion: reduce) {
-  .vi-postup { transition: none; }
-}
 
 /* ============================================================
    VIZE
+   Dlouhý text s vlastní typografií. Na mobilu se všechno
+   skládá pod sebe a obsah se sbalí do vodorovného pásu.
    ============================================================ */
 
-/**
- * Pulzující položka v panelu.
- *
- * Jen na jedné položce. Dvě by soupeřily o pozornost a přestaly
- * by fungovat obě.
- */
-.adm-nav--zari {
-  position: relative;
-  color: var(--color-signal);
-}
+.adm-nav--zari { position: relative; color: var(--color-signal); }
 .adm-nav--zari i { color: var(--color-signal) !important; }
 .adm-nav--zari::after {
   content: "";
@@ -6124,14 +5935,11 @@ textarea,
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  border: 1px solid rgba(126, 240, 168, 0.3);
+  border: 1px solid rgba(126, 240, 168, 0.18);
   animation: nav-zari 3s ease-in-out infinite;
 }
 @keyframes nav-zari {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(126, 240, 168, 0);
-    border-color: rgba(126, 240, 168, 0.18);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(126, 240, 168, 0); border-color: rgba(126, 240, 168, 0.18); }
   50% {
     box-shadow: 0 0 20px -6px rgba(126, 240, 168, 0.75), inset 0 0 14px -10px rgba(126, 240, 168, 0.9);
     border-color: rgba(126, 240, 168, 0.5);
@@ -6140,7 +5948,6 @@ textarea,
 /* Na otevřené sekci pulz přestane — už tam jsi. */
 .adm-nav--on.adm-nav--zari::after { animation: none; border-color: transparent; }
 
-/* ---------- postup čtení ---------- */
 .vi-postup {
   position: fixed;
   top: 0;
@@ -6152,24 +5959,44 @@ textarea,
   transition: width 120ms linear;
 }
 
-.vi { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 6px; }
-@media (min-width: 1080px) { .vi { grid-template-columns: 240px 1fr; align-items: start; } }
+.vi { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 6px; }
+/* Bez omezení šířky by se text roztáhl přes celý monitor. */
+.vi-telo { min-width: 0; }
+@media (min-width: 1080px) { .vi { grid-template-columns: 240px 1fr; align-items: start; gap: 28px; } }
 
+/* ---------- obsah ---------- */
 .vi-obsah {
-  display: grid;
-  gap: 3px;
-  align-content: start;
-  border-radius: 13px;
-  padding: 10px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px;
+  border-radius: 12px;
   background: rgba(12, 19, 16, 0.7);
   border: 1px solid rgba(126, 240, 168, 0.1);
+  /* Na mobilu je to vodorovný pás. Svislý seznam sedmi položek
+     by zabral půl obrazovky, než by čtení vůbec začalo. */
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
-@media (min-width: 1080px) { .vi-obsah { position: sticky; top: 84px; } }
+.vi-obsah::-webkit-scrollbar { height: 0; }
+
+@media (min-width: 1080px) {
+  .vi-obsah {
+    position: sticky;
+    top: 84px;
+    display: grid;
+    gap: 3px;
+    overflow: visible;
+    padding: 10px;
+  }
+}
 
 .vi-polozka {
   display: flex;
-  gap: 10px;
-  padding: 10px 11px;
+  gap: 9px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  padding: 9px 12px;
   border: 1px solid transparent;
   border-radius: 9px;
   background: transparent;
@@ -6180,20 +6007,173 @@ textarea,
 }
 .vi-polozka:hover { background: rgba(126, 240, 168, 0.05); }
 .vi-polozka--on { background: rgba(126, 240, 168, 0.09); border-color: rgba(126, 240, 168, 0.2); }
+@media (min-width: 1080px) { .vi-polozka { flex-shrink: 1; } }
 
 .vi-cislo { font-size: 9.5px; color: #4d5c53; padding-top: 2px; }
 .vi-polozka--on .vi-cislo { color: var(--color-signal); }
-.vi-nazev { display: block; font-size: 12.5px; color: var(--color-ash); }
+.vi-nazev { display: block; font-size: 12.5px; white-space: nowrap; color: var(--color-ash); }
 .vi-polozka--on .vi-nazev { color: var(--color-chalk); }
-.vi-perex { display: block; margin-top: 2px; font-size: 11px; line-height: 1.5; color: #4d5c53; }
+/* Perex na mobilu jen zabírá — název stačí. */
+.vi-perex { display: none; }
+@media (min-width: 1080px) {
+  .vi-perex { display: block; margin-top: 2px; font-size: 11px; line-height: 1.5; color: #4d5c53; white-space: normal; }
+  .vi-nazev { white-space: normal; }
+}
 
-.vi-kapitola {
-  padding: 26px 0 34px;
-  border-bottom: 1px solid rgba(126, 240, 168, 0.07);
-  /* Kotva nesmí zmizet pod horní lištou. */
+/* ---------- odkrývání ---------- */
+.vi-uvod, .vi-pilire, .vi-kapitola, .vi-pilir {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 620ms cubic-bezier(0.16, 1, 0.3, 1), transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.vi--videt { opacity: 1; transform: none; }
+
+/* ---------- úvod ---------- */
+.vi-uvod {
+  padding: 32px 0 40px;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.08);
   scroll-margin-top: 84px;
 }
-.vi-kapitola:first-child { padding-top: 10px; }
+.vi-uvod__kicker { display: block; font-size: 9.5px; letter-spacing: 0.24em; color: #5d8f74; }
+.vi-uvod__nadpis {
+  margin: 14px 0 0;
+  max-width: 20ch;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 6.5vw, 44px);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+  color: var(--color-chalk);
+}
+.vi-uvod__zvyraz {
+  color: var(--color-signal);
+  text-shadow: 0 0 30px rgba(126, 240, 168, 0.35);
+}
+.vi-uvod__text {
+  margin: 18px 0 0;
+  max-width: 56ch;
+  font-size: clamp(14px, 3.6vw, 16px);
+  line-height: 1.75;
+  color: var(--color-ash);
+}
+.vi-uvod__sipka {
+  margin-top: 26px;
+  color: #4d5c53;
+  animation: vi-sipka 2.4s ease-in-out infinite;
+}
+.vi-uvod__sipka i { font-size: 22px; }
+@keyframes vi-sipka {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(5px); opacity: 1; }
+}
+
+/* ---------- pilíře ---------- */
+.vi-pilire { padding: 34px 0 10px; scroll-margin-top: 84px; }
+
+.vi-pilir {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+  padding: 20px;
+  border-radius: 16px;
+  background: linear-gradient(168deg, rgba(13, 26, 19, 0.8), rgba(4, 12, 8, 0.9));
+  border: 1px solid color-mix(in srgb, var(--barva) 22%, transparent);
+  box-shadow: 0 0 44px -30px var(--barva);
+}
+@media (min-width: 640px) { .vi-pilir { padding: 26px; } }
+
+/* Světelný pruh po horní hraně dává kartě objem. */
+.vi-pilir::before {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--barva) 60%, transparent), transparent);
+}
+
+.vi-pilir__hlava { display: flex; align-items: center; gap: 13px; }
+.vi-pilir__cislo {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 8vw, 44px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  /* Číslo je jen orientační bod, ne obsah — proto obrys, ne výplň. */
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--barva) 42%, transparent);
+}
+.vi-pilir__znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--barva) 12%, transparent);
+  color: var(--barva);
+  box-shadow: 0 0 22px -8px var(--barva);
+}
+.vi-pilir__znak i { font-size: 19px; }
+@media (max-width: 420px) { .vi-pilir__znak { display: none; } }
+
+.vi-pilir__nazev {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(19px, 5vw, 24px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-chalk);
+}
+.vi-pilir__podtitul { margin: 3px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--barva); }
+
+.vi-pilir__perex {
+  margin: 18px 0 0;
+  max-width: 62ch;
+  font-size: clamp(14px, 3.6vw, 15px);
+  line-height: 1.78;
+  color: #d3e7db;
+}
+
+.vi-pilir__body { margin-top: 20px; display: grid; gap: 16px; }
+.vi-bod { display: flex; gap: 11px; }
+.vi-bod__tecka {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 7px;
+  background: var(--barva);
+  box-shadow: 0 0 8px var(--barva);
+}
+.vi-bod__nadpis { display: block; font-size: 13.5px; font-weight: 500; color: var(--color-chalk); }
+.vi-bod__text {
+  display: block;
+  margin-top: 4px;
+  max-width: 60ch;
+  font-size: 13.5px;
+  line-height: 1.72;
+  color: var(--color-ash);
+}
+
+.vi-pilir__pointa {
+  margin: 22px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, var(--barva) 16%, transparent);
+  font-family: var(--font-display);
+  font-size: clamp(14px, 3.8vw, 15.5px);
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--barva) 80%, white);
+}
+
+/* ---------- kapitoly ---------- */
+.vi-kapitola {
+  padding: 30px 0 34px;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.07);
+  scroll-margin-top: 84px;
+}
 .vi-kapitola:last-of-type { border-bottom: 0; }
 
 .vi-hlava { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; }
@@ -6214,18 +6194,16 @@ textarea,
 .vi-nadpis {
   margin: 4px 0 0;
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: clamp(20px, 5.4vw, 26px);
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--color-chalk);
 }
 
-/* Dlouhý text potřebuje vlastní míru — na širokém monitoru
-   by řádek utíkal a oko by ztrácelo návaznost. */
 .vi-text {
   margin: 0 0 15px;
   max-width: 66ch;
-  font-size: 15px;
+  font-size: clamp(14px, 3.7vw, 15px);
   line-height: 1.8;
   color: #d3e7db;
 }
@@ -6233,7 +6211,7 @@ textarea,
 .vi-podnadpis {
   margin: 28px 0 12px;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: clamp(15px, 4vw, 16.5px);
   font-weight: 600;
   color: var(--color-chalk);
 }
@@ -6246,7 +6224,7 @@ textarea,
   border-radius: 12px;
   background: rgba(126, 240, 168, 0.05);
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: clamp(14.5px, 4vw, 16px);
   line-height: 1.65;
   color: #e6fbee;
 }
@@ -6259,6 +6237,46 @@ textarea,
   border-radius: 2px;
   background: var(--color-signal);
   box-shadow: 0 0 10px var(--color-signal);
+}
+
+.vi-citat {
+  position: relative;
+  margin: 24px 0;
+  padding: 22px 20px 20px;
+  max-width: 66ch;
+  border-radius: 14px;
+  background: linear-gradient(168deg, rgba(14, 30, 21, 0.7), rgba(4, 12, 8, 0.8));
+  border: 1px solid rgba(126, 240, 168, 0.16);
+}
+.vi-citat > i {
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  font-size: 26px;
+  color: rgba(126, 240, 168, 0.16);
+}
+.vi-citat p {
+  position: relative;
+  margin: 0;
+  padding-left: 34px;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 4.2vw, 17px);
+  line-height: 1.62;
+  color: #e6fbee;
+}
+.vi-citat cite {
+  display: block;
+  margin: 10px 0 0 34px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  font-style: normal;
+  letter-spacing: 0.12em;
+  color: #5b6c61;
+}
+@media (max-width: 480px) {
+  .vi-citat > i { display: none; }
+  .vi-citat p { padding-left: 0; }
+  .vi-citat cite { margin-left: 0; }
 }
 
 .vi-varovani {
@@ -6280,8 +6298,8 @@ textarea,
 .vi-seznam li, .vi-kroky li {
   display: flex;
   gap: 11px;
-  padding: 7px 0;
-  font-size: 14.5px;
+  padding: 8px 0;
+  font-size: clamp(13.5px, 3.6vw, 14.5px);
   line-height: 1.7;
   color: #d3e7db;
 }
@@ -6303,25 +6321,27 @@ textarea,
 
 .vi-cisla {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
   gap: 9px;
   margin: 18px 0;
   max-width: 66ch;
 }
 .vi-cislo-karta {
-  padding: 14px;
-  border-radius: 11px;
+  padding: 15px 14px;
+  border-radius: 12px;
   background: rgba(12, 19, 16, 0.7);
   border: 1px solid rgba(126, 240, 168, 0.11);
 }
 .vi-cislo-hodnota {
   display: block;
   font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 600;
+  font-size: clamp(20px, 5.5vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--color-signal);
+  text-shadow: 0 0 24px rgba(126, 240, 168, 0.28);
 }
-.vi-cislo-popis { display: block; margin-top: 4px; font-size: 12px; line-height: 1.55; color: #5b6c61; }
+.vi-cislo-popis { display: block; margin-top: 5px; font-size: 12px; line-height: 1.55; color: #5b6c61; }
 
 .vi-konec {
   margin: 30px 0 0;
@@ -6334,6 +6354,66 @@ textarea,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .adm-nav--zari::after { animation: none; border-color: rgba(126, 240, 168, 0.3); }
+  .adm-nav--zari::after, .vi-uvod__sipka { animation: none; }
+  .vi-uvod, .vi-pilire, .vi-kapitola, .vi-pilir { opacity: 1; transform: none; transition: none; }
   .vi-postup { transition: none; }
+}
+
+/* ============================================================
+   DOTYK
+   Na zařízení bez myši se malé cíle špatně trefují. Zvětší se
+   jen tam, kde se opravdu klepe — u dekorací by to rozhodilo
+   rozvržení.
+   ============================================================ */
+
+@media (pointer: coarse) {
+  .uk-box,
+  .kal__pridat,
+  .kal__smazat,
+  .tz-btn,
+  .pz-odeslat,
+  .jd-volba,
+  .cl-close {
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Přepínač je širší než vyšší, stačí zvětšit plochu okolo. */
+  .nt-prep { min-height: 30px; }
+  .set-switch { min-height: 30px; }
+  .vy-stav { min-height: 36px; }
+
+  /* Barvy v kalendáři jsou v řadě — větší cíl bez zvětšení kolečka. */
+  .kal__barva { width: 36px; height: 36px; }
+
+  /* Buňky tabulek se na dotyk hůř trefují. */
+  .vy-pole { padding: 10px 8px; }
+  .fa-radek td, .vy-tab td { padding-top: 12px; padding-bottom: 12px; }
+}
+
+/* ---------- záložky a pásy ---------- */
+@media (max-width: 640px) {
+  /* Vodorovné pásy nesmí uříznout poslední položku. */
+  .vz-zalozky,
+  .ap-taby,
+  .bm__slozky,
+  .vi-obsah {
+    padding-right: 14px;
+    scroll-padding-right: 14px;
+  }
+
+  /* Skupiny akcí se na úzké obrazovce lámou, tlačítka roztáhnou. */
+  .adm-actions { gap: 7px; }
+  .adm-actions > .adm-btn { flex: 1 1 auto; justify-content: center; }
+  .adm-actions > .tz-hledat { flex: 1 1 100%; }
+}
+
+/* Plachta zprava zabírá na mobilu celou šířku — panel na 400 px
+   uprostřed obrazovky se ovládá hůř než celoplošný. */
+@media (max-width: 560px) {
+  .cl-panel, .cl-panel--siroky { width: 100%; border-radius: 16px 16px 0 0; }
+  .pv { inset: 6dvh 0 0; border-radius: 16px 16px 0 0; }
 }
