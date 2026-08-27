@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
+import DetailZpravy, { type Zprava, type Soubor } from "./DetailZpravy";
+import PrilohyVyber from "./PrilohyVyber";
 import {
   SLOZKY, PRIORITY, REAKCE, kdyZprava, nahled,
   predmetOdpovedi, predmetPreposlani, type Slozka,
@@ -15,21 +17,6 @@ import {
  * tlačítko na to nikdo nehledá.
  */
 
-type Zprava = {
-  id: number;
-  predmet: string;
-  telo: string;
-  odesilatel: string;
-  odesilatel_jmeno: string | null;
-  prijemce: string;
-  priorita: string;
-  odpoved_na: number | null;
-  prilohy: number[];
-  precteno_at: string | null;
-  archivovano: boolean;
-  created_at: string;
-};
-
 type Clovek = { id: string; name: string; role: string };
 type Reakce = { zprava_id: number; user_id: string; znak: string };
 
@@ -38,9 +25,11 @@ export default function BetmailPanel({ jaId }: { jaId: string }) {
   const [zpravy, setZpravy] = useState<Zprava[]>([]);
   const [lide, setLide] = useState<Clovek[]>([]);
   const [reakce, setReakce] = useState<Reakce[]>([]);
+  const [soubory, setSoubory] = useState<Soubor[]>([]);
   const [otevrena, setOtevrena] = useState<Zprava | null>(null);
   const [psani, setPsani] = useState<null | {
-    predmet: string; prijemci: string[]; telo: string; priorita: string; odpoved_na: number | null;
+    predmet: string; prijemci: string[]; telo: string; priorita: string;
+    odpoved_na: number | null; prilohy: number[];
   }>(null);
   const [hledat, setHledat] = useState("");
   const [chyba, setChyba] = useState<string | null>(null);
@@ -53,6 +42,7 @@ export default function BetmailPanel({ jaId }: { jaId: string }) {
       setZpravy(d.zpravy ?? []);
       setLide(d.lide ?? []);
       setReakce(d.reakce ?? []);
+      setSoubory(d.soubory ?? []);
       setChyba(null);
     } catch {
       setChyba("Nepodařilo se spojit se serverem.");
@@ -136,7 +126,7 @@ export default function BetmailPanel({ jaId }: { jaId: string }) {
       <div className="adm-actions" style={{ marginTop: 0 }}>
         <button
           className="adm-btn adm-btn--primary"
-          onClick={() => setPsani({ predmet: "", prijemci: [], telo: "", priorita: "bezna", odpoved_na: null })}
+          onClick={() => setPsani({ predmet: "", prijemci: [], telo: "", priorita: "bezna", odpoved_na: null, prilohy: [] })}
         >
           <i className="ti ti-pencil-plus" aria-hidden="true" />
           Napsat
@@ -214,91 +204,34 @@ export default function BetmailPanel({ jaId }: { jaId: string }) {
               Vyber zprávu vlevo.
             </p>
           ) : (
-            <>
-              <div className="bm__d-hlava">
-                <Avatar jmeno={otevrena.odesilatel_jmeno ?? "?"} velikost={40} />
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span className="bm__d-predmet">{otevrena.predmet}</span>
-                  <span className="bm__d-meta">
-                    <span>{otevrena.odesilatel_jmeno ?? "neznámý"}</span>
-                    <span>pro {jmeno(otevrena.prijemce)}</span>
-                    <span>{new Date(otevrena.created_at).toLocaleString("cs-CZ")}</span>
-                    {otevrena.priorita !== "bezna" && (
-                      <span style={{ color: PRIORITY[otevrena.priorita].barva }}>
-                        {PRIORITY[otevrena.priorita].nazev} priorita
-                      </span>
-                    )}
-                  </span>
-                </span>
-              </div>
-
-              <div className="bm__telo">{otevrena.telo}</div>
-
-              <div className="bm__reakce">
-                {REAKCE.map((z) => {
-                  const kolik = reakce.filter((r) => r.zprava_id === otevrena.id && r.znak === z).length;
-                  const moje = reakce.some((r) => r.zprava_id === otevrena.id && r.user_id === jaId && r.znak === z);
-                  return (
-                    <button
-                      key={z}
-                      className={`bm__reakce-btn ${moje ? "bm__reakce-btn--on" : ""}`}
-                      onClick={() => prepniReakci(otevrena.id, z)}
-                      aria-pressed={moje}
-                    >
-                      <span aria-hidden="true">{z}</span>
-                      {kolik > 0 && <span className="data">{kolik}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="adm-actions">
-                <button
-                  className="adm-btn adm-btn--primary"
-                  onClick={() => setPsani({
-                    predmet: predmetOdpovedi(otevrena.predmet),
-                    prijemci: [otevrena.odesilatel],
-                    telo: "",
-                    priorita: "bezna",
-                    odpoved_na: otevrena.id,
-                  })}
-                >
-                  <i className="ti ti-arrow-back-up" aria-hidden="true" />
-                  Odpovědět
-                </button>
-                <button
-                  className="adm-btn"
-                  onClick={() => setPsani({
-                    predmet: predmetPreposlani(otevrena.predmet),
-                    prijemci: [],
-                    // Přeposlaná zpráva nese původní text — jinak by
-                    // příjemce dostal prázdno a musel se doptávat.
-                    telo: `\n\n— — —\nOd: ${otevrena.odesilatel_jmeno ?? "neznámý"}\n${otevrena.telo}`,
-                    priorita: otevrena.priorita,
-                    odpoved_na: otevrena.id,
-                  })}
-                >
-                  <i className="ti ti-arrow-forward-up" aria-hidden="true" />
-                  Přeposlat
-                </button>
-                {slozka === "kos" ? (
-                  <button className="adm-btn" onClick={() => akce(otevrena.id, "vratit")}>
-                    <i className="ti ti-arrow-back-up" aria-hidden="true" />Obnovit
-                  </button>
-                ) : (
-                  <>
-                    {slozka === "dorucene" && (
-                      <button className="adm-btn" onClick={() => akce(otevrena.id, "archivovat")}>
-                        <i className="ti ti-archive" aria-hidden="true" />Archivovat
-                      </button>
-                    )}
-                    <button className="adm-btn" onClick={() => akce(otevrena.id, "smazat")}>
-                      <i className="ti ti-trash" aria-hidden="true" />Do koše
-                    </button>
-                  </>
-                )}
-              </div>
-            </>
+            <DetailZpravy
+              zprava={otevrena}
+              soubory={soubory}
+              reakce={reakce}
+              jaId={jaId}
+              jmeno={jmeno}
+              // Vlákno jsou zprávy, na které tahle odpovídá.
+              vlakno={zpravy.filter((z) => z.id === otevrena.odpoved_na)}
+              slozka={slozka}
+              onReakce={(znak) => prepniReakci(otevrena.id, znak)}
+              onAkce={(a) => akce(otevrena.id, a)}
+              onOdpovedet={() => setPsani({
+                predmet: predmetOdpovedi(otevrena.predmet),
+                prijemci: [otevrena.odesilatel],
+                telo: "",
+                priorita: "bezna",
+                odpoved_na: otevrena.id,
+                prilohy: [],
+              })}
+              onPreposlat={() => setPsani({
+                predmet: predmetPreposlani(otevrena.predmet),
+                prijemci: [],
+                telo: `\n\n— — —\nOd: ${otevrena.odesilatel_jmeno ?? "neznámý"}\n${otevrena.telo}`,
+                priorita: otevrena.priorita,
+                odpoved_na: otevrena.id,
+                prilohy: otevrena.prilohy,
+              })}
+            />
           )}
         </div>
       </div>
@@ -366,6 +299,11 @@ export default function BetmailPanel({ jaId }: { jaId: string }) {
                         onChange={(e) => setPsani((s) => s && { ...s, telo: e.target.value })}
                         style={{ resize: "vertical", lineHeight: 1.6 }} />
             </label>
+
+            <PrilohyVyber
+              vybrane={psani.prilohy}
+              onZmena={(ids) => setPsani((x) => x && { ...x, prilohy: ids })}
+            />
 
             <div className="adm-actions">
               <button className="adm-btn adm-btn--primary" onClick={odesli}>

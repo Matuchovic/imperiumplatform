@@ -29,10 +29,12 @@ export async function GET(req: Request) {
     q = q.is("smazano_at", null).eq("prijemce", me.id).eq("archivovano", slozka === "archiv");
   }
 
-  const [zpravy, lide, reakce] = await Promise.all([
+  const [zpravy, lide, reakce, dokumenty] = await Promise.all([
     q.order("created_at", { ascending: false }).limit(200),
     db.from("profiles").select("id, name, role").neq("role", "klient").neq("id", me.id).order("name"),
     db.from("betmail_reakce").select("zprava_id, user_id, znak").limit(2000),
+    // Metadata příloh — bez nich by rozhraní znalo jen čísla.
+    db.from("dokumenty").select("id, nazev, velikost").is("smazano_at", null).limit(1000),
   ]);
 
   if (zpravy.error) return NextResponse.json({ error: zpravy.error.message }, { status: 500 });
@@ -41,6 +43,7 @@ export async function GET(req: Request) {
     zpravy: zpravy.data ?? [],
     lide: lide.data ?? [],
     reakce: reakce.data ?? [],
+    soubory: dokumenty.data ?? [],
   });
 }
 
