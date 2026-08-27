@@ -19,6 +19,7 @@ const MATICE: [string, Role[]][] = [
   ["Automatizace", ["ceo", "vyvojar"]],
   ["Email a SMS", ["ceo", "vyvojar", "marketing"]],
   ["Nastavení", ["ceo", "vyvojar", "klient"]],
+  ["Notifikace", ROLE_PORADI],
   ["Aplikace na plochu", ROLE_PORADI],
   ["Trezor", ["ceo", "vyvojar"]],
   ["Role", ["ceo", "vyvojar"]],

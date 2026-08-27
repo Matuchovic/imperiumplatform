@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { serviceClient } from "@/lib/supabase/server";
 import { roleOf } from "@/lib/auth/guard";
 import { jeTym, type Role } from "@/components/admin/nav";
+import { posliTymu } from "@/lib/push/posli";
 
 export const dynamic = "force-dynamic";
 
@@ -80,5 +81,16 @@ export async function POST(req: Request) {
   }).select("id, kanal_id, autor, autor_jmeno, text, created_at").single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Notifikace nesmí položit odeslání zprávy — proto bez čekání
+  // a s tichým odchytem.
+  const { data: kanal } = await db.from("kanaly").select("nazev").eq("id", b.kanal).maybeSingle<{ nazev: string }>();
+  posliTymu(me.id, "chat", {
+    titulek: `#${kanal?.nazev ?? "chat"}`,
+    text: `${profil?.name ?? "Někdo"}: ${text.slice(0, 120)}`,
+    url: "/dashboard/chat",
+    tag: `chat-${b.kanal}`,
+  }).catch(() => undefined);
+
   return NextResponse.json({ zprava: data });
 }

@@ -76,3 +76,44 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(fetch(request).catch(() => caches.match("/offline.html")));
   }
 });
+
+// ── PUSH NOTIFIKACE ──────────────────────────────────────────
+
+self.addEventListener("push", (e) => {
+  if (!e.data) return;
+
+  let d;
+  try { d = e.data.json(); }
+  catch { d = { titulek: "BETIMPERIUM", text: e.data.text() }; }
+
+  e.waitUntil(
+    self.registration.showNotification(d.titulek || "BETIMPERIUM", {
+      body: d.text || "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/badge.png",
+      // Stejný tag nahradí předchozí zprávu místo hromadění.
+      tag: d.tag || "betimperium",
+      data: { url: d.url || "/dashboard" },
+      renotify: Boolean(d.tag),
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const cil = e.notification.data?.url || "/dashboard";
+
+  e.waitUntil(
+    // Když je aplikace už otevřená, přepneme na ni místo otevírání
+    // dalšího okna — jinak by po pěti notifikacích měl člověk pět karet.
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((okna) => {
+      for (const o of okna) {
+        if (o.url.includes(self.location.origin)) {
+          o.navigate(cil);
+          return o.focus();
+        }
+      }
+      return clients.openWindow(cil);
+    })
+  );
+});

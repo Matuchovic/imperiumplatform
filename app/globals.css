@@ -4045,3 +4045,95 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .od-kruh { animation: none; stroke-dashoffset: 0; }
   .od-lista { width: 0%; }
 }
+
+/* ============================================================
+   NOTIFIKACE
+   ============================================================ */
+
+.nt-vyzva {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  border-radius: 13px;
+  padding: 16px;
+  background: rgba(255, 201, 74, 0.05);
+  border: 1px solid rgba(255, 201, 74, 0.22);
+}
+.nt-vyzva--ok { background: rgba(126, 240, 168, 0.05); border-color: rgba(126, 240, 168, 0.2); }
+
+.nt-vyzva__znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  flex-shrink: 0;
+  background: rgba(255, 201, 74, 0.12);
+  color: var(--color-amber);
+}
+.nt-vyzva__znak--ok { background: rgba(126, 240, 168, 0.12); color: var(--color-signal); }
+.nt-vyzva__znak i { font-size: 19px; }
+.nt-vyzva__nadpis { margin: 0; font-size: 14px; font-weight: 500; color: var(--color-chalk); }
+.nt-vyzva__popis { margin: 4px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--color-ash); }
+
+.nt-radek, .nt-zar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+}
+.nt-radek:first-of-type, .nt-zar:first-of-type { border-top: 0; }
+.nt-radek { cursor: pointer; }
+
+.nt-ikona {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.08);
+  color: var(--color-signal);
+}
+.nt-ikona i { font-size: 16px; }
+
+.nt-nazev { display: block; font-size: 13.5px; color: var(--color-chalk); }
+.nt-popis { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.55; color: var(--color-ash); }
+.nt-kdy { display: block; margin-top: 2px; font-size: 10.5px; color: #5b6c61; }
+
+/* Přepínač místo zaškrtávátka — u zapnuto/vypnuto je čitelnější. */
+.nt-prep {
+  appearance: none;
+  position: relative;
+  width: 40px;
+  height: 23px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+.nt-prep::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #5b6c61;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms ease;
+}
+.nt-prep:checked {
+  background: rgba(126, 240, 168, 0.22);
+  border-color: rgba(126, 240, 168, 0.45);
+}
+.nt-prep:checked::after { transform: translateX(17px); background: var(--color-signal); }
+
+.nt-ticho { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-top: 12px; }
