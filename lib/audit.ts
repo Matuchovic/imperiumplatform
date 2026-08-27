@@ -38,7 +38,9 @@ export type AuditAction =
   | "vyplata.paid"
   | "faktura.created"
   | "faktura.paid"
-  | "faktura.reminded";
+  | "faktura.reminded"
+  | "agent.enabled"
+  | "agent.disabled";
 
 export type AuditEntry = {
   action: AuditAction;
