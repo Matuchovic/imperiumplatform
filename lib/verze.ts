@@ -9,10 +9,10 @@
  * nedá zapomenout. Původní řešení záviselo na tom, že si někdo
  * vzpomene zvednout konstantu, a dvakrát za sebou se to nestalo.
  */
-export const VERZE = "1.38.3";
+export const VERZE = "1.38.4";
 
 /** Jedna věta o tom, co se změnilo. „Nová verze" nikoho nepřesvědčí. */
-export const VERZE_POPIS = "Asistent odpovídá i na běžnou řeč.";
+export const VERZE_POPIS = "Návrat rozpoznávání do funkčního stavu.";
 
 /**
  * Důležitá oprava se nedá odložit.

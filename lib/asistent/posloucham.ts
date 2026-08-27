@@ -42,16 +42,6 @@ export const umiPoslouchat = (): boolean =>
 /** Jak dlouho po dořečení se čeká, než se věta odešle. */
 const TICHO_MS = 1400;
 
-/** Z nabídnutých variant ta nejúplnější. */
-function nejlepsi(vysledek: ArrayLike<{ transcript: string }>): string {
-  let nej = "";
-  for (let i = 0; i < vysledek.length; i++) {
-    const t = vysledek[i]?.transcript ?? "";
-    if (t.length > nej.length) nej = t;
-  }
-  return nej;
-}
-
 export type Poslech = {
   /** Zastaví poslech a odešle, co se stihlo říct. */
   stop: () => void;
@@ -84,13 +74,12 @@ export function poslouchej({
   r.continuous = true;
   r.interimResults = true;
   /**
-   * Víc variant přepisu.
+   * Jedna varianta.
    *
-   * Česká čeština dělá rozpoznávání potíže — první nabídka bývá
-   * zkomolená, mezi dalšími je často ta správná. Vybere se
-   * nejdelší, protože useknuté věty vznikají častěji než přebytek.
+   * Víc variant vypadalo jako zlepšení, ale u průběžných výsledků
+   * se chová nepředvídatelně a rozhovor se rozpadl.
    */
-  r.maxAlternatives = 3;
+  r.maxAlternatives = 1;
 
   let sebrano = "";
   /**
@@ -119,7 +108,7 @@ export function poslouchej({
     let nove = "";
 
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      const alt = nejlepsi(e.results[i]);
+      const alt = e.results[i][0]?.transcript ?? "";
       if (e.results[i].isFinal) sebrano += alt + " ";
       else nove += alt;
     }
