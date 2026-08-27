@@ -624,15 +624,56 @@ body {
 }
 @media (min-width: 1024px) { .adm-scrim { display: none; } }
 
+/**
+ * Hlavička panelu.
+ *
+ * Značka sedí na vlastním podkladu, ne přímo na černé. Prázdná
+ * plocha kolem loga působila jako díra — teď má blok tvar.
+ */
 .adm-side__brand {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  /* Doleva jen tolik, co má navigace. Značka nemá vystupovat
-     z osy, ve které je zbytek panelu. */
-  padding: 4px 2px 24px;
+  margin: 0 2px 18px;
+  padding: 13px 12px;
+  border-radius: 14px;
+  background:
+    radial-gradient(120% 140% at 8% 20%, rgba(126, 240, 168, 0.11), transparent 62%),
+    linear-gradient(165deg, rgba(16, 34, 24, 0.9), rgba(5, 12, 8, 0.7));
+  border: 1px solid rgba(126, 240, 168, 0.13);
 }
+
+/* Světlo po horní hraně dává bloku objem. */
+.adm-side__brand::before {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(126, 240, 168, 0.45), transparent);
+}
+
+/* Jemná mřížka na pozadí — zaplní plochu, aniž by na sebe brala
+   pozornost. Bez ní je kolem loga jen černo. */
+.adm-side__brand::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(126, 240, 168, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(126, 240, 168, 0.04) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: radial-gradient(120% 100% at 0% 50%, #000 20%, transparent 78%);
+  -webkit-mask-image: radial-gradient(120% 100% at 0% 50%, #000 20%, transparent 78%);
+}
+
+/* Značka musí zůstat nad podkladem. */
+.adm-side__brand > * { position: relative; z-index: 1; }
 .adm-side__close {
   border: 0;
   background: transparent;
@@ -1780,7 +1821,7 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 .brand-znak {
   flex-shrink: 0;
   border-radius: 10px;
-  box-shadow: 0 0 20px -8px rgba(126, 240, 168, 0.85);
+  box-shadow: 0 0 24px -6px rgba(126, 240, 168, 0.75);
 }
 
 /* Na nejužších displejích se přívlastek zalomí pod logo,
