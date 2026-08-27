@@ -466,6 +466,35 @@ export default function Jadro() {
                 )}
               </button>
             )}
+            {umiPoslouchat() && (
+              <>
+                <button
+                  className={`jd-volba ${poslucham ? "jd-volba--slysi" : ""}`}
+                  onClick={() => (poslucham ? stopPoslech() : spustPoslech())}
+                  aria-pressed={poslucham}
+                >
+                  <i className={`ti ti-${poslucham ? "microphone" : "microphone-2"}`} aria-hidden="true" />
+                  {poslucham ? "Slyším tě" : "Mluvit"}
+                </button>
+
+                {/* Rozhovor: po odpovědi poslouchá dál, ať se
+                    nemusí po každé větě mačkat tlačítko. */}
+                <button
+                  className={`jd-volba ${rozhovor ? "jd-volba--on" : ""}`}
+                  onClick={() => {
+                    const n = !rozhovor;
+                    setRozhovor(n);
+                    if (n && !poslucham) spustPoslech();
+                    if (!n) stopPoslech();
+                  }}
+                  aria-pressed={rozhovor}
+                >
+                  <i className="ti ti-messages" aria-hidden="true" />
+                  Rozhovor
+                </button>
+              </>
+            )}
+
             <button
               className={`jd-volba ${tlesk ? "jd-volba--on" : ""}`}
               onClick={() => setTlesk((t) => !t)}
