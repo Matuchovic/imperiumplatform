@@ -3369,3 +3369,84 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 }
 
 @media (prefers-reduced-motion: reduce) { .tz-cas { animation: none; width: 100%; } }
+
+/* ============================================================
+   CLOUD
+   ============================================================ */
+
+.cd-cesta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin: 14px 0 10px;
+}
+.cd-krok {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-ash);
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+.cd-krok:hover { background: rgba(126, 240, 168, 0.06); color: var(--color-chalk); }
+.cd-krok i { font-size: 14px; }
+.cd-sipka { font-size: 13px; color: #3f4d45; }
+
+.cd-radek {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+}
+.cd-radek:first-of-type { border-top: 0; }
+
+.cd-ikona {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.08);
+  color: var(--color-signal);
+}
+.cd-ikona i { font-size: 17px; }
+
+.cd-jmeno {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+.cd-jmeno:disabled { cursor: default; }
+.cd-nazev {
+  display: block;
+  font-size: 13.5px;
+  color: var(--color-chalk);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cd-jmeno:hover:not(:disabled) .cd-nazev { color: var(--color-signal); }
+.cd-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+  margin-top: 3px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  color: #5b6c61;
+}

@@ -28,7 +28,8 @@ export type AuditAction =
   // nastavení — bez záznamu by trezor byl jen sdílená složka.
   | "trezor.revealed"
   | "trezor.created"
-  | "trezor.deleted";
+  | "trezor.deleted"
+  | "cloud.deleted";
 
 export type AuditEntry = {
   action: AuditAction;
