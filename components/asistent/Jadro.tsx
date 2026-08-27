@@ -205,6 +205,7 @@ export default function Jadro() {
     if (p) { poslechRef.current = p; setPoslucham(true); }
   }, [zeptej]);
 
+  /** Klepnutí na stop odešle, co je rozmluvené. */
   const stopPoslech = useCallback(() => {
     poslechRef.current?.stop();
     poslechRef.current = null;
@@ -212,10 +213,18 @@ export default function Jadro() {
     setPrepis("");
   }, []);
 
+  /** Zavření panelu poslech zahodí — nikdo nechce odpověď na půl věty. */
+  const zrusPoslech = useCallback(() => {
+    poslechRef.current?.zrus();
+    poslechRef.current = null;
+    setPoslucham(false);
+    setPrepis("");
+  }, []);
+
   // Poslech nesmí přežít zavření panelu.
   useEffect(() => {
-    if (!open) stopPoslech();
-  }, [open, stopPoslech]);
+    if (!open) zrusPoslech();
+  }, [open, zrusPoslech]);
 
   /**
    * Pokračování rozhovoru.

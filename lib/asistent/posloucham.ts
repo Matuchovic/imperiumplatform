@@ -43,8 +43,10 @@ export const umiPoslouchat = (): boolean =>
 const TICHO_MS = 1400;
 
 export type Poslech = {
-  /** Ukončí poslech a nic neodešle. */
+  /** Zastaví poslech a odešle, co se stihlo říct. */
   stop: () => void;
+  /** Zruší bez odeslání. */
+  zrus: () => void;
 };
 
 /**
@@ -74,6 +76,13 @@ export function poslouchej({
   r.maxAlternatives = 1;
 
   let sebrano = "";
+  /**
+   * Poslední průběžný přepis.
+   *
+   * Safari při souvislém poslechu větu často neuzavře — pak zůstane
+   * celý text jen tady. Bez toho by se čekalo donekonečna.
+   */
+  let castecne = "";
   let casovac: number | null = null;
   let ukonceno = false;
 
@@ -83,26 +92,32 @@ export function poslouchej({
 
   const odesli = () => {
     zrus();
-    const text = ocistiPrepis(sebrano);
+    const text = ocistiPrepis(sebrano + castecne);
     sebrano = "";
+    castecne = "";
     if (jeSmysluplne(text)) hotovo(text);
   };
 
   r.onresult = (e) => {
-    let castecne = "";
+    let nove = "";
 
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const alt = e.results[i][0]?.transcript ?? "";
       if (e.results[i].isFinal) sebrano += alt + " ";
-      else castecne += alt;
+      else nove += alt;
     }
+    castecne = nove;
 
     prubezne?.(ocistiPrepis(sebrano + castecne));
 
-    // Každé slovo odloží odeslání. Pauza uprostřed věty
-    // nemá znamenat, že člověk domluvil.
+    /**
+     * Odpočet běží od každého slova, ne až od uzavřené věty.
+     *
+     * Kdyby se čekalo na uzavření, Safari by odeslání nikdy
+     * nespustilo. Pauza uprostřed věty odpočet jen odloží.
+     */
     zrus();
-    if (sebrano.trim()) {
+    if ((sebrano + castecne).trim()) {
       casovac = window.setTimeout(odesli, TICHO_MS);
     }
   };
@@ -135,9 +150,25 @@ export function poslouchej({
   }
 
   return {
+    /** Zastaví poslech a odešle, co se stihlo říct. */
     stop: () => {
       ukonceno = true;
+      const text = ocistiPrepis(sebrano + castecne);
       zrus();
+      sebrano = "";
+      castecne = "";
+      try { r.abort(); } catch { /* už skončil */ }
+      // Zahodit rozmluvenou větu jen proto, že člověk klepl
+      // na stop, by znamenalo říkat ji znovu.
+      if (jeSmysluplne(text)) hotovo(text);
+      konec?.();
+    },
+    /** Zruší bez odeslání. Pro zavření panelu. */
+    zrus: () => {
+      ukonceno = true;
+      zrus();
+      sebrano = "";
+      castecne = "";
       try { r.abort(); } catch { /* už skončil */ }
       konec?.();
     },

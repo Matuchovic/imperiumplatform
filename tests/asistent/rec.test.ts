@@ -70,3 +70,33 @@ describe("náhled přepisu", () => {
     expect(v.length).toBe(51);
   });
 });
+
+/**
+ * Odpočet ticha.
+ *
+ * Logika je v posloucham.ts svázaná s prohlížečem, ale pravidlo
+ * jde ověřit samostatně: odpočet musí běžet i z průběžného přepisu,
+ * jinak Safari odeslání nikdy nespustí.
+ */
+describe("kdy odeslat", () => {
+  const maBezetOdpocet = (sebrano: string, castecne: string): boolean =>
+    Boolean((sebrano + castecne).trim());
+
+  it("běží i bez uzavřené věty", () => {
+    // Safari při souvislém poslechu často neuzavře nic.
+    expect(maBezetOdpocet("", "kdo dnes potřebuje")).toBe(true);
+  });
+
+  it("běží z uzavřené věty", () => {
+    expect(maBezetOdpocet("kdo dnes potřebuje ", "")).toBe(true);
+  });
+
+  it("běží z obojího", () => {
+    expect(maBezetOdpocet("kdo dnes ", "potřebuje pozornost")).toBe(true);
+  });
+
+  it("neběží, dokud se nic neřeklo", () => {
+    expect(maBezetOdpocet("", "")).toBe(false);
+    expect(maBezetOdpocet("  ", " ")).toBe(false);
+  });
+});
