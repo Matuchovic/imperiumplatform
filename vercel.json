@@ -1,3 +1,8 @@
 {
-  "crons": []
+  "crons": [
+    {
+      "path": "/api/pripominky",
+      "schedule": "*/15 * * * *"
+    }
+  ]
 }

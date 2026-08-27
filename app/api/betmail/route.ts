@@ -86,7 +86,7 @@ export async function POST(req: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Notifikace nesmí položit odeslání — proto bez čekání.
-  posliPush(prijemci, "chat", {
+  posliPush(prijemci, "betmail", {
     titulek: `Betmail — ${profil?.name ?? "nová zpráva"}`,
     text: predmet,
     url: "/dashboard/betmail",

@@ -72,6 +72,7 @@ export async function PUT(req: Request) {
   const { error } = await db.from("notifikace_volby").upsert({
     user_id: me.id,
     chat: Boolean(b.chat),
+    betmail: Boolean(b.betmail),
     kalendar: Boolean(b.kalendar),
     asistent: Boolean(b.asistent),
     kandidati: Boolean(b.kandidati),

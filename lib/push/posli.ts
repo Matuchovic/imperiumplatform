@@ -99,3 +99,10 @@ export async function posliTymu(krome: string, druh: Druh, z: Zprava): Promise<n
   const { data } = await db.from("profiles").select("id").neq("role", "klient").neq("id", krome);
   return posliPush((data ?? []).map((p) => p.id as string), druh, z);
 }
+
+/** Všem z týmu. Pro události, které nevyvolal člověk. */
+export async function posliVsemVTymu(druh: Druh, z: Zprava): Promise<number> {
+  const db = serviceClient();
+  const { data } = await db.from("profiles").select("id").neq("role", "klient");
+  return posliPush((data ?? []).map((p) => p.id as string), druh, z);
+}

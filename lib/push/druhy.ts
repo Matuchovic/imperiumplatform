@@ -2,7 +2,7 @@
  * Druhy notifikací. Čistá data — smí je vzít prohlížeč i server.
  */
 
-export type Druh = "chat" | "kalendar" | "asistent" | "kandidati" | "support" | "ukoly";
+export type Druh = "chat" | "betmail" | "kalendar" | "asistent" | "kandidati" | "support" | "ukoly";
 
 export const DRUHY: {
   klic: Druh;
@@ -17,6 +17,13 @@ export const DRUHY: {
     nazev: "Týmový chat",
     popis: "Nová zpráva v kanálu, který sleduješ.",
     ikona: "message-circle",
+    vychozi: true,
+  },
+  {
+    klic: "betmail",
+    nazev: "Betmail",
+    popis: "Nová zpráva v interní poště.",
+    ikona: "mail-opened",
     vychozi: true,
   },
   {
@@ -62,7 +69,7 @@ export type Volby = Record<Druh, boolean> & {
 };
 
 export const VYCHOZI_VOLBY: Volby = {
-  chat: true, kandidati: true, support: true,
+  chat: true, betmail: true, kandidati: true, support: true,
   kalendar: true, ukoly: true, asistent: false,
   ticho_od: null, ticho_do: null,
 };

@@ -33,6 +33,9 @@ export default function PrilohyVyber({
       const r = await fetch("/api/cloud", { cache: "no-store" });
       const d = await r.json().catch(() => null);
       if (r.ok) setSoubory((d.polozky ?? []).filter((p: Soubor) => !p.je_slozka));
+      // 423 znamená zamčený cloud. Výběr z něj pak nejde, ale
+      // nahrávání ano — proto jen tichý neúspěch.
+      else if (r.status === 423) setSoubory([]);
     } catch { /* cloud nemusí být nastavený */ }
   }, []);
 
@@ -51,9 +54,10 @@ export default function PrilohyVyber({
       const fd = new FormData();
       fd.append("soubor", f);
       try {
-        const r = await fetch("/api/cloud", { method: "POST", body: fd });
+        // Vlastní cesta, ne API cloudu — to vyžaduje PIN.
+        const r = await fetch("/api/betmail/nahraj", { method: "POST", body: fd });
         const d = await r.json().catch(() => null);
-        if (r.ok && d?.polozka?.id) nove.push(d.polozka.id);
+        if (r.ok && d?.soubor?.id) nove.push(d.soubor.id);
         else setChyba(d?.error ?? `Nahrání „${f.name}" selhalo.`);
       } catch {
         setChyba(`Nahrání „${f.name}" selhalo.`);
@@ -120,7 +124,9 @@ export default function PrilohyVyber({
           <div className="pz-seznam">
             {videt.length === 0 ? (
               <p className="kal__prazdno" style={{ padding: "10px 4px" }}>
-                {soubory.length === 0 ? "Cloud je prázdný." : "Nic nenalezeno."}
+                {soubory.length === 0
+                  ? "Cloud je prázdný nebo zamčený PINem. Nahrát soubor jde i tak."
+                  : "Nic nenalezeno."}
               </p>
             ) : (
               videt.slice(0, 40).map((s) => {

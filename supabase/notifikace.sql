@@ -19,6 +19,7 @@ create index if not exists push_uzivatel on push_odbery (user_id);
 create table if not exists notifikace_volby (
   user_id     uuid primary key,
   chat        boolean not null default true,
+  betmail     boolean not null default true,
   kalendar    boolean not null default true,
   asistent    boolean not null default false,
   kandidati   boolean not null default true,
@@ -38,3 +39,6 @@ alter table notifikace_volby enable row level security;
 -- takže se neukládá.
 
 alter table profiles add column if not exists avatar_efekt text not null default 'zadny';
+
+-- Betmail dostal vlastní volbu, ať nechodí pod chatem.
+alter table notifikace_volby add column if not exists betmail boolean not null default true;
