@@ -9,10 +9,10 @@
  * nedá zapomenout. Původní řešení záviselo na tom, že si někdo
  * vzpomene zvednout konstantu, a dvakrát za sebou se to nestalo.
  */
-export const VERZE = "1.12.2";
+export const VERZE = "1.13.0";
 
 /** Jedna věta o tom, co se změnilo. „Nová verze" nikoho nepřesvědčí. */
-export const VERZE_POPIS = "BETIMPERIUM PASS PIN — deska s klávesnicí místo pole.";
+export const VERZE_POPIS = "Návod na přidání aplikace na plochu telefonu i počítače.";
 
 /**
  * Důležitá oprava se nedá odložit.
