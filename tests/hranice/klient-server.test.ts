@@ -58,3 +58,47 @@ describe("hranice klient / server", () => {
     expect(problemy, `${soubor} táhne server přes: ${problemy.join(", ")}`).toEqual([]);
   });
 });
+
+/**
+ * Záchranné vrstvy.
+ *
+ * Platforma nesmí ukázat holou hlášku prohlížeče. Tři vrstvy:
+ * skript v hlavičce běží dřív než React, global-error chytá
+ * kořenové rozvržení, error.tsx jednotlivé sekce.
+ */
+describe("záchranné vrstvy", () => {
+  it("kořenová chybová obrazovka existuje", () => {
+    const p = resolve(KOREN, "app/global-error.tsx");
+    expect(existsSync(p), "chybí app/global-error.tsx").toBe(true);
+
+    const s = readFileSync(p, "utf8");
+    // Bez vlastního html a body Next tuhle vrstvu nevykreslí.
+    expect(s).toContain("<html");
+    expect(s).toContain("<body");
+  });
+
+  it("sekce mají vlastní chybovou obrazovku", () => {
+    expect(existsSync(resolve(KOREN, "app/dashboard/error.tsx"))).toBe(true);
+  });
+
+  it("záchyt běží dřív než React", () => {
+    const s = readFileSync(resolve(KOREN, "app/layout.tsx"), "utf8");
+    expect(s, "v layoutu chybí skript bi-zachrana").toContain("bi-zachrana");
+    expect(s).toContain("ChunkLoadError");
+  });
+
+  it("všechny tři vrstvy poznají zastaralou část kódu", () => {
+    for (const f of ["app/global-error.tsx", "app/dashboard/error.tsx", "app/layout.tsx"]) {
+      const s = readFileSync(resolve(KOREN, f), "utf8");
+      expect(s, `${f} nepozná ChunkLoadError`).toMatch(/ChunkLoadError/);
+    }
+  });
+
+  it("obnova se nespustí dvakrát", () => {
+    // Bez pojistky by chyba mimo zastaralý kód znamenala smyčku.
+    for (const f of ["app/global-error.tsx", "app/dashboard/error.tsx", "app/layout.tsx"]) {
+      const s = readFileSync(resolve(KOREN, f), "utf8");
+      expect(s, `${f} nemá pojistku proti smyčce`).toContain("bi:obnoveno-po-padu");
+    }
+  });
+});

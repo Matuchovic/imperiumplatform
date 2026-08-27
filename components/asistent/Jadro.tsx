@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { rekni, zmlkni, hlasZapnut, prepniHlas, umiMluvit, posledniDuvodZalohy } from "@/lib/asistent/hlas";
 import { poslouchejTlesk, type Poslech } from "@/lib/asistent/tlesk";
+import { poslouchej, umiPoslouchat, type Poslech as PoslechRec } from "@/lib/asistent/posloucham";
+import { nahledPrepisu } from "@/lib/asistent/rec";
 import { REZIMY, type Rezim } from "@/lib/asistent/rezimy";
 
 /**
@@ -79,6 +81,12 @@ export default function Jadro() {
   const [hlas, setHlas] = useState(false);
   const [zaloha, setZaloha] = useState<string | null>(null);
   const [tlesk, setTlesk] = useState(false);
+  const [poslucham, setPoslucham] = useState(false);
+  const [prepis, setPrepis] = useState("");
+  const [chybaMik, setChybaMik] = useState<string | null>(null);
+  /** Rozhovor pokračuje: po odpovědi se poslouchá dál. */
+  const [rozhovor, setRozhovor] = useState(false);
+  const poslechRef = useRef<PoslechRec | null>(null);
   const [provadim, setProvadim] = useState(false);
   const [rezim, setRezim] = useState<Rezim>("ask");
   const [blokovano, setBlokovano] = useState<string | null>(null);
@@ -169,6 +177,57 @@ export default function Jadro() {
     }
     setBezi(false);
   }, [bezi, rezim]);
+
+  /**
+   * Spustí poslech.
+   *
+   * Průběžný přepis se ukazuje, ať je vidět, že systém slyší.
+   * Po vteřině a půl ticha se věta odešle sama — mačkat tlačítko
+   * podruhé by rozhovor rozbilo.
+   */
+  const spustPoslech = useCallback(() => {
+    setChybaMik(null);
+    setPrepis("");
+    // Asistent nesmí poslouchat sám sebe.
+    zmlkni();
+
+    const p = poslouchej({
+      prubezne: setPrepis,
+      hotovo: (text) => {
+        setPrepis("");
+        setDotaz(text);
+        zeptej(text);
+      },
+      chyba: (d) => { setChybaMik(d); setPoslucham(false); },
+      konec: () => { setPoslucham(false); poslechRef.current = null; },
+    });
+
+    if (p) { poslechRef.current = p; setPoslucham(true); }
+  }, [zeptej]);
+
+  const stopPoslech = useCallback(() => {
+    poslechRef.current?.stop();
+    poslechRef.current = null;
+    setPoslucham(false);
+    setPrepis("");
+  }, []);
+
+  // Poslech nesmí přežít zavření panelu.
+  useEffect(() => {
+    if (!open) stopPoslech();
+  }, [open, stopPoslech]);
+
+  /**
+   * Pokračování rozhovoru.
+   *
+   * Když asistent domluví a rozhovor je zapnutý, poslouchá dál.
+   * Bez toho je to diktafon, ne rozhovor.
+   */
+  useEffect(() => {
+    if (!rozhovor || bezi || poslucham || !open) return;
+    const t = setTimeout(() => { if (rozhovor && !bezi) spustPoslech(); }, 2200);
+    return () => clearTimeout(t);
+  }, [rozhovor, bezi, poslucham, open, spustPoslech]);
 
   if (!open) {
     return (
@@ -352,11 +411,27 @@ export default function Jadro() {
         </div>
 
         <div className="jd-pata">
+          {poslucham && (
+            <div className="jd-slysim" role="status">
+              <span className="jd-vlny" aria-hidden="true">
+                <span /><span /><span /><span /><span />
+              </span>
+              <span className="jd-slysim__text">
+                {prepis ? nahledPrepisu(prepis) : "Poslouchám…"}
+              </span>
+              <button className="tap jd-slysim__stop" onClick={stopPoslech} aria-label="Přestat poslouchat">
+                <i className="ti ti-player-stop" aria-hidden="true" />
+              </button>
+            </div>
+          )}
+
+          {chybaMik && <p className="jd-chyba-mik">{chybaMik}</p>}
+
           <span className="jd-vstup">
             <i className="ti ti-sparkles" aria-hidden="true" />
             <input
               ref={pole}
-              value={dotaz}
+              value={poslucham && prepis ? prepis : dotaz}
               onChange={(e) => setDotaz(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") zeptej(dotaz); }}
               placeholder="Zeptejte se na cokoli ze systému…"

@@ -18,6 +18,20 @@ export default function Chyba({
 }) {
   useEffect(() => {
     console.error("[betimperium]", error);
+
+    /**
+     * Zastaralá část kódu po nasazení. Obnovit jednou a mlčky —
+     * ukazovat chybovou obrazovku u něčeho, co spraví obnovení,
+     * jen mate.
+     */
+    const z = String(error?.message ?? "");
+    if (!/ChunkLoadError|Loading chunk|dynamically imported module|Load failed/.test(z)) return;
+
+    try {
+      if (sessionStorage.getItem("bi:obnoveno-po-padu")) return;
+      sessionStorage.setItem("bi:obnoveno-po-padu", "1");
+      window.location.reload();
+    } catch { /* soukromý režim */ }
   }, [error]);
 
   return (

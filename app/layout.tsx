@@ -80,6 +80,42 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Ikony se vkládají až po vykreslení, aby neblokovaly první
             snímek. Přednačtení ale spustí stahování hned — jinak
             prohlížeč o souboru neví a ikony chvíli blikají. */}
+        {/**
+          * Záchyt chyb dřív, než se React připojí.
+          *
+          * ObnovaPoPadu je komponenta — když chyba nastane při
+          * načítání kódu, React se nepřipojí a listener nikdy
+          * nevznikne. Tenhle skript běží hned.
+          */}
+        <script
+          id="bi-zachrana"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+  var K="bi:obnoveno-po-padu";
+  function jeCast(z){
+    z=String(z||"");
+    return z.indexOf("ChunkLoadError")>-1||z.indexOf("Loading chunk")>-1
+      ||z.indexOf("Failed to fetch dynamically imported module")>-1
+      ||z.indexOf("Importing a module script failed")>-1
+      ||z.indexOf("Load failed")>-1;
+  }
+  function obnov(){
+    try{ if(sessionStorage.getItem(K)) return; sessionStorage.setItem(K,"1"); }catch(e){ return; }
+    try{ if(window.caches) caches.keys().then(function(k){ return Promise.all(k.map(function(x){return caches.delete(x);})); }).then(go).catch(go); else go(); }catch(e){ go(); }
+    function go(){ location.reload(); }
+  }
+  addEventListener("error",function(e){
+    if(jeCast(e.message)||(e.target&&e.target.tagName==="SCRIPT")) obnov();
+  },true);
+  addEventListener("unhandledrejection",function(e){
+    var r=e.reason; jeCast(typeof r==="string"?r:(r&&r.message)) && obnov();
+  });
+  // Načtení proběhlo, pojistku lze uvolnit.
+  addEventListener("load",function(){ setTimeout(function(){ try{ sessionStorage.removeItem(K); }catch(e){} },8000); });
+})();`,
+          }}
+        />
+
         <link
           rel="preload"
           as="style"
