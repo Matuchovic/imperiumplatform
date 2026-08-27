@@ -8,14 +8,9 @@ import { scryptSync, randomBytes, timingSafeEqual } from "node:crypto";
  * nejde poznat, kolik znaků sedělo.
  */
 
-const DELKA = 6;
-const MAX_POKUSU = 5;
-const BLOKACE_MIN = 15;
+import { PIN_DELKA, MAX_POKUSU, BLOKACE_MIN, platnyPin } from "./zamek-verejne";
 
-export const PIN_DELKA = DELKA;
-
-/** PIN musí být přesně šest číslic. Nic jiného neprojde. */
-export const platnyPin = (pin: string): boolean => new RegExp(`^\\d{${DELKA}}$`).test(pin);
+export { PIN_DELKA, MAX_POKUSU, BLOKACE_MIN, platnyPin };
 
 export function otiskni(pin: string): string {
   const sul = randomBytes(16).toString("hex");
@@ -52,5 +47,3 @@ export function dalsiBlokace(pokusy: number): string | null {
     ? new Date(Date.now() + BLOKACE_MIN * 60_000).toISOString()
     : null;
 }
-
-export { MAX_POKUSU, BLOKACE_MIN };

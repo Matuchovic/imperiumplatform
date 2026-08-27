@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PIN_DELKA } from "@/lib/cloud/zamek";
+import { PIN_DELKA, MAX_POKUSU } from "@/lib/cloud/zamek-verejne";
 
 /**
  * Brána před Cloudem.
@@ -178,7 +178,7 @@ export default function ZamekCloudu({ deti }: { deti: React.ReactNode }) {
               placeholder="••••••"
               aria-label="PIN"
             />
-            {stav.zbyva !== null && stav.zbyva < 5 && !stav.blokovano && (
+            {stav.zbyva !== null && stav.zbyva < MAX_POKUSU && !stav.blokovano && (
               <p className="zm-zbyva">Zbývá {stav.zbyva} pokusů</p>
             )}
           </>
