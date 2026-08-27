@@ -33,6 +33,7 @@ export default function CloudPanel({ jeSpravce }: { jeSpravce: boolean }) {
   const [rodic, setRodic] = useState<number | null>(null);
   const [obsazeni, setObsazeni] = useState<Obsazeni>({ celkem: 0, aktivni: 0, kos: 0, osirele: 0 });
   const [kos, setKos] = useState(false);
+  const [nahled, setNahled] = useState<{ id: number; nazev: string; velikost: number } | null>(null);
   const [vybrane, setVybrane] = useState<Set<number>>(new Set());
   const [nahravam, setNahravam] = useState(false);
   const [chyba, setChyba] = useState<string | null>(null);
@@ -249,7 +250,20 @@ export default function CloudPanel({ jeSpravce }: { jeSpravce: boolean }) {
 
               <button
                 className="cd-jmeno"
-                onClick={() => p.je_slozka && !kos ? setRodic(p.id) : stahni([p.id])}
+                /**
+                 * Klepnutí soubor otevře, ne stáhne.
+                 *
+                 * Stahování zůstává na tlačítku vpravo — chtít se
+                 * podívat je častější než chtít mít kopii na disku.
+                 */
+                onClick={() => {
+                  if (p.je_slozka && !kos) { setRodic(p.id); return; }
+                  if (!kos && lzePrehlednout(p.nazev)) {
+                    setNahled({ id: p.id, nazev: p.nazev, velikost: p.velikost });
+                    return;
+                  }
+                  stahni([p.id]);
+                }}
                 disabled={kos && p.je_slozka}
               >
                 <span className="cd-nazev">{p.nazev}</span>
@@ -296,6 +310,14 @@ export default function CloudPanel({ jeSpravce }: { jeSpravce: boolean }) {
       }}>
         ÚLOŽIŠTĚ JE PRIVÁTNÍ · ODKAZY PLATÍ 2 MINUTY · KOŠ ZABÍRÁ MÍSTO DÁL
       </p>
+
+      {nahled && (
+        <Prohlizec
+          priloha={nahled}
+          zdroj="cloud"
+          onZavri={() => setNahled(null)}
+        />
+      )}
     </>
   );
 }

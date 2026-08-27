@@ -41,10 +41,14 @@ function nactiSheetJs(): Promise<void> {
 export default function Prohlizec({
   zprava,
   priloha,
+  zdroj = "betmail",
   onZavri,
 }: {
-  zprava: number;
+  /** Id zprávy. U cloudu se nepoužívá. */
+  zprava?: number;
   priloha: Priloha;
+  /** Odkud se soubor bere. Každý zdroj má vlastní kontrolu přístupu. */
+  zdroj?: "betmail" | "cloud";
   onZavri: () => void;
 }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -61,17 +65,34 @@ export default function Prohlizec({
     setNacitam(true);
     setChyba(null);
     try {
-      const r = await fetch("/api/betmail/priloha", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ zprava, soubor: priloha.id }),
-      });
+      /**
+       * Každý zdroj má vlastní kontrolu přístupu.
+       *
+       * U pošty se ověří, že soubor patří k té zprávě. U cloudu
+       * platí zámek a oprávnění sekce.
+       */
+      const r = zdroj === "cloud"
+        ? await fetch("/api/cloud/odkaz", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            // Náhled bez vynuceného stažení — soubor se má zobrazit.
+            body: JSON.stringify({ ids: [priloha.id], nahled: true }),
+          })
+        : await fetch("/api/betmail/priloha", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ zprava, soubor: priloha.id }),
+          });
+
       const d = await r.json().catch(() => null);
       if (!r.ok) { setChyba(d?.error ?? "Soubor se nepodařilo načíst."); setNacitam(false); return; }
-      setUrl(d.url);
+
+      const adresa = zdroj === "cloud" ? d.odkazy?.[0]?.url : d.url;
+      if (!adresa) { setChyba("Odkaz se nepodařilo vytvořit."); setNacitam(false); return; }
+      setUrl(adresa);
 
       if (druh === "tabulka") {
-        const odpoved = await fetch(d.url);
+        const odpoved = await fetch(adresa);
         if (pripona(priloha.nazev) === "csv" || pripona(priloha.nazev) === "tsv") {
           setTabulka(rozpadniCsv(await odpoved.text()));
         } else {
@@ -81,13 +102,13 @@ export default function Prohlizec({
           setTabulka(sesit.utils.sheet_to_json(sesit.Sheets[sesit.SheetNames[0]], { header: 1 }));
         }
       } else if (druh === "text") {
-        setText(await (await fetch(d.url)).text());
+        setText(await (await fetch(adresa)).text());
       }
     } catch (err) {
       setChyba(err instanceof Error ? err.message : "Načtení selhalo.");
     }
     setNacitam(false);
-  }, [zprava, priloha.id, priloha.nazev, druh]);
+  }, [zprava, priloha.id, priloha.nazev, druh, zdroj]);
 
   useEffect(() => { nacti(); }, [nacti]);
 

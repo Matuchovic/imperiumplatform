@@ -606,20 +606,30 @@ body {
 
 @media (min-width: 1024px) {
   /**
-   * Panel roste s obsahem a roluje se stránkou.
+   * Panel zůstává na místě a roluje uvnitř sebe.
    *
-   * Přilepený na výšku okna s vlastním posuvníkem se navigace
-   * ořízne — a dvacet tři položek se do jedné obrazovky nevejde.
+   * Navigace je pak dostupná i po odrolování obsahu. Širší než
+   * dřív, aby se do něj vešlo víc a nebyl namačkaný.
    */
   .adm-side {
-    position: static;
-    height: auto;
-    min-height: 100dvh;
-    width: 232px;
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    width: 252px;
     transform: none;
     padding-top: 26px;
-    overflow: visible;
+    overflow-y: auto;
+    /* Posuvník je vidět, jen když se rukou najede. */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(126, 240, 168, 0.16) transparent;
   }
+  .adm-side::-webkit-scrollbar { width: 6px; }
+  .adm-side::-webkit-scrollbar-track { background: transparent; }
+  .adm-side::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(126, 240, 168, 0.12);
+  }
+  .adm-side:hover::-webkit-scrollbar-thumb { background: rgba(126, 240, 168, 0.28); }
 }
 
 .adm-scrim {
