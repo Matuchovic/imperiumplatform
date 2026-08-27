@@ -31,6 +31,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: "Klienti", href: "/dashboard/klienti", icon: "users",
         roles: ["ceo", "vyvojar", "manazer"] },
+      { label: "Personál", href: "/dashboard/personal", icon: "id-badge", roles: SPRAVA },
       { label: "Databáze kontaktů", href: "/dashboard/kontakty", icon: "address-book",
         roles: ["ceo", "vyvojar", "marketing", "scout"] },
       { label: "Analytika", href: "/dashboard/analytika", icon: "chart-bar",

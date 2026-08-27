@@ -4240,3 +4240,65 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 .va-nahled { display: flex; align-items: center; justify-content: center; min-height: 48px; }
 .va-nazev { margin-top: 6px; font-size: 12.5px; color: var(--color-chalk); }
 .va-popis { font-size: 11px; line-height: 1.5; color: #5b6c61; }
+
+/* ============================================================
+   PERSONÁL
+   ============================================================ */
+
+.pe-mrizka {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+@media (min-width: 720px) { .pe-mrizka { grid-template-columns: 1fr 1fr; } }
+
+.pe-karta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border-radius: 11px;
+  border: 1px solid rgba(126, 240, 168, 0.1);
+  background: rgba(4, 14, 9, 0.7);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.pe-karta:hover {
+  border-color: rgba(126, 240, 168, 0.4);
+  box-shadow: 0 0 24px -14px rgba(126, 240, 168, 0.9);
+}
+
+.pe-radek {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 0;
+  border: 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+.pe-radek:first-of-type { border-top: 0; }
+/* Bývalí jsou tlumení — jsou v evidenci, ne v provozu. */
+.pe-radek { opacity: 0.62; }
+.pe-radek:hover { opacity: 1; }
+
+.pe-jmeno { display: block; font-size: 13.5px; color: var(--color-chalk); }
+.pe-pozice { display: block; margin-top: 2px; font-size: 12.5px; color: var(--color-signal); }
+.pe-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+  margin-top: 4px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  color: #5b6c61;
+}
+.pe-sipka { font-size: 15px; color: #3f4d45; flex-shrink: 0; }
+.pe-karta:hover .pe-sipka { color: var(--color-signal); }
