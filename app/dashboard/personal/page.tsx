@@ -5,6 +5,7 @@ import { jeSprava, type Role } from "@/components/admin/nav";
 import { PageTitle } from "@/components/admin/PageTitle";
 import PersonalPanel, { type Clovek } from "@/components/personal/PersonalPanel";
 import { log } from "@/lib/log";
+import Info from "@/components/napoveda/Info";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,12 @@ export default async function Personal() {
         title="Personál"
         lead="Lidé ve firmě a jejich pracovní údaje. Oddělení se odvozuje z role — nevyplňuje se zvlášť, aby si to nemohlo odporovat."
       />
+
+      <Info klic="personal">
+        <b>Oddělení se odvozuje z role.</b> Nevyplňuje se zvlášť, aby si to nemohlo
+        odporovat. Vyplněné ukončení člověka nemaže — přesune ho mezi bývalé
+        a přístup se odebírá zvlášť v sekci Role.
+      </Info>
 
       {chyba ? (
         <div className="adm-alert adm-alert--warn">

@@ -5134,3 +5134,139 @@ textarea,
   .bm-detail, .bm-cara, .bm-reakce-btn--pop, .bm-vlakno__zprava, .pv, .pv-scrim { animation: none; }
   .bm-cara { transform: scaleX(1); }
 }
+
+/* ============================================================
+   NÁPOVĚDA
+   Vždy tlumenější než obsah — jinak by soupeřila o pozornost
+   s tím, co má vysvětlovat.
+   ============================================================ */
+
+.info {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 13px 15px;
+  border-radius: 12px;
+  background: rgba(126, 240, 168, 0.04);
+  border: 1px solid rgba(126, 240, 168, 0.13);
+  animation: info-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.info--pozor { background: rgba(255, 201, 74, 0.05); border-color: rgba(255, 201, 74, 0.2); }
+.info--pryc { opacity: 0; transform: translateY(-6px); transition: opacity 220ms ease, transform 220ms ease; }
+@keyframes info-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+.info__znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.11);
+  color: var(--color-signal);
+}
+.info__znak--pozor { background: rgba(255, 201, 74, 0.12); color: var(--color-amber); }
+.info__znak i { font-size: 15px; }
+
+.info__text { flex: 1; min-width: 0; font-size: 12.5px; line-height: 1.65; color: var(--color-ash); }
+.info__text b { color: #cfe6d8; font-weight: 500; }
+.info__text code, .info__text .data { color: #cfe6d8; }
+
+.info__zavrit {
+  display: flex;
+  align-self: flex-start;
+  flex-shrink: 0;
+  padding: 3px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #4d5c53;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+.info__zavrit:hover { color: var(--color-ash); }
+.info__zavrit i { font-size: 15px; }
+
+/* ---------- rozbalovací ---------- */
+.rozbal {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(126, 240, 168, 0.1);
+}
+.rozbal__hlava {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--color-ash);
+  font-family: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+.rozbal__hlava:hover { color: #cfe6d8; }
+.rozbal__hlava > i { font-size: 15px; flex-shrink: 0; }
+
+.rozbal__obsah {
+  padding: 0 14px 14px 50px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--color-ash);
+  animation: info-in 300ms ease both;
+}
+.rozbal__obsah p { margin: 0 0 9px; }
+.rozbal__obsah p:last-child { margin: 0; }
+.rozbal__obsah b { color: #cfe6d8; font-weight: 500; }
+@media (max-width: 520px) { .rozbal__obsah { padding-left: 14px; } }
+
+/* ---------- pojem s bublinou ---------- */
+.pojem {
+  position: relative;
+  border-bottom: 1px dashed rgba(126, 240, 168, 0.42);
+  color: #cfe6d8;
+  cursor: help;
+}
+.pojem:focus-visible { outline: 2px solid rgba(126, 240, 168, 0.5); outline-offset: 2px; border-radius: 2px; }
+
+.pojem__bublina {
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max(240px, 100%);
+  max-width: min(320px, 80vw);
+  z-index: 20;
+  padding: 11px 13px;
+  border-radius: 11px;
+  background: linear-gradient(168deg, rgba(16, 34, 24, 0.99), rgba(4, 12, 8, 0.99));
+  border: 1px solid rgba(126, 240, 168, 0.28);
+  box-shadow: 0 18px 44px -20px rgba(0, 0, 0, 0.95), 0 0 34px -18px rgba(126, 240, 168, 0.75);
+  font-size: 12px;
+  line-height: 1.65;
+  font-weight: 400;
+  color: #cfe6d8;
+  text-align: left;
+  white-space: normal;
+  animation: pojem-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.pojem__bublina::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border: 6px solid transparent;
+  border-top-color: rgba(126, 240, 168, 0.28);
+}
+@keyframes pojem-in { from { opacity: 0; transform: translateX(-50%) translateY(4px); } to { opacity: 1; transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .info, .rozbal__obsah, .pojem__bublina { animation: none; }
+}

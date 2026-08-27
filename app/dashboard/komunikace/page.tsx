@@ -4,6 +4,7 @@ import { serviceClient } from "@/lib/supabase/server";
 import { PageTitle } from "@/components/admin/PageTitle";
 import { Stat, Panel } from "@/components/admin/ui";
 import { log } from "@/lib/log";
+import Info from "@/components/napoveda/Info";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,12 @@ export default async function Komunikace() {
         title="Email a SMS"
         lead="Kampaně odcházejí jen klientům se souhlasem. Odhlášení platí okamžitě napříč všemi kanály."
       />
+
+      <Info klic="komunikace" tón="pozor">
+        <b>Kampaň jde odeslat jen klientům se souhlasem.</b> Zákon 480/2004 vyžaduje
+        předchozí souhlas — bez něj se rozesílka nespustí. Odhlášení platí okamžitě
+        napříč všemi kanály.
+      </Info>
 
       {chyba ? (
         <div className="adm-alert adm-alert--warn">

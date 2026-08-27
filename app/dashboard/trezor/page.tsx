@@ -4,6 +4,7 @@ import { jeSprava, type Role } from "@/components/admin/nav";
 import { trezorPripraven } from "@/lib/trezor/sifra";
 import { PageTitle } from "@/components/admin/PageTitle";
 import TrezorPanel from "@/components/trezor/TrezorPanel";
+import Info from "@/components/napoveda/Info";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,12 @@ export default async function Trezor() {
         title="Trezor"
         lead="Hesla a klíče ke službám. Hodnoty jsou šifrované klíčem z prostředí — únik databáze sám o sobě nic neodhalí."
       />
+
+      <Info klic="trezor" tón="pozor">
+        <b>Ztráta klíče je nevratná.</b> Hesla jsou zašifrovaná proměnnou{" "}
+        <span className="data">TREZOR_KLIC</span>. Kdo ji změní nebo ztratí, přijde
+        o obsah trezoru — ulož si ji mimo systém.
+      </Info>
 
       {!pripraven ? (
         <div className="adm-alert adm-alert--warn">

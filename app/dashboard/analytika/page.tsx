@@ -6,6 +6,9 @@ import { BANDS } from "@/lib/engine/bands";
 import { PageTitle } from "@/components/admin/PageTitle";
 import { Stat, Panel, Row } from "@/components/admin/ui";
 import { log } from "@/lib/log";
+import Info from "@/components/napoveda/Info";
+import Rozbal from "@/components/napoveda/Rozbal";
+import Pojem from "@/components/napoveda/Pojem";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +84,41 @@ export default async function Analytika({
         title="Analytika"
         lead="CLV je hlavní ukazatel — ustálí se dřív než zisk. U ROI je vždy uvedený interval, protože samotné číslo při malém vzorku nic neznamená."
       />
+
+      <Info klic="analytika">
+        <b><Pojem klic="clv">CLV</Pojem> je hlavní ukazatel, ne zisk.</b> Říká, jestli jste sázeli za lepší kurz,
+        než byl těsně před výkopem. Ustálí se řádově dřív než zisk — po sto tiketech
+        už něco znamená, kdežto ROI potřebuje tisíce.
+      </Info>
+
+      <Rozbal otazka="Jak se počítá doporučená sázka?">
+        <p>
+          Systém vychází z <Pojem klic="kelly">Kellyho kritéria</Pojem> — vzorce, který
+          určuje, kolik vsadit, aby <Pojem klic="bankroll">bankroll</Pojem> rostl
+          co nejrychleji a přitom nespadl na nulu.
+        </p>
+        <p>
+          Používá se ale jen <b>čtvrtina</b> toho, co Kelly navrhuje. Plný Kelly je
+          matematicky nejrychlejší, ale kolísání je tak velké, že ho většina lidí
+          psychicky neustojí — <Pojem klic="drawdown">propad</Pojem> o polovinu bankrollu
+          je při něm běžný.
+        </p>
+        <p>
+          Výsledek se pak zastropuje limitem klienta, takže žádný tip nepřekročí to,
+          co má nastavené.
+        </p>
+      </Rozbal>
+
+      <Rozbal otazka="Proč se u ROI ukazuje interval?">
+        <p>
+          Samotné číslo při malém vzorku nic neznamená. Po padesáti tiketech může
+          <b> +8 % stejně dobře znamenat −3 %</b> — rozdíl je čistě náhoda.
+        </p>
+        <p>
+          Interval říká, mezi jakými hodnotami se skutečná výkonnost nejspíš pohybuje.
+          Když zahrnuje nulu, zisk zatím <b>nejde odlišit od štěstí</b>.
+        </p>
+      </Rozbal>
 
       <div className="adm-actions" style={{ marginTop: 0 }}>
         {Object.entries(OBDOBI).map(([k, o]) => (

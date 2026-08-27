@@ -5,6 +5,7 @@ import { PageTitle } from "@/components/admin/PageTitle";
 import { Stat, Panel } from "@/components/admin/ui";
 import UkolyPanel, { type Ukol } from "@/components/admin/UkolyPanel";
 import { log } from "@/lib/log";
+import Info from "@/components/napoveda/Info";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,11 @@ export default async function Ukoly() {
         title="Úkoly"
         lead="Co je potřeba udělat. Asistent sem umí zakládat úkoly přímo z rozhovoru."
       />
+
+      <Info klic="ukoly">
+        <b>Úkoly umí zakládat asistent.</b> Stačí mu říct „založ úkol zavolat
+        Procházkovi zítra" a objeví se tady i s termínem.
+      </Info>
 
       {chyba ? (
         <div className="adm-alert adm-alert--warn">
