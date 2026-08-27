@@ -2644,3 +2644,117 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .bz-scan { display: none; }
   .bz-blip { opacity: 1; }
 }
+
+/* ============================================================
+   ANALYTIKA, ÚKOLY, SUPPORT, KAMPANĚ
+   ============================================================ */
+
+.an-tab { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 13px; }
+.an-tab th {
+  padding: 9px 8px;
+  font-weight: 400;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5b6c61;
+  text-align: right;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.1);
+}
+.an-tab th:first-child { text-align: left; padding-left: 0; }
+.an-tab td { padding: 10px 8px; text-align: right; border-top: 1px solid rgba(126, 240, 168, 0.06); }
+.an-tab td:first-child { text-align: left; padding-left: 0; color: var(--color-chalk); }
+.an-dim { color: #5b6c61; }
+
+/* ---------- úkoly ---------- */
+.uk-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+}
+.uk-row:first-child { border-top: 0; }
+.uk-row--hotovo { opacity: 0.45; }
+
+.uk-box {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 6px;
+  border: 1px solid rgba(126, 240, 168, 0.28);
+  background: transparent;
+  color: #04140a;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.uk-box:hover { border-color: rgba(126, 240, 168, 0.6); }
+.uk-box--on { background: var(--color-signal); border-color: var(--color-signal); }
+.uk-box i { font-size: 13px; }
+.uk-box:disabled { opacity: 0.5; cursor: wait; }
+
+.uk-nazev { display: block; font-size: 13.5px; color: var(--color-chalk); }
+.uk-row--hotovo .uk-nazev { text-decoration: line-through; }
+.uk-popis { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.55; color: var(--color-ash); }
+.uk-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+  margin-top: 5px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  color: #5b6c61;
+}
+
+/* ---------- support a kampaně ---------- */
+.sp-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+}
+.sp-row:first-child { border-top: 0; }
+
+.sp-kanal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.08);
+  color: var(--color-signal);
+}
+.sp-kanal i { font-size: 15px; }
+
+.sp-predmet { display: block; font-size: 13.5px; color: var(--color-chalk); }
+.sp-zprava {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--color-ash);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.sp-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+  margin-top: 5px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  color: #5b6c61;
+}
+.sp-stav { flex-shrink: 0; font-size: 10.5px; letter-spacing: 0.08em; }
+
+@media (max-width: 639px) {
+  .sp-stav { align-self: flex-start; }
+}
