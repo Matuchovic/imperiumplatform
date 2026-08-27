@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import LoginForm from "@/components/auth/LoginForm";
 import Logo from "@/components/brand/Logo";
+import PozadiSystemu from "@/components/effects/PozadiSystemu";
 import { VERZE } from "@/lib/verze";
 import BootGate from "@/components/boot/BootGate";
 
@@ -13,7 +14,8 @@ export default function LoginPage() {
     <BootGate>
     <main className="relative flex min-h-dvh items-center justify-center px-5 py-10">
       <div className="page-bg" aria-hidden="true">
-        <div className="page-bg__photo" />
+        <PozadiSystemu />
+        <div className="page-bg__stred" />
         <div className="page-bg__wash" />
         <div className="page-bg__edge" />
       </div>

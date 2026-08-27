@@ -97,29 +97,26 @@ body {
   background: var(--color-ink);
 }
 
-.page-bg__photo {
+.page-bg__platno {
   position: absolute;
   inset: 0;
-  background-image: image-set(
-    url("/bg/office-640.webp") 1x,
-    url("/bg/office-1024.webp") 1.6x,
-    url("/bg/office-1555.webp") 2.4x
-  );
-  background-size: cover;
-  background-position: 62% 42%;
-  opacity: 0.85;
-}
-@media (min-width: 900px) {
-  .page-bg__photo {
-    background-image: image-set(
-      url("/bg/office-1024.webp") 1x,
-      url("/bg/office-1555.webp") 1.5x
-    );
-    background-position: 50% 40%;
-  }
+  width: 100%;
+  height: 100%;
 }
 
-/* Sjednotí odstín fotografie se zbytkem aplikace. */
+.page-bg__stred {
+  position: absolute;
+  inset: 0;
+  /* Střed je tmavší než okraje. Bez toho by pohyb za textem
+     rušil při psaní hesla. */
+  background: radial-gradient(
+    52% 44% at 50% 48%,
+    rgba(5, 7, 6, 0.94) 18%,
+    rgba(5, 7, 6, 0.7) 48%,
+    rgba(5, 7, 6, 0.9) 100%
+  );
+}
+
 .page-bg__wash {
   position: absolute;
   inset: 0;
