@@ -23,7 +23,7 @@ export default function LoginPage() {
         <div className="relative z-10 w-full max-w-[430px]">
           {/* značka nad panelem, aby pozadí zůstalo hlavním hrdinou */}
           <div className="rise mb-7 flex flex-col items-center" style={{ animationDelay: "60ms" }}>
-            <Logo size={26} />
+            <Logo size={26} stred />
             <p className="eyebrow mt-2.5">Systém sázkového poradenství</p>
           </div>
 

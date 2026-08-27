@@ -581,7 +581,7 @@ body {
 }
 
 
-.adm-shell { display: flex; min-height: 100dvh; }
+.adm-shell { display: flex; align-items: stretch; min-height: 100dvh; }
 
 /* ---------- postranní panel ---------- */
 .adm-side {
@@ -605,13 +605,20 @@ body {
 .adm-side--open { transform: translateX(0); }
 
 @media (min-width: 1024px) {
+  /**
+   * Panel roste s obsahem a roluje se stránkou.
+   *
+   * Přilepený na výšku okna s vlastním posuvníkem se navigace
+   * ořízne — a dvacet tři položek se do jedné obrazovky nevejde.
+   */
   .adm-side {
-    position: sticky;
-    top: 0;
-    height: 100dvh;
+    position: static;
+    height: auto;
+    min-height: 100dvh;
     width: 232px;
     transform: none;
     padding-top: 26px;
+    overflow: visible;
   }
 }
 
@@ -1793,10 +1800,14 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 .brand {
   display: inline-flex;
   flex-direction: column;
+  /* Vlevo v panelu, na střed všude jinde. Bez toho se název
+     zarovná na levou hranu delšího přívlastku a působí posunutě. */
+  align-items: flex-start;
   gap: 5px;
   line-height: 1;
   min-width: 0;
 }
+.brand--stred { align-items: center; text-align: center; }
 .brand__word {
   font-family: var(--font-display);
   font-weight: 700;

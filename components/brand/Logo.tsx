@@ -12,15 +12,18 @@ export default function Logo({
   size = 24,
   suffix = true,
   znak = false,
+  stred = false,
 }: {
   size?: number;
   /** Přívlastek jde vypnout tam, kde by rušil. */
   suffix?: boolean;
   /** Znak vlevo od názvu. */
   znak?: boolean;
+  /** Na střed. V panelu vlevo, na přihlášení vystředěné. */
+  stred?: boolean;
 }) {
   const jadro = (
-    <span className="brand" style={{ fontSize: size }}>
+    <span className={`brand ${stred ? "brand--stred" : ""}`} style={{ fontSize: size }}>
       <span className="brand__word">
         <span className="text-signal">BET</span>
         <span className="text-chalk">IMPERIUM</span>
