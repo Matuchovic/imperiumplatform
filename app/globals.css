@@ -3135,47 +3135,237 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 
 /* ============================================================
    TREZOR
+   Neon nese význam: levý pruh říká stav, odhalené heslo září.
+   Drobný text zůstává bez záře — s glowem by se rozmazal.
    ============================================================ */
 
+.tz-hlava { display: flex; align-items: center; gap: 11px; margin-bottom: 6px; }
+.tz-znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.12);
+  color: var(--color-signal);
+  box-shadow: 0 0 22px -6px rgba(126, 240, 168, 0.95);
+}
+.tz-znak i { font-size: 17px; }
+
+.tz-kpi {
+  position: relative;
+  overflow: hidden;
+  border-radius: 13px;
+  padding: 15px;
+  background: linear-gradient(168deg, rgba(14, 32, 22, 0.92), rgba(3, 11, 7, 0.96));
+  border: 1px solid rgba(126, 240, 168, 0.18);
+  box-shadow: 0 0 30px -18px rgba(126, 240, 168, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+/* Světlý pruh po horní hraně. Sklo má vždycky vršek světlejší. */
+.tz-kpi::before {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+.tz-kpi--warn {
+  border-color: rgba(255, 201, 74, 0.3);
+  box-shadow: 0 0 30px -16px rgba(255, 201, 74, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.tz-kpi__k { margin: 0; font-family: var(--font-data); font-size: 9px; letter-spacing: 0.2em; color: #5d8f74; }
+.tz-kpi--warn .tz-kpi__k { color: #8a7440; }
+.tz-kpi__n {
+  margin: 8px 0 0;
+  font-family: var(--font-data);
+  font-size: 24px;
+  line-height: 1;
+  text-shadow: 0 0 20px currentColor;
+}
+
+.tz-skupina {
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 11px;
+  background: linear-gradient(168deg, rgba(11, 26, 18, 0.88), rgba(3, 11, 7, 0.94));
+  border: 1px solid rgba(126, 240, 168, 0.16);
+  box-shadow: 0 0 40px -26px rgba(126, 240, 168, 0.85);
+}
+.tz-nadpis { display: flex; align-items: center; gap: 9px; margin: 0; font-size: 14px; font-weight: 500; color: var(--color-chalk); }
+.tz-ikona {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.1);
+  color: var(--color-signal);
+  box-shadow: 0 0 16px -6px rgba(126, 240, 168, 0.9);
+}
+.tz-ikona i { font-size: 15px; }
+.tz-pocet { margin-left: auto; font-family: var(--font-data); font-size: 10px; letter-spacing: 0.14em; color: #4d5c53; }
+
 .tz-radek {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 12px 0;
-  border-top: 1px solid rgba(126, 240, 168, 0.07);
+  padding: 13px 13px 13px 15px;
+  margin-top: 8px;
+  border-radius: 11px;
+  background: rgba(4, 14, 9, 0.7);
+  border: 1px solid rgba(126, 240, 168, 0.1);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
 }
-.tz-radek:first-child { border-top: 0; }
+.tz-radek:hover { border-color: rgba(126, 240, 168, 0.42); box-shadow: 0 0 24px -14px rgba(126, 240, 168, 0.9); }
+/* Levý pruh nese stav — nejrychlejší způsob, jak najít problém. */
+.tz-radek::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 16%;
+  bottom: 16%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--pruh, #7ef0a8);
+  box-shadow: 0 0 10px var(--pruh, #7ef0a8);
+}
+.tz-radek--warn { border-color: rgba(255, 201, 74, 0.24); }
+.tz-radek--warn:hover { border-color: rgba(255, 201, 74, 0.6); box-shadow: 0 0 24px -14px rgba(255, 201, 74, 0.9); }
 
 .tz-nazev { display: block; font-size: 13.5px; color: var(--color-chalk); }
 .tz-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 3px 12px;
-  margin-top: 3px;
+  margin-top: 4px;
   font-family: var(--font-data);
   font-size: 10.5px;
   color: #5b6c61;
 }
+.tz-meta--stare { color: var(--color-amber); }
 .tz-odkaz { color: var(--color-signal); text-decoration: none; }
 .tz-odkaz:hover { text-decoration: underline; }
 
 .tz-heslo {
+  position: relative;
+  overflow: hidden;
   display: block;
-  margin-top: 7px;
-  padding: 7px 11px;
-  border-radius: 8px;
-  background: rgba(2, 8, 5, 0.7);
-  border: 1px solid rgba(126, 240, 168, 0.1);
+  margin-top: 9px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: rgba(1, 6, 4, 0.85);
+  border: 1px solid rgba(126, 240, 168, 0.12);
   font-family: var(--font-data);
   font-size: 12.5px;
-  letter-spacing: 0.06em;
-  color: #4d5c53;
+  letter-spacing: 0.1em;
+  color: #3f4d45;
   word-break: break-all;
+  transition: color 220ms ease, border-color 220ms ease, background 220ms ease;
 }
-/* Odhalené heslo se odliší, aby bylo jasné, že je vidět. */
 .tz-heslo--vidi {
-  color: var(--color-signal);
-  border-color: rgba(126, 240, 168, 0.32);
-  background: rgba(126, 240, 168, 0.05);
+  color: #9dffc4;
   letter-spacing: 0;
+  border-color: rgba(126, 240, 168, 0.45);
+  background: rgba(126, 240, 168, 0.06);
+  text-shadow: 0 0 14px rgba(126, 240, 168, 0.65);
 }
+/* Ubývající proužek říká, kolik zbývá do skrytí. Bez něj si člověk
+   heslo raději opíše stranou — přesně tomu má trezor bránit. */
+.tz-cas {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-signal);
+  box-shadow: 0 0 8px var(--color-signal);
+  animation: tz-odpocet 20s linear forwards;
+}
+@keyframes tz-odpocet { from { width: 100%; } to { width: 0%; } }
+
+.tz-btn {
+  display: flex;
+  padding: 7px;
+  border: 1px solid rgba(126, 240, 168, 0.18);
+  border-radius: 8px;
+  background: rgba(126, 240, 168, 0.04);
+  color: var(--color-signal);
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+.tz-btn:hover {
+  border-color: rgba(126, 240, 168, 0.6);
+  background: rgba(126, 240, 168, 0.14);
+  box-shadow: 0 0 18px -8px rgba(126, 240, 168, 0.95);
+}
+.tz-btn i { font-size: 15px; }
+.tz-btn--zla { border-color: rgba(255, 107, 107, 0.2); color: #8a5a5a; background: rgba(255, 107, 107, 0.03); }
+.tz-btn--zla:hover {
+  border-color: #ff8a8a;
+  color: #ff8a8a;
+  background: rgba(255, 107, 107, 0.12);
+  box-shadow: 0 0 18px -8px rgba(255, 107, 107, 0.95);
+}
+
+.tz-tag { padding: 3px 9px; border-radius: 6px; font-family: var(--font-data); font-size: 9.5px; letter-spacing: 0.08em; }
+
+.tz-hledat {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 38px;
+  padding: 0 13px;
+  border-radius: 9px;
+  background: rgba(1, 6, 4, 0.8);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  transition: border-color 200ms ease;
+}
+.tz-hledat:focus-within { border-color: rgba(126, 240, 168, 0.45); }
+.tz-hledat i { font-size: 15px; color: #5b6c61; flex-shrink: 0; }
+.tz-hledat input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--color-chalk);
+  font-family: inherit;
+  font-size: 16px;
+}
+@media (min-width: 768px) { .tz-hledat input { font-size: 13px; } }
+
+.tz-pristup {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.06);
+  font-size: 12.5px;
+  color: #cfe6d8;
+}
+.tz-pristup:first-of-type { border-top: 0; }
+.tz-pristup strong { color: var(--color-chalk); font-weight: 500; }
+.tz-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  background: rgba(126, 240, 168, 0.14);
+  color: var(--color-signal);
+  box-shadow: 0 0 14px -6px rgba(126, 240, 168, 0.9);
+}
+
+@media (prefers-reduced-motion: reduce) { .tz-cas { animation: none; width: 100%; } }

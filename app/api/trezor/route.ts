@@ -19,13 +19,42 @@ export async function GET() {
   }
 
   const db = serviceClient();
-  const { data, error } = await db
-    .from("trezor")
-    .select("id, nazev, kategorie, uzivatel, url, poznamka, updated_at")
-    .order("kategorie").order("nazev");
+  const dnes = new Date(new Date().toDateString()).toISOString();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ polozky: data ?? [] });
+  const [polozky, pristupy, dnesni] = await Promise.all([
+    db.from("trezor")
+      .select("id, nazev, kategorie, uzivatel, url, poznamka, updated_at")
+      .order("kategorie").order("nazev"),
+    // Kdo se díval je u hesel zajímavější než kdo je vložil.
+    db.from("trezor_pristupy")
+      .select("polozka_id, jmeno, akce, created_at")
+      .order("created_at", { ascending: false }).limit(6),
+    db.from("trezor_pristupy")
+      .select("id", { count: "exact", head: true })
+      .eq("akce", "zobrazeno").gte("created_at", dnes),
+  ]);
+
+  if (polozky.error) return NextResponse.json({ error: polozky.error.message }, { status: 500 });
+
+  // Doplníme názvy položek k přístupům jedním průchodem místo
+  // dotazu na každý řádek zvlášť.
+  const nazvy = new Map((polozky.data ?? []).map((p) => [p.id, p.nazev]));
+
+  // Heslo starší roku je největší riziko v trezoru. Počítá se tady,
+  // aby rozhraní nemuselo procházet seznam podruhé.
+  const rokZpet = Date.now() - 365 * 864e5;
+  const stara = (polozky.data ?? []).filter(
+    (p) => new Date(p.updated_at as string).getTime() < rokZpet
+  ).length;
+
+  return NextResponse.json({
+    polozky: polozky.data ?? [],
+    stara,
+    pristupy: (pristupy.data ?? []).map((p) => ({
+      ...p, nazev: nazvy.get(p.polozka_id) ?? "smazaná položka",
+    })),
+    zobrazenoDnes: dnesni.count ?? 0,
+  });
 }
 
 /** Odhalení jednoho hesla. Zapíše se do auditu i do přístupů. */
@@ -35,10 +64,13 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Nepovoleno." }, { status: 403 });
   }
 
-  let b: { id?: number };
+  let b: { id?: number; akce?: string };
   try { b = await req.json(); }
   catch { return NextResponse.json({ error: "Neplatný požadavek." }, { status: 400 }); }
   if (typeof b.id !== "number") return NextResponse.json({ error: "Chybí položka." }, { status: 400 });
+
+  // Zkopírování je stejně závažné jako zobrazení — heslo opustí systém.
+  const akce = b.akce === "zkopirovano" ? "zkopirovano" : "zobrazeno";
 
   const db = serviceClient();
   const { data } = await db.from("trezor").select("nazev, tajemstvi").eq("id", b.id)
@@ -58,11 +90,11 @@ export async function PUT(req: Request) {
   // Zápis přístupu je to, co dělá z trezoru trezor. Bez něj je to
   // sdílená složka s hesly.
   await db.from("trezor_pristupy").insert({
-    polozka_id: b.id, user_id: me.id, jmeno: profil?.name ?? null, akce: "zobrazeno",
+    polozka_id: b.id, user_id: me.id, jmeno: profil?.name ?? null, akce,
   });
   await audit({
     action: "trezor.revealed", entity: "trezor", entityId: String(b.id),
-    actorId: me.id, source: "manual", reason: `Zobrazeno heslo: ${data.nazev}`,
+    actorId: me.id, source: "manual", reason: `${akce === "zkopirovano" ? "Zkopírováno" : "Zobrazeno"} heslo: ${data.nazev}`,
   });
 
   return NextResponse.json({ heslo });
