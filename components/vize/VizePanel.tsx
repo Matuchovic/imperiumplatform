@@ -105,7 +105,7 @@ export default function VizePanel() {
           ))}
 
           <p className="vi-konec">
-            Tohle není hotový dokument. Je to zápis toho, jak se na systém díváme teď —
+            Tohle není hotový dokument. Je to zápis toho, jak se na systém dívám teď —
             a má se měnit, jak se bude měnit firma.
           </p>
         </div>
@@ -123,7 +123,7 @@ function Uvod() {
       <span className="data vi-uvod__kicker">BETIMPERIUM · SYSTÉM</span>
 
       <h2 className="vi-uvod__nadpis">
-        Postavili jsme si <span className="vi-uvod__zvyraz">vlastní systém</span>,
+        Postavil jsem <span className="vi-uvod__zvyraz">vlastní systém</span>,
         protože ten cizí nikdy nesedí přesně.
       </h2>
 
@@ -131,6 +131,11 @@ function Uvod() {
         Tři věci, na kterých to stojí: mít pořádek v tom, co firma dělá,
         umět oslovit lidi, kteří o to stojí, a nechat co nejvíc práce
         na stroji. Zbytek je detail.
+      </p>
+
+      <p className="vi-uvod__podpis">
+        <span className="vi-uvod__od">Ondřej Matucha</span>
+        <span>pro Denise a BETIMPERIUM</span>
       </p>
 
       <div className="vi-uvod__sipka" aria-hidden="true">

@@ -39,13 +39,14 @@ export const PILIRE: Pilir[] = [
     barva: "#7ef0a8",
     perex:
       "Firmu nedrží pohromadě dobrý nápad, ale to, co se kolem něj děje každý den. " +
-      "Kdo komu co slíbil, kdy naposledy někdo odpověděl, komu se blíží splatnost.",
+      "Kdo komu co slíbil, kdy naposledy někdo odpověděl, komu se blíží splatnost. " +
+      "Tohle je část, se kterou jsem začínal.",
     body: [
       {
         nadpis: "Jedno místo místo pěti",
         text:
           "Klienti v tabulce, platby v mailu, domluvy v chatu, faktury u účetní. " +
-          "Každá věc zvlášť funguje. Dohromady je to systém, kde nikdo neví, jak firma " +
+          "Každá věc zvlášť funguje. Dohromady je to stav, kdy nikdo neví, jak firma " +
           "stojí, dokud si někdo nesedne a hodinu to nesečte.",
       },
       {
@@ -71,7 +72,8 @@ export const PILIRE: Pilir[] = [
     barva: "#60a5fa",
     perex:
       "Databáze kontaktů, kampaně, souhlasy. A hlavně vědomí, že nejlepší " +
-      "marketingová investice je často telefonát klientovi, který ještě neodešel.",
+      "marketingová investice je často telefonát klientovi, který ještě neodešel. " +
+      "To číslo dole mě samotného překvapilo.",
     body: [
       {
         nadpis: "Retence před akvizicí",
@@ -103,20 +105,21 @@ export const PILIRE: Pilir[] = [
     barva: "#c4a2ff",
     perex:
       "Asistent dnes umí šestadvacet nástrojů ve čtyřech režimech. Čte data, hledá " +
-      "na webu, zakládá úkoly, navrhuje akce. Ale pořád čeká, až se ho někdo zeptá.",
+      "na webu, zakládá úkoly, navrhuje akce. Ale pořád čeká, až se ho někdo zeptá. " +
+      "Tady vidím největší prostor do budoucna.",
     body: [
       {
         nadpis: "Čtyři režimy, ne jeden",
         text:
           "Rozdíl mezi dotazem na klienta a zásahem do jeho sázky není v obtížnosti, " +
-          "ale v následcích. První se dá vzít zpět, druhé ne. Proto Ask jen čte, " +
-          "Search hledá, Build zakládá vratné věci a Operate navrhuje ke schválení.",
+          "ale v následcích. První se dá vzít zpět, druhé ne. Proto jsem to rozdělil: " +
+          "Ask jen čte, Search hledá, Build zakládá vratné věci a Operate navrhuje ke schválení.",
       },
       {
         nadpis: "Sedm věcí nikdy",
         text:
           "Bankroll, zúčtování, role, platby, mazání auditu, zvýšení sázky, obcházení " +
-          "oprávnění. Ten seznam je krátký schválně — rozšířit ho je snadné, zúžit už ne.",
+          "oprávnění. Ten seznam držím krátký schválně — rozšířit ho je snadné, zúžit už ne.",
       },
       {
         nadpis: "Agent nečeká",
@@ -149,14 +152,18 @@ export const KAPITOLY: Kapitola[] = [
         typ: "text",
         obsah:
           "BETIMPERIUM není sázková aplikace. Je to systém, ve kterém běží firma — " +
-          "a to je zásadní rozdíl, který stojí za to říct hned na začátku.",
+          "a to je rozdíl, který chci říct hned na začátku, protože podle něj " +
+          "se dá číst všechno ostatní.",
       },
       {
         typ: "text",
         obsah:
           "Sázkové poradenství je jen předmět podnikání. Pod ním je úplně stejná " +
           "práce jako v jakékoli jiné firmě: vědět o klientech, hlídat peníze, " +
-          "nezapomenout na to, co se slíbilo, a mít po ruce doklady, když je potřeba.",
+          "nezapomenout na to, co se slíbilo, a mít po ruce doklady, když je potřeba.\n\n" +
+          "Stavím to pro Denise a pro firmu, kterou spolu rozjíždíme. Ne jako " +
+          "zakázku, ale protože mě baví dělat věci pořádně a tohle je příležitost, " +
+          "kde se to sejde s tím, že to má komu sloužit.",
       },
       {
         typ: "zvyrazneni",
@@ -167,7 +174,7 @@ export const KAPITOLY: Kapitola[] = [
       {
         typ: "kroky",
         polozky: [
-          "Ulehčit administrativu — ta se dělá pořád a nikdo za ni neplatí.",
+          "Ulehčit administrativu — dělá se pořád a nikdo za ni neplatí.",
           "Mít vlastní systém — nepůjčovat si cizí, který se zítra zdraží nebo skončí.",
           "Vydělat peníze — ať už poradenstvím, nebo tím systémem samotným.",
           "Dát do oběhu něco, co tady nebylo.",
@@ -176,9 +183,10 @@ export const KAPITOLY: Kapitola[] = [
       {
         typ: "text",
         obsah:
-          "Ten čtvrtý bod je nejtěžší a zároveň nejzajímavější. Existuje spousta " +
-          "systémů na fakturaci a spousta systémů na klienty. Málokterý z nich má " +
-          "uvnitř asistenta, který rozumí tomu, co firma dělá.",
+          "Ten čtvrtý bod je nejtěžší a zároveň nejzajímavější. Systémů na fakturaci " +
+          "je spousta, systémů na klienty taky. Málokterý z nich má uvnitř asistenta, " +
+          "který rozumí tomu, co ta konkrétní firma dělá — a to je věc, kterou jsem " +
+          "chtěl zkusit.",
       },
     ],
   },
@@ -191,8 +199,8 @@ export const KAPITOLY: Kapitola[] = [
       {
         typ: "text",
         obsah:
-          "Tohle jsou rozhodnutí, ne chybějící funkce. Každé z nich má důvod " +
-          "a nemá se měnit jen proto, že by to bylo pohodlné.",
+          "Tohle jsou moje rozhodnutí, ne chybějící funkce. Každé z nich má důvod " +
+          "a neměl bych ho měnit jen proto, že by to bylo pohodlnější.",
       },
       {
         typ: "seznam",
@@ -209,7 +217,7 @@ export const KAPITOLY: Kapitola[] = [
         obsah:
           "Když je vzorek malý, systém to řekne. Když zisk nejde odlišit od náhody, " +
           "řekne to. Když si není jistý, mlčí místo aby hádal. U ROI je vždycky " +
-          "interval, ne jedno lákavé číslo.",
+          "interval, ne jedno lákavé číslo — i když by to lákavé číslo vypadalo líp.",
       },
       {
         typ: "citat",
@@ -249,9 +257,9 @@ export const KAPITOLY: Kapitola[] = [
       {
         typ: "text",
         obsah:
-          "To nebyla náhoda. Sázková část se dá odpojit, aniž by se přepisoval základ. " +
-          "Kdyby se ukázalo, že větší hodnota je v tom zbytku, dá se to nabídnout " +
-          "někomu jinému — jiné firmě, jinému oboru, jinému předmětu podnikání.",
+          "To nebyla náhoda — stavěl jsem to tak schválně. Sázková část se dá odpojit, " +
+          "aniž bych přepisoval základ. Kdyby se ukázalo, že větší hodnota je v tom " +
+          "zbytku, dá se to nabídnout někomu jinému.",
       },
       { typ: "nadpis", obsah: "Kde by to sedělo" },
       {
@@ -266,7 +274,8 @@ export const KAPITOLY: Kapitola[] = [
         typ: "zvyrazneni",
         obsah:
           "Postavit jeden systém pro jednu firmu je práce. Postavit ho tak, aby z něj " +
-          "mohly být tři, je rozhodnutí, které se dělá na začátku.",
+          "mohly být tři, je rozhodnutí, které se dělá na začátku — a pak už se " +
+          "nedá dohnat.",
       },
     ],
   },
@@ -281,7 +290,7 @@ export const KAPITOLY: Kapitola[] = [
         obsah:
           "Facebook je na trhu přes dvacet let a vydává aktualizace každý týden. " +
           "Ne proto, že by ho postavili špatně — ale protože svět kolem se hýbe " +
-          "a systém, který stojí, začne za dva roky překážet.",
+          "a systém, který stojí, začne za dva roky překážet. Tenhle bude stejný.",
       },
       { typ: "nadpis", obsah: "Co to znamená prakticky" },
       {
@@ -296,10 +305,9 @@ export const KAPITOLY: Kapitola[] = [
       {
         typ: "text",
         obsah:
-          "Systém se od začátku staví na to, že se bude měnit. Proto má testy, " +
-          "proto má oddělené vrstvy a proto se sázková část dá odpojit. " +
-          "Nic z toho není vidět, dokud nepřijde první velká změna — a pak je to " +
-          "rozdíl mezi odpolednem a měsícem.",
+          "Od začátku to stavím na to, že se to bude měnit. Proto testy, proto oddělené " +
+          "vrstvy, proto se sázková část dá odpojit. Nic z toho není vidět, dokud " +
+          "nepřijde první velká změna — a pak je to rozdíl mezi odpolednem a měsícem.",
       },
     ],
   },
@@ -312,20 +320,20 @@ export const KAPITOLY: Kapitola[] = [
       {
         typ: "text",
         obsah:
-          "Tenhle systém se dá číst dvěma způsoby. Jako plán, nebo jako pokus.",
+          "Tenhle dokument se dá číst dvěma způsoby. Jako plán, nebo jako pokus.",
       },
       {
         typ: "text",
         obsah:
-          "Poctivější je ten druhý. Nikdo neví, jestli poradenství vyjde, jestli " +
-          "se systém bude prodávat, jestli agenti budou dělat to, co si od nich " +
-          "slibujeme. Kdo tvrdí opak, buď lže, nebo si to ještě nezkusil.",
+          "Poctivější je ten druhý. Nevím, jestli poradenství vyjde, jestli se systém " +
+          "bude prodávat, jestli agenti budou dělat to, co si od nich slibuju. " +
+          "Kdo tvrdí, že to ví, buď lže, nebo si to ještě nezkusil.",
       },
       {
         typ: "citat",
         obsah:
-          "Buď to vyjde a máme firmu s vlastním systémem, nebo nevyjde a máme systém, " +
-          "který umíme postavit znovu a líp. Obojí je lepší než nezkusit to.",
+          "Buď to vyjde a máme firmu s vlastním systémem, nebo nevyjde a já umím " +
+          "postavit další — rychleji a líp. Obojí je lepší než to nezkusit.",
       },
       { typ: "nadpis", obsah: "Co už stojí" },
       {
@@ -350,9 +358,10 @@ export const KAPITOLY: Kapitola[] = [
       {
         typ: "text",
         obsah:
-          "Nic z toho není hotové. Ale všechno z toho je postavené na základu, " +
-          "který drží — a to je ta část, která se dělá nejhůř a je nejvíc vidět, " +
-          "když chybí.",
+          "Nic z toho není hotové. Ale všechno stojí na základu, který drží — a to je " +
+          "ta část, která se dělá nejhůř a je nejvíc vidět, když chybí.\n\n" +
+          "Denisi, tohle je zatím moje odpověď na to, co jsi chtěl. Zbytek " +
+          "postavíme podle toho, co se ukáže jako potřebné.",
       },
     ],
   },

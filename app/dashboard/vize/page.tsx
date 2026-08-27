@@ -15,7 +15,7 @@ export default async function Vize() {
     <>
       <PageTitle
         title="Vize"
-        lead="Proč tenhle systém vznikl, co je a co není, a kam by mohl mířit."
+        lead="Proč jsem tenhle systém postavil, co je a co není, a kam by mohl mířit."
       />
       <VizePanel />
     </>

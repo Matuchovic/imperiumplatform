@@ -4,6 +4,7 @@ import { useState } from "react";
 import LogoutButton from "@/components/dashboard/LogoutButton";
 import Logo from "@/components/brand/Logo";
 import Avatar from "@/components/ui/Avatar";
+import Hledani from "@/components/hledani/Hledani";
 import type { Efekt } from "@/lib/avatar";
 import { bezpecnaRole, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 
@@ -39,11 +40,12 @@ export default function Topbar({
         <Logo size={15} suffix={false} />
       </span>
 
-      <label className={`adm-search ${hledani ? "adm-search--open" : ""}`}>
-        <i className="ti ti-search" aria-hidden="true" />
-        <input type="search" placeholder="Hledat klienta, tip, platbu…" aria-label="Hledat" />
-      </label>
+      <div className={`adm-top__hledani ${hledani ? "adm-top__hledani--open" : ""}`}>
+        <Hledani role={r} />
+      </div>
 
+      {/* Na telefonu se hledání schová pod ikonu — pole přes celou
+          šířku by vytlačilo značku i jméno. */}
       <button
         className="adm-top__find tap"
         onClick={() => setHledani((h) => !h)}
