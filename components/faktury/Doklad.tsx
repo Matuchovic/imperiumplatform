@@ -19,6 +19,9 @@ export type Faktura = {
   vystaveno: string; splatnost: string | null; duzp: string | null;
   polozky: Polozka[]; bez_dph: number; dph: number; castka: number;
   vs: string | null; zpusob: string; stav: string; poznamka: string | null;
+  // Potřebné pro výpočty nad seznamem — bez toho se typ rozejde
+  // s tím, co čeká lib/faktury/stav.
+  zaplaceno_at: string | null;
 };
 
 export type Udaje = {
