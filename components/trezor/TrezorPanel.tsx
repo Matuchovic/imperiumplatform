@@ -68,7 +68,6 @@ export default function TrezorPanel({ jeSpravce }: { jeSpravce: boolean }) {
   const [odhalene, setOdhalene] = useState<Record<number, string>>({});
   const [pristupy, setPristupy] = useState<Pristup[]>([]);
   const [dnes, setDnes] = useState(0);
-  const [stara, setStara] = useState(0);
   const [hledat, setHledat] = useState("");
   const [chyba, setChyba] = useState<string | null>(null);
   const [novy, setNovy] = useState(false);
@@ -82,7 +81,6 @@ export default function TrezorPanel({ jeSpravce }: { jeSpravce: boolean }) {
         setPolozky(d.polozky ?? []);
         setPristupy(d.pristupy ?? []);
         setDnes(d.zobrazenoDnes ?? 0);
-        setStara(d.stara ?? 0);
         setChyba(null);
       }
     } catch {
@@ -135,17 +133,6 @@ export default function TrezorPanel({ jeSpravce }: { jeSpravce: boolean }) {
 
   const zastarale = polozky.filter((p) => stare(p.updated_at)).length;
 
-  const filtr = hledat.trim().toLowerCase();
-  const videt = filtr
-    ? polozky.filter((p) =>
-        [p.nazev, p.uzivatel, p.poznamka].some((x) => x?.toLowerCase().includes(filtr))
-      )
-    : polozky;
-
-  const skupiny = Object.keys(KATEGORIE)
-    .map((k) => ({ klic: k, polozky: videt.filter((p) => p.kategorie === k) }))
-    .filter((s) => s.polozky.length > 0);
-
   return (
     <>
       {chyba && (
@@ -164,9 +151,9 @@ export default function TrezorPanel({ jeSpravce }: { jeSpravce: boolean }) {
           <p className="tz-kpi__n" style={{ color: "#7ef0a8" }}>{dnes}</p>
         </div>
         {/* Heslo starší roku je největší riziko v trezoru. */}
-        <div className={`tz-kpi ${stara > 0 ? "tz-kpi--warn" : ""}`}>
+        <div className={`tz-kpi ${zastarale > 0 ? "tz-kpi--warn" : ""}`}>
           <p className="tz-kpi__k">BEZE ZMĚNY PŘES ROK</p>
-          <p className="tz-kpi__n" style={{ color: stara > 0 ? "#ffc94a" : "#dff5e8" }}>{stara}</p>
+          <p className="tz-kpi__n" style={{ color: zastarale > 0 ? "#ffc94a" : "#dff5e8" }}>{zastarale}</p>
         </div>
         <div className="tz-kpi">
           <p className="tz-kpi__k">ŠIFROVÁNÍ</p>
@@ -200,7 +187,7 @@ export default function TrezorPanel({ jeSpravce }: { jeSpravce: boolean }) {
             Přidej první heslo. Ukládá se šifrovaně a každé zobrazení se zapíše do auditu.
           </p>
         </div>
-      ) : videt.length === 0 ? (
+      ) : nalezene.length === 0 ? (
         <div className="tz-skupina">
           <p className="adm-panel__lead" style={{ margin: 0 }}>
             Hledání „{hledat}" nic nenašlo.
