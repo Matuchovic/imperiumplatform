@@ -1740,7 +1740,8 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 }
 
 
-.brand { display: inline-flex; flex-direction: column; line-height: 1; }
+/* Přívlastek vedle názvu, u horní hrany verzálek. */
+.brand { display: inline-flex; align-items: flex-start; gap: 6px; line-height: 1; }
 .brand__word {
   font-family: var(--font-display);
   font-weight: 700;
@@ -1748,9 +1749,8 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   text-shadow: 0 0 24px rgba(126, 240, 168, 0.2);
 }
 
-/* Přívlastek pod názvem, ne vedle. */
-.brand__radka { display: flex; align-items: center; gap: 9px; margin-top: 5px; }
 .brand__suffix {
+  padding-top: 1px;
   font-family: var(--font-data);
   letter-spacing: 0.26em;
   background: linear-gradient(100deg, #3f6a55 30%, #7ef0a8 46%, #eafff2 52%, #7ef0a8 58%, #3f6a55 74%);
@@ -1766,13 +1766,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   92%, 100% { background-position: 240% 0; }
 }
 
-.brand__cara {
-  flex: 1;
-  min-width: 12px;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(126, 240, 168, 0.3), transparent);
-  animation: brand-dech 3.4s ease-in-out infinite;
-}
 @keyframes brand-dech { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.9; } }
 
 /* Znak vlevo — táž ikona jako na ploše, aby se obojí spojilo. */

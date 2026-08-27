@@ -1,12 +1,12 @@
 /**
  * Značka.
  *
- * Volitelný znak vlevo — je to ta samá ikona, kterou má aplikace
- * na ploše, takže se obojí spojí. V liště se vypíná, tam by
- * dvakrát tatáž ikona byla šum.
+ * Přívlastek MANAGEMENT sedí u horní hrany verzálek, ne na účaří —
+ * na účaří působil jako dodatek, nahoře jako označení kategorie.
+ * Světlo po něm přejede jednou za sedm vteřin.
  *
- * Přívlastek MANAGEMENT je pod názvem, ne vedle. Vedle působil
- * jako druhé slovo v názvu, pod ním jako podtitul — což je pravda.
+ * Znak vlevo je samostatný soubor bez textu. Plná ikona obsahuje
+ * nápis, který se při zmenšení na tři centimetry rozmaže v kaši.
  */
 export default function Logo({
   size = 24,
@@ -16,7 +16,7 @@ export default function Logo({
   size?: number;
   /** Přívlastek jde vypnout tam, kde by rušil. */
   suffix?: boolean;
-  /** Ikona aplikace vlevo od názvu. */
+  /** Znak vlevo od názvu. */
   znak?: boolean;
 }) {
   const jadro = (
@@ -26,13 +26,8 @@ export default function Logo({
         <span className="text-chalk">IMPERIUM</span>
       </span>
       {suffix && (
-        <span className="brand__radka">
-          <span className="brand__suffix" style={{ fontSize: Math.max(7.5, size * 0.42) }}>
-            MANAGEMENT
-          </span>
-          {/* Linka odděluje značku od navigace — bez ní splývá
-              s první položkou. */}
-          <span className="brand__cara" aria-hidden="true" />
+        <span className="brand__suffix" style={{ fontSize: Math.max(7, size * 0.42) }}>
+          MANAGEMENT
         </span>
       )}
     </span>
@@ -44,10 +39,10 @@ export default function Logo({
     <span className="brand-obal">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/icons/icon-192.png"
+        src="/icons/znak-192.png"
         alt=""
         className="brand-znak"
-        style={{ width: size * 1.9, height: size * 1.9 }}
+        style={{ width: size * 2.1, height: size * 2.1 }}
       />
       {jadro}
     </span>

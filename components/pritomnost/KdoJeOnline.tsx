@@ -38,16 +38,24 @@ export default function KdoJeOnline({ jaId, kompaktni = false }: { jaId: string;
 
   if (lide.length === 0) return null;
 
-  // Kompaktní podoba do lišty — jen překrývající se avatary.
+  /**
+   * Kompaktní podoba do lišty.
+   *
+   * Vlastní tvář se vynechá — je hned vedle v uživatelské části
+   * a dvakrát tentýž avatar vypadá jako chyba.
+   */
   if (kompaktni) {
+    const ostatni = lide.filter((l) => l.id !== jaId);
+    if (ostatni.length === 0) return null;
+
     return (
-      <span className="on-pas" title={lide.map((l) => l.jmeno).join(", ")}>
-        {lide.slice(0, 4).map((l) => (
+      <span className="on-pas" title={`Právě na platformě: ${ostatni.map((l) => l.jmeno).join(", ")}`}>
+        {ostatni.slice(0, 4).map((l) => (
           <span key={l.id} className="on-av">
             <Avatar jmeno={l.jmeno} velikost={26} efekt={l.efekt as Efekt} />
           </span>
         ))}
-        {lide.length > 4 && <span className="on-vic">+{lide.length - 4}</span>}
+        {ostatni.length > 4 && <span className="on-vic">+{ostatni.length - 4}</span>}
       </span>
     );
   }
