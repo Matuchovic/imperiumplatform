@@ -49,6 +49,7 @@ export const NAV: NavGroup[] = [
         roles: TYM },
       { label: "Betmail", href: "/dashboard/betmail", icon: "mail", roles: TYM },
       { label: "Cloud", href: "/dashboard/cloud", icon: "cloud", roles: TYM },
+      { label: "Vozový park", href: "/dashboard/vozidla", icon: "car", roles: TYM },
     ],
   },
   {

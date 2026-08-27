@@ -32,7 +32,9 @@ export type AuditAction =
   | "cloud.deleted"
   | "cloud.pin_set"
   | "cloud.pin_changed"
-  | "personal.ended";
+  | "personal.ended"
+  | "vozidlo.created"
+  | "vozidlo.deleted";
 
 export type AuditEntry = {
   action: AuditAction;

@@ -5270,3 +5270,303 @@ textarea,
 @media (prefers-reduced-motion: reduce) {
   .info, .rozbal__obsah, .pojem__bublina { animation: none; }
 }
+
+/* ============================================================
+   VOZOVÝ PARK
+   ============================================================ */
+
+.vz-zalozky { display: flex; gap: 6px; margin-top: 18px; flex-wrap: wrap; }
+.vz-zalozka {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  background: transparent;
+  color: var(--color-ash);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+.vz-zalozka:hover { border-color: rgba(126, 240, 168, 0.35); color: var(--color-chalk); }
+.vz-zalozka--on {
+  background: rgba(126, 240, 168, 0.12);
+  border-color: rgba(126, 240, 168, 0.45);
+  color: var(--color-chalk);
+}
+.vz-zalozka i { font-size: 15px; }
+.vz-pocet {
+  padding: 1px 7px;
+  border-radius: 9px;
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: #5b6c61;
+  background: rgba(255, 255, 255, 0.05);
+}
+.vz-zalozka--on .vz-pocet { color: var(--color-signal); background: rgba(126, 240, 168, 0.12); }
+
+.vz-mrizka {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.vz-karta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 15px 15px 15px 18px;
+  border-radius: 13px;
+  background: rgba(12, 19, 16, 0.78);
+  border: 1px solid rgba(126, 240, 168, 0.11);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 160ms ease;
+}
+.vz-karta:hover {
+  border-color: rgba(126, 240, 168, 0.4);
+  box-shadow: 0 0 26px -14px rgba(126, 240, 168, 0.9);
+  transform: translateY(-1px);
+}
+/* Levý pruh nese nejnaléhavější lhůtu — propadlá STK se pozná
+   pohledem po okraji, bez čtení. */
+.vz-pruh {
+  position: absolute;
+  left: 0;
+  top: 16%;
+  bottom: 16%;
+  width: 2px;
+  border-radius: 2px;
+}
+
+.vz-hlava { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.vz-spz { font-size: 14px; letter-spacing: 0.06em; color: var(--color-chalk); }
+.vz-stav { font-family: var(--font-data); font-size: 10px; letter-spacing: 0.08em; }
+
+.vz-nazev { font-size: 13px; color: var(--color-ash); }
+.vz-rok { color: #5b6c61; }
+
+.vz-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  color: #5b6c61;
+}
+
+.vz-ridic { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--color-ash); }
+.vz-ridic--bez { color: #4d5c53; }
+.vz-ridic i { font-size: 14px; }
+
+.vz-lhuta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+  font-size: 11.5px;
+}
+.vz-lhuta i { font-size: 13px; }
+
+/* ---------- karty ---------- */
+.vz-karta-radek {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+}
+.vz-karta-radek:first-of-type { border-top: 0; }
+.vz-k-ikona {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.08);
+  color: var(--color-signal);
+}
+.vz-k-ikona i { font-size: 16px; }
+.vz-k-cislo { display: block; font-size: 13px; letter-spacing: 0.05em; color: var(--color-chalk); }
+
+/* ---------- detail vozidla ---------- */
+.vz-d-znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.1);
+  color: var(--color-signal);
+  box-shadow: 0 0 20px -6px rgba(126, 240, 168, 0.9);
+}
+.vz-d-znak i { font-size: 19px; }
+.vz-d-nazev {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 15px;
+  color: var(--color-chalk);
+}
+.vz-d-spz {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  background: rgba(126, 240, 168, 0.1);
+  color: var(--color-signal);
+}
+
+.vz-d-zalozky {
+  display: flex;
+  gap: 4px;
+  padding: 10px 16px 0;
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.1);
+}
+.vz-d-zalozka {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 13px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #5b6c61;
+  font-family: inherit;
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.vz-d-zalozka:hover { color: var(--color-ash); }
+.vz-d-zalozka--on { color: var(--color-chalk); border-bottom-color: var(--color-signal); }
+.vz-d-zalozka i { font-size: 15px; }
+
+.vz-lhuty {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 9px;
+}
+.vz-lhuta-karta {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 13px;
+  border-radius: 11px;
+  background: rgba(2, 8, 5, 0.55);
+  border: 1px solid rgba(126, 240, 168, 0.1);
+}
+.vz-lhuta-ikona {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+.vz-lhuta-ikona i { font-size: 16px; }
+.vz-lhuta-nazev { display: block; font-size: 12.5px; color: var(--color-chalk); }
+.vz-lhuta-datum { display: block; margin-top: 2px; font-size: 11px; }
+
+.vz-udaje {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(126, 240, 168, 0.08);
+}
+.vz-udaj__p {
+  display: block;
+  font-family: var(--font-data);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: #4d5c53;
+}
+.vz-udaj__h { display: block; margin-top: 4px; font-size: 13px; color: var(--color-chalk); }
+
+.vz-nadpis { margin: 0 0 8px; font-size: 9px; letter-spacing: 0.2em; color: #4d5c53; }
+
+.vz-radek {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+}
+.vz-radek:first-of-type { border-top: 0; }
+.vz-radek--hotovo { opacity: 0.5; }
+
+.vz-datum {
+  flex-shrink: 0;
+  width: 72px;
+  font-size: 11px;
+  color: #5b6c61;
+  padding-top: 1px;
+}
+.vz-ucel { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-chalk); }
+.vz-km { flex-shrink: 0; font-size: 12px; color: var(--color-signal); }
+
+.vz-soukroma {
+  padding: 1px 7px;
+  border-radius: 5px;
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: #8fa396;
+  background: rgba(143, 163, 150, 0.12);
+}
+
+.vz-skoda-znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.vz-skoda-znak i { font-size: 15px; }
+
+.vz-poznamka {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(126, 240, 168, 0.08);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--color-ash);
+  white-space: pre-wrap;
+}
+
+.vz-vypocet {
+  margin: 4px 0 0;
+  font-family: var(--font-data);
+  font-size: 11.5px;
+  color: var(--color-signal);
+}
+
+.vz-prepinac {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-size: 13px;
+  color: var(--color-ash);
+  cursor: pointer;
+}
