@@ -35,7 +35,10 @@ export type AuditAction =
   | "personal.ended"
   | "vozidlo.created"
   | "vozidlo.deleted"
-  | "vyplata.paid";
+  | "vyplata.paid"
+  | "faktura.created"
+  | "faktura.paid"
+  | "faktura.reminded";
 
 export type AuditEntry = {
   action: AuditAction;

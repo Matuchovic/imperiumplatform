@@ -5656,3 +5656,266 @@ textarea,
 
 .vy-vyhrada { margin-left: 6px; color: var(--color-amber); cursor: help; }
 .vy-vyhrada i { font-size: 14px; }
+
+/* ============================================================
+   FAKTURY
+   ============================================================ */
+
+.fa-tab { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 13px; }
+.fa-tab th {
+  padding: 9px 8px;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5b6c61;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.12);
+}
+.fa-tab td { padding: 11px 8px; text-align: right; border-top: 1px solid rgba(126, 240, 168, 0.06); }
+
+.fa-radek { cursor: pointer; transition: background 150ms ease; }
+.fa-radek:hover { background: rgba(126, 240, 168, 0.04); }
+
+.fa-cislo { font-size: 13px; color: var(--color-signal); }
+.fa-odberatel { color: var(--color-chalk); }
+.fa-castka { color: var(--color-chalk); white-space: nowrap; }
+.fa-dni { font-size: 11px; opacity: 0.8; }
+
+.fa-stav {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 7px;
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.fa-upominky {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-family: var(--font-data);
+  font-size: 9.5px;
+  color: var(--color-amber);
+  background: rgba(255, 201, 74, 0.1);
+}
+.fa-upominky i { font-size: 11px; }
+
+.fa-dluznik {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.07);
+}
+.fa-dluznik:first-of-type { border-top: 0; }
+.fa-dluznik__jmeno { display: block; font-size: 13.5px; color: var(--color-chalk); }
+.fa-dluznik__castka { font-size: 14px; color: var(--color-amber); white-space: nowrap; }
+
+/* Nabídka upomínek se rozbalí až na najetí — tři úrovně by jinak
+   zabraly celou hlavičku. */
+.fa-upominka-menu { position: relative; display: inline-block; }
+.fa-upominka-volby {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+  min-width: 240px;
+  padding: 6px;
+  border-radius: 11px;
+  background: linear-gradient(168deg, rgba(16, 34, 24, 0.99), rgba(4, 12, 8, 0.99));
+  border: 1px solid rgba(126, 240, 168, 0.24);
+  box-shadow: 0 18px 44px -20px rgba(0, 0, 0, 0.95);
+}
+.fa-upominka-menu:hover .fa-upominka-volby,
+.fa-upominka-menu:focus-within .fa-upominka-volby { display: flex; }
+.fa-upominka-volby button {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.fa-upominka-volby button:hover { background: rgba(126, 240, 168, 0.07); }
+.fa-upominka-volby button span:first-child { font-size: 12.5px; }
+.fa-upominka-volby button span:last-child { font-size: 11px; color: #5b6c61; }
+
+/* ---------- formulář ---------- */
+.cl-panel--siroky { width: min(720px, 100%); }
+
+.fa-polozka {
+  display: grid;
+  grid-template-columns: 1fr 66px 78px 92px 74px 78px 26px;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+@media (max-width: 700px) {
+  .fa-polozka { grid-template-columns: 1fr 1fr; }
+  .fa-p-nazev { grid-column: 1 / -1; }
+}
+.fa-polozka .set-input { margin: 0; padding: 8px 10px; font-size: 12.5px; }
+.fa-p-cislo { text-align: right; }
+.fa-p-jed { padding-right: 4px !important; }
+.fa-p-soucet { text-align: right; font-size: 12px; color: var(--color-signal); }
+
+.fa-soucty {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 13px 15px;
+  border-radius: 11px;
+  background: rgba(126, 240, 168, 0.05);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+}
+.fa-soucty > span { display: flex; justify-content: space-between; font-size: 13px; color: var(--color-ash); }
+.fa-soucty__celkem {
+  padding-top: 8px;
+  border-top: 1px solid rgba(126, 240, 168, 0.14);
+  font-size: 15px !important;
+  color: var(--color-chalk) !important;
+  font-weight: 500;
+}
+
+/* ---------- QR ---------- */
+.fa-qr { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.fa-qr canvas { border-radius: 8px; background: #fff; padding: 6px; }
+.fa-qr__popis { font-size: 9px; letter-spacing: 0.14em; color: #5b6c61; }
+.fa-qr__chyba { margin: 0; font-size: 11.5px; color: #ff8a8a; }
+
+/* ============================================================
+   DOKLAD
+   Na papíře nemá co dělat tmavé pozadí ani neonové efekty.
+   ============================================================ */
+
+.dk {
+  padding: 26px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(126, 240, 168, 0.1);
+  color: var(--color-chalk);
+}
+.dk__hlava { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.dk__nadpis { margin: 0; font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+.dk__cislo { margin: 3px 0 0; font-family: var(--font-data); font-size: 15px; color: var(--color-signal); }
+.dk__znacka { font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: -0.02em; }
+
+.dk__strany {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(126, 240, 168, 0.1);
+}
+@media (min-width: 620px) { .dk__strany { grid-template-columns: 1fr 1fr; } }
+
+.dk__popisek {
+  display: block;
+  margin: 0 0 5px;
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: #5b6c61;
+}
+.dk__nazev { margin: 0; font-size: 14px; font-weight: 500; }
+.dk__radek { margin: 3px 0 0; font-size: 12.5px; color: var(--color-ash); }
+
+.dk__datumy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 20px;
+  padding: 13px 0;
+  border-top: 1px solid rgba(126, 240, 168, 0.08);
+  border-bottom: 1px solid rgba(126, 240, 168, 0.08);
+  font-size: 13px;
+}
+
+.dk__tab { width: 100%; margin-top: 18px; border-collapse: collapse; font-size: 13px; }
+.dk__tab th {
+  padding: 8px;
+  font-weight: 400;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5b6c61;
+  text-align: right;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.12);
+}
+.dk__tab td { padding: 9px 8px; text-align: right; border-top: 1px solid rgba(126, 240, 168, 0.06); }
+
+.dk__soucty {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 16px;
+  margin-left: auto;
+  max-width: 320px;
+}
+.dk__soucty > span { display: flex; justify-content: space-between; gap: 20px; font-size: 13px; color: var(--color-ash); }
+.dk__celkem {
+  padding-top: 9px;
+  border-top: 1px solid rgba(126, 240, 168, 0.2);
+  font-size: 16px !important;
+  font-weight: 600;
+  color: var(--color-chalk) !important;
+}
+
+.dk__platba {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 11px;
+  background: rgba(126, 240, 168, 0.04);
+  border: 1px solid rgba(126, 240, 168, 0.12);
+}
+
+.dk__poznamka { margin: 18px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--color-ash); white-space: pre-wrap; }
+.dk__pata {
+  margin: 20px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(126, 240, 168, 0.08);
+  font-size: 11px;
+  color: #5b6c61;
+}
+
+@media print {
+  /* Na papír jde jen doklad, nic jiného. */
+  body * { visibility: hidden; }
+  .dk, .dk * { visibility: visible; }
+  .dk {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: #fff;
+    color: #000;
+  }
+  .dk__cislo, .dk__znacka span { color: #000 !important; }
+  .dk__radek, .dk__soucty > span, .dk__pata { color: #333 !important; }
+  .dk__tab th, .dk__tab td, .dk__datumy, .dk__strany { border-color: #ccc !important; }
+  .dk__platba { background: #f6f6f6; border-color: #ddd; }
+  .pv, .pv__hlava, .pv-scrim { position: static; background: none; border: 0; box-shadow: none; }
+}
