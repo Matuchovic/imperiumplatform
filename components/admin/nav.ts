@@ -7,7 +7,15 @@ export type Role =
   | "ucetni"
   | "klient";
 
-export type NavItem = { label: string; href: string; icon: string; roles: Role[] };
+export type NavItem = {
+  label: string;
+  href: string;
+  icon: string;
+  roles: Role[];
+  /** Neonový pulz v postranním panelu. Jen na jedné položce —
+      dvě soupeří o pozornost a přestanou fungovat obě. */
+  zari?: boolean;
+};
 export type NavGroup = { title: string | null; items: NavItem[] };
 
 /**
@@ -70,6 +78,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: "Nastavení", href: "/dashboard/nastaveni", icon: "settings",
         roles: ["ceo", "vyvojar", "klient"] },
+      { label: "Vize", href: "/dashboard/vize", icon: "flame", roles: VSICHNI, zari: true },
       { label: "Notifikace", href: "/dashboard/notifikace", icon: "bell", roles: VSICHNI },
       { label: "Aplikace na plochu", href: "/dashboard/aplikace", icon: "device-mobile-plus",
         roles: VSICHNI },

@@ -49,7 +49,7 @@ export default function Sidebar({
                     prefetch
                     onClick={onClose}
                     aria-current={active ? "page" : undefined}
-                    className={`adm-nav ${active ? "adm-nav--on" : ""}`}
+                    className={`adm-nav ${active ? "adm-nav--on" : ""} ${item.zari ? "adm-nav--zari" : ""}`}
                   >
                     <i className={`ti ti-${item.icon}`} aria-hidden="true" />
                     {item.label}

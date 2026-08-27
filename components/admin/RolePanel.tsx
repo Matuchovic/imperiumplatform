@@ -10,6 +10,7 @@ export type Clen = { id: string; name: string; role: Role };
 /** Co která role vidí. Musí odpovídat rolím v NAV. */
 const MATICE: [string, Role[]][] = [
   ["Přehled", ROLE_PORADI],
+  ["Vize", ["ceo", "vyvojar", "manazer", "marketing", "scout", "ucetni"]],
   ["Klienti", ["ceo", "vyvojar", "manazer"]],
   ["Personál", ["ceo", "vyvojar"]],
   ["Faktury", ["ceo", "vyvojar", "ucetni", "manazer"]],

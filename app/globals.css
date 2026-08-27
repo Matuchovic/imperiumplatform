@@ -5919,3 +5919,421 @@ textarea,
   .dk__platba { background: #f6f6f6; border-color: #ddd; }
   .pv, .pv__hlava, .pv-scrim { position: static; background: none; border: 0; box-shadow: none; }
 }
+
+/* ============================================================
+   VIZE
+   Dlouhý text, ne rozhraní — vlastní typografie.
+   ============================================================ */
+
+.vi-postup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  z-index: 90;
+  background: linear-gradient(90deg, rgba(126, 240, 168, 0.4), var(--color-signal));
+  box-shadow: 0 0 10px rgba(126, 240, 168, 0.6);
+  transition: width 120ms linear;
+}
+
+.vi { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 6px; }
+@media (min-width: 1040px) { .vi { grid-template-columns: 250px 1fr; gap: 40px; align-items: start; } }
+
+.vi-obsah { display: grid; gap: 3px; }
+@media (min-width: 1040px) { .vi-obsah { position: sticky; top: 90px; } }
+
+.vi-polozka {
+  display: flex;
+  gap: 11px;
+  padding: 11px 12px;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-radius: 0 9px 9px 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.vi-polozka:hover { background: rgba(126, 240, 168, 0.04); }
+.vi-polozka--on { border-left-color: var(--color-signal); background: rgba(126, 240, 168, 0.07); }
+
+.vi-cislo { font-size: 10px; color: #3f4d45; padding-top: 2px; }
+.vi-polozka--on .vi-cislo { color: var(--color-signal); }
+.vi-nazev { display: block; font-size: 13px; color: var(--color-ash); }
+.vi-polozka--on .vi-nazev { color: var(--color-chalk); }
+.vi-perex { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.5; color: #4d5c53; }
+
+.vi-telo { max-width: 68ch; }
+.vi-kapitola { padding-bottom: 46px; scroll-margin-top: 90px; }
+.vi-kapitola + .vi-kapitola { border-top: 1px solid rgba(126, 240, 168, 0.08); padding-top: 40px; }
+
+.vi-hlava { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.vi-znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.1);
+  color: var(--color-signal);
+  box-shadow: 0 0 24px -8px rgba(126, 240, 168, 0.9);
+}
+.vi-znak i { font-size: 20px; }
+.vi-kicker { display: block; font-size: 9px; letter-spacing: 0.22em; color: #4d5c53; }
+.vi-nadpis {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--color-chalk);
+}
+@media (max-width: 640px) { .vi-nadpis { font-size: 20px; } }
+
+.vi-podnadpis {
+  margin: 30px 0 12px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: #d9ece1;
+}
+
+/* Text se čte, ne skenuje. */
+.vi-text { margin: 0 0 15px; font-size: 15px; line-height: 1.8; color: #cfe6d8; }
+
+.vi-zvyrazneni {
+  position: relative;
+  margin: 24px 0;
+  padding: 18px 20px 18px 24px;
+  border-radius: 12px;
+  background: rgba(126, 240, 168, 0.05);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.65;
+  font-weight: 500;
+  color: #ecfdf2;
+}
+.vi-zvyrazneni__znak {
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--color-signal);
+  box-shadow: 0 0 10px var(--color-signal);
+}
+
+.vi-varovani {
+  display: flex;
+  gap: 12px;
+  margin: 22px 0;
+  padding: 15px 17px;
+  border-radius: 12px;
+  background: rgba(255, 201, 74, 0.05);
+  border: 1px solid rgba(255, 201, 74, 0.2);
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #d9b96a;
+}
+.vi-varovani i { font-size: 17px; flex-shrink: 0; margin-top: 1px; color: var(--color-amber); }
+
+.vi-seznam { margin: 0 0 15px; padding: 0; list-style: none; }
+.vi-seznam li {
+  display: flex;
+  gap: 9px;
+  padding: 6px 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #cfe6d8;
+}
+.vi-seznam i { font-size: 15px; flex-shrink: 0; margin-top: 3px; color: var(--color-signal); }
+
+.vi-kroky { margin: 0 0 15px; padding: 0; list-style: none; counter-reset: krok; }
+.vi-kroky li {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #cfe6d8;
+}
+.vi-krok {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  background: rgba(126, 240, 168, 0.1);
+  color: var(--color-signal);
+  font-size: 11.5px;
+}
+
+.vi-cisla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 20px 0;
+}
+.vi-cislo-karta {
+  display: block;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(12, 19, 16, 0.7);
+  border: 1px solid rgba(126, 240, 168, 0.11);
+}
+.vi-cislo-hodnota {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-signal);
+  text-transform: capitalize;
+}
+.vi-cislo-popis { display: block; margin-top: 5px; font-size: 12px; line-height: 1.6; color: #5b6c61; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vi-postup { transition: none; }
+}
+
+/* ============================================================
+   VIZE
+   ============================================================ */
+
+/**
+ * Pulzující položka v panelu.
+ *
+ * Jen na jedné položce. Dvě by soupeřily o pozornost a přestaly
+ * by fungovat obě.
+ */
+.adm-nav--zari {
+  position: relative;
+  color: var(--color-signal);
+}
+.adm-nav--zari i { color: var(--color-signal) !important; }
+.adm-nav--zari::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid rgba(126, 240, 168, 0.3);
+  animation: nav-zari 3s ease-in-out infinite;
+}
+@keyframes nav-zari {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(126, 240, 168, 0);
+    border-color: rgba(126, 240, 168, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 20px -6px rgba(126, 240, 168, 0.75), inset 0 0 14px -10px rgba(126, 240, 168, 0.9);
+    border-color: rgba(126, 240, 168, 0.5);
+  }
+}
+/* Na otevřené sekci pulz přestane — už tam jsi. */
+.adm-nav--on.adm-nav--zari::after { animation: none; border-color: transparent; }
+
+/* ---------- postup čtení ---------- */
+.vi-postup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(126, 240, 168, 0.4), var(--color-signal));
+  box-shadow: 0 0 10px rgba(126, 240, 168, 0.7);
+  transition: width 120ms linear;
+}
+
+.vi { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 6px; }
+@media (min-width: 1080px) { .vi { grid-template-columns: 240px 1fr; align-items: start; } }
+
+.vi-obsah {
+  display: grid;
+  gap: 3px;
+  align-content: start;
+  border-radius: 13px;
+  padding: 10px;
+  background: rgba(12, 19, 16, 0.7);
+  border: 1px solid rgba(126, 240, 168, 0.1);
+}
+@media (min-width: 1080px) { .vi-obsah { position: sticky; top: 84px; } }
+
+.vi-polozka {
+  display: flex;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.vi-polozka:hover { background: rgba(126, 240, 168, 0.05); }
+.vi-polozka--on { background: rgba(126, 240, 168, 0.09); border-color: rgba(126, 240, 168, 0.2); }
+
+.vi-cislo { font-size: 9.5px; color: #4d5c53; padding-top: 2px; }
+.vi-polozka--on .vi-cislo { color: var(--color-signal); }
+.vi-nazev { display: block; font-size: 12.5px; color: var(--color-ash); }
+.vi-polozka--on .vi-nazev { color: var(--color-chalk); }
+.vi-perex { display: block; margin-top: 2px; font-size: 11px; line-height: 1.5; color: #4d5c53; }
+
+.vi-kapitola {
+  padding: 26px 0 34px;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.07);
+  /* Kotva nesmí zmizet pod horní lištou. */
+  scroll-margin-top: 84px;
+}
+.vi-kapitola:first-child { padding-top: 10px; }
+.vi-kapitola:last-of-type { border-bottom: 0; }
+
+.vi-hlava { display: flex; align-items: center; gap: 13px; margin-bottom: 18px; }
+.vi-znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.1);
+  color: var(--color-signal);
+  box-shadow: 0 0 22px -8px rgba(126, 240, 168, 0.9);
+}
+.vi-znak i { font-size: 20px; }
+.vi-poradi { display: block; font-size: 9px; letter-spacing: 0.2em; color: #4d5c53; }
+.vi-nadpis {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-chalk);
+}
+
+/* Dlouhý text potřebuje vlastní míru — na širokém monitoru
+   by řádek utíkal a oko by ztrácelo návaznost. */
+.vi-text {
+  margin: 0 0 15px;
+  max-width: 66ch;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #d3e7db;
+}
+
+.vi-podnadpis {
+  margin: 28px 0 12px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-chalk);
+}
+
+.vi-zvyrazneni {
+  position: relative;
+  margin: 22px 0;
+  padding: 16px 18px 16px 22px;
+  max-width: 66ch;
+  border-radius: 12px;
+  background: rgba(126, 240, 168, 0.05);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.65;
+  color: #e6fbee;
+}
+.vi-zvyrazneni__pruh {
+  position: absolute;
+  left: 0;
+  top: 14%;
+  bottom: 14%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--color-signal);
+  box-shadow: 0 0 10px var(--color-signal);
+}
+
+.vi-varovani {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 14px 16px;
+  max-width: 66ch;
+  border-radius: 12px;
+  background: rgba(255, 201, 74, 0.05);
+  border: 1px solid rgba(255, 201, 74, 0.2);
+  font-size: 13px;
+  line-height: 1.7;
+  color: #d9b96a;
+}
+.vi-varovani i { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+
+.vi-seznam, .vi-kroky { margin: 0 0 16px; padding: 0; list-style: none; max-width: 66ch; }
+.vi-seznam li, .vi-kroky li {
+  display: flex;
+  gap: 11px;
+  padding: 7px 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #d3e7db;
+}
+.vi-seznam i { font-size: 16px; color: var(--color-signal); flex-shrink: 0; margin-top: 3px; }
+
+.vi-krok-cislo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  border-radius: 7px;
+  background: rgba(126, 240, 168, 0.1);
+  color: var(--color-signal);
+  font-size: 11px;
+}
+
+.vi-cisla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 9px;
+  margin: 18px 0;
+  max-width: 66ch;
+}
+.vi-cislo-karta {
+  padding: 14px;
+  border-radius: 11px;
+  background: rgba(12, 19, 16, 0.7);
+  border: 1px solid rgba(126, 240, 168, 0.11);
+}
+.vi-cislo-hodnota {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-signal);
+}
+.vi-cislo-popis { display: block; margin-top: 4px; font-size: 12px; line-height: 1.55; color: #5b6c61; }
+
+.vi-konec {
+  margin: 30px 0 0;
+  max-width: 66ch;
+  padding-top: 20px;
+  border-top: 1px solid rgba(126, 240, 168, 0.08);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #5b6c61;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-nav--zari::after { animation: none; border-color: rgba(126, 240, 168, 0.3); }
+  .vi-postup { transition: none; }
+}
