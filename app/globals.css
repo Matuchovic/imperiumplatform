@@ -2758,3 +2758,66 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 @media (max-width: 639px) {
   .sp-stav { align-self: flex-start; }
 }
+
+/* ---------- napojené služby ---------- */
+.int-karta {
+  border-radius: 11px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(126, 240, 168, 0.1);
+}
+.int-hlava { display: flex; align-items: center; gap: 11px; }
+.int-ikona {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  background: rgba(126, 240, 168, 0.08);
+  color: var(--color-signal);
+}
+.int-ikona i { font-size: 16px; }
+.int-nazev { display: block; font-size: 14px; color: var(--color-chalk); }
+.int-role { display: block; margin-top: 1px; font-size: 12px; color: #5b6c61; }
+.int-stav {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: #8fa396;
+  background: rgba(143, 163, 150, 0.1);
+}
+.int-stav--on { color: var(--color-signal); background: rgba(126, 240, 168, 0.12); }
+
+.int-detail { margin: 11px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--color-ash); }
+.int-detail strong { color: var(--color-chalk); font-weight: 500; }
+.int-detail--chyba { color: #ff8a8a; }
+
+.int-rezim {
+  margin: 9px 0 0;
+  padding: 8px 11px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--color-ash);
+  background: rgba(143, 163, 150, 0.07);
+  border: 1px solid rgba(143, 163, 150, 0.14);
+}
+.int-rezim--ostry {
+  color: var(--color-amber);
+  background: rgba(255, 201, 74, 0.07);
+  border-color: rgba(255, 201, 74, 0.24);
+}
+
+.int-navod { margin: 11px 0 0; font-size: 12.5px; line-height: 1.6; color: #5b6c61; }
+.int-promenne { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.int-prom {
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  color: #7fa88f;
+  background: rgba(126, 240, 168, 0.06);
+  border: 1px solid rgba(126, 240, 168, 0.12);
+}

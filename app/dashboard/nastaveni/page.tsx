@@ -76,6 +76,8 @@ export default async function Nastaveni() {
 
       <SettingsPanel initial={settings} />
 
+      <IntegracePanel />
+
       <div className="adm-panel">
         <p className="adm-panel__title">O aplikaci</p>
         <div style={{ marginTop: 10 }}>
