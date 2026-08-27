@@ -24,7 +24,9 @@ export default function Topbar({
   role,
   efekt = "zadny",
   onMenu,
+  otevreneMenu = false,
 }: {
+  otevreneMenu?: boolean;
   name: string;
   efekt?: Efekt;
   role: Role;
@@ -35,8 +37,22 @@ export default function Topbar({
 
   return (
     <header className="adm-top">
-      <button className="adm-top__menu tap" onClick={onMenu} aria-label="Otevřít menu">
-        <i className="ti ti-menu-2" aria-hidden="true" />
+      {/* Hamburger. Tři čáry hoří — nestejně dlouhé a každá
+          v jiné fázi, jinak by to blikalo jako dioda. */}
+      <button
+        className={`hb tap ${otevreneMenu ? "hb--on" : ""}`}
+        onClick={onMenu}
+        aria-label={otevreneMenu ? "Zavřít menu" : "Otevřít menu"}
+        aria-expanded={otevreneMenu}
+      >
+        <span className="hb-cary" aria-hidden="true">
+          <span className="hb-cara" />
+          <span className="hb-cara" />
+          <span className="hb-cara" />
+        </span>
+        <span className="hb-jiskra" style={{ ["--dx" as string]: "-4px", left: 12, top: 30 }} aria-hidden="true" />
+        <span className="hb-jiskra" style={{ ["--dx" as string]: "6px", left: 26, top: 32, animationDelay: "-0.55s" }} aria-hidden="true" />
+        <span className="hb-jiskra" style={{ ["--dx" as string]: "-2px", left: 20, top: 31, animationDelay: "-1.1s" }} aria-hidden="true" />
       </button>
 
       <span className="adm-top__brand">

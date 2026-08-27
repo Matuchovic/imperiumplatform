@@ -48,7 +48,15 @@ export default function Shell({
       <Sidebar role={role} open={open} onClose={() => setOpen(false)} />
 
       <div className="adm-main">
-        <Topbar name={name} role={role} efekt={efekt} onMenu={() => setOpen(true)} />
+        <Topbar
+          name={name}
+          role={role}
+          efekt={efekt}
+          otevreneMenu={open}
+          // Křížek zavírá, hamburger otevírá — jedno tlačítko
+          // pro obojí je na telefonu přirozenější než dvě.
+          onMenu={() => setOpen((o) => !o)}
+        />
 
         {demo > 0 && (
           <div className="demo-bar" role="status">
