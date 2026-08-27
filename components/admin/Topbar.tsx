@@ -4,6 +4,7 @@ import { useState } from "react";
 import LogoutButton from "@/components/dashboard/LogoutButton";
 import Logo from "@/components/brand/Logo";
 import Avatar from "@/components/ui/Avatar";
+import type { Efekt } from "@/lib/avatar";
 import { bezpecnaRole, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 
 /**
@@ -17,9 +18,11 @@ import { bezpecnaRole, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 export default function Topbar({
   name,
   role,
+  efekt = "zadny",
   onMenu,
 }: {
   name: string;
+  efekt?: Efekt;
   role: Role;
   onMenu: () => void;
 }) {
@@ -51,7 +54,7 @@ export default function Topbar({
       </button>
 
       <span className="adm-user">
-        <Avatar jmeno={name} velikost={30} />
+        <Avatar jmeno={name} velikost={30} efekt={efekt} />
         <span className="adm-user__meta">
           <span className="adm-user__name">{name}</span>
           <span className="adm-user__role" style={{ color: ROLE_BARVA[r] }}>

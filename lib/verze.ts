@@ -9,10 +9,10 @@
  * nedá zapomenout. Původní řešení záviselo na tom, že si někdo
  * vzpomene zvednout konstantu, a dvakrát za sebou se to nestalo.
  */
-export const VERZE = "1.16.2";
+export const VERZE = "1.16.3";
 
 /** Jedna věta o tom, co se změnilo. „Nová verze" nikoho nepřesvědčí. */
-export const VERZE_POPIS = "Skutečná ikona v návodu na přidání na plochu.";
+export const VERZE_POPIS = "Efekt avataru se propisuje do horní lišty.";
 
 /**
  * Důležitá oprava se nedá odložit.

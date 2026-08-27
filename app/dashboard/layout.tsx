@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { currentUser, supabaseServer } from "@/lib/supabase/server";
 import Shell from "@/components/admin/Shell";
+import type { Efekt } from "@/lib/avatar";
 import { jeSprava, type Role } from "@/components/admin/nav";
 import { demoCount } from "@/lib/seed/write";
 import { headers } from "next/headers";
@@ -19,12 +20,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const supabase = await supabaseServer();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("name, role")
+    .select("name, role, avatar_efekt")
     .eq("id", user.id)
-    .maybeSingle<{ name: string | null; role: string | null }>();
+    .maybeSingle<{ name: string | null; role: string | null; avatar_efekt: string | null }>();
 
   const name = profile?.name || (user.user_metadata?.name as string) || user.email || "";
   const role = (profile?.role ?? "klient") as Role;
+  const efekt = (profile?.avatar_efekt ?? "zadny") as Efekt;
 
   // Proužek je vidět jen adminovi. Bez něj se na smazání ukázky
   // zapomene a jednou se smíchá se skutečnými klienty.
@@ -37,7 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <Shell name={name} role={role} demo={demo}>
+    <Shell name={name} role={role} demo={demo} efekt={efekt}>
       {children}
     </Shell>
   );

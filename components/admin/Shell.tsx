@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import Jadro from "@/components/asistent/Jadro";
 import { jeTym, type Role } from "./nav";
+import type { Efekt } from "@/lib/avatar";
 
 /**
  * Skořápka administrace.
@@ -17,11 +18,13 @@ export default function Shell({
   name,
   role,
   demo,
+  efekt = "zadny",
   children,
 }: {
   name: string;
   role: Role;
   demo: number;
+  efekt?: Efekt;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -45,7 +48,7 @@ export default function Shell({
       <Sidebar role={role} open={open} onClose={() => setOpen(false)} />
 
       <div className="adm-main">
-        <Topbar name={name} role={role} onMenu={() => setOpen(true)} />
+        <Topbar name={name} role={role} efekt={efekt} onMenu={() => setOpen(true)} />
 
         {demo > 0 && (
           <div className="demo-bar" role="status">
