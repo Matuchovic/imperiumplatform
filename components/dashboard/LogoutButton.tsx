@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
@@ -23,9 +24,18 @@ const POTVRZENI_MS = 2300; // jak dlouho je vidět potvrzení
 export default function LogoutButton() {
   const router = useRouter();
   const [stav, setStav] = useState<Stav>("klid");
+  const [pripojeno, setPripojeno] = useState(false);
   const casovace = useRef<number[]>([]);
 
+  // Portál potřebuje document, který při vykreslení na serveru není.
+  useEffect(() => setPripojeno(true), []);
   useEffect(() => () => casovace.current.forEach(clearTimeout), []);
+
+  // Pod překryvem se nesmí rolovat stránka vzadu.
+  useEffect(() => {
+    document.body.classList.toggle("no-scroll", stav !== "klid");
+    return () => document.body.classList.remove("no-scroll");
+  }, [stav]);
 
   async function odhlas() {
     if (stav !== "klid") return;
@@ -63,7 +73,10 @@ export default function LogoutButton() {
         Odhlásit se
       </button>
 
-      {stav !== "klid" && (
+      {/* Horní lišta má backdrop-filter, a ten vytváří nový kontext,
+          vůči kterému by se position: fixed počítalo. Překryv proto
+          jde přes portál rovnou do body. */}
+      {stav !== "klid" && pripojeno && createPortal(
         <div className="od-scrim" role="status" aria-live="polite">
           <div className="od-panel">
             {stav === "bezi" ? (
@@ -96,7 +109,8 @@ export default function LogoutButton() {
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
