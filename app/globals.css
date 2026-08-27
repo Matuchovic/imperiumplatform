@@ -627,7 +627,8 @@ body {
   flex-direction: column;
   width: min(276px, 84vw);
   padding: 16px 12px;
-  padding-top: calc(16px + env(safe-area-inset-top));
+  /* Logo mělo shora osm pixelů a viselo na hraně okna. */
+  padding-top: calc(26px + env(safe-area-inset-top));
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -645,7 +646,7 @@ body {
     height: 100dvh;
     width: 232px;
     transform: none;
-    padding-top: 16px;
+    padding-top: 26px;
   }
 }
 
@@ -663,7 +664,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 0 8px 16px;
+  padding: 0 8px 22px;
 }
 .adm-side__close {
   border: 0;
@@ -698,7 +699,7 @@ body {
 .adm-side__verze { flex-shrink: 0; font-size: 10.5px; color: #4d5c53; }
 
 .adm-group {
-  margin: 16px 0 5px;
+  margin: 18px 0 5px;
   padding-left: 10px;
   font-family: var(--font-data);
   font-size: 10px;
@@ -736,13 +737,13 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
-  padding-top: calc(10px + env(safe-area-inset-top));
+  padding: 16px 14px;
+  padding-top: calc(16px + env(safe-area-inset-top));
   background: rgba(5, 7, 6, 0.94);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(126, 240, 168, 0.09);
 }
-@media (min-width: 1024px) { .adm-top { padding: 12px 24px; } }
+@media (min-width: 1024px) { .adm-top { padding: 18px 24px; } }
 
 .adm-top__menu {
   flex-shrink: 0;
@@ -1519,13 +1520,13 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 .adm-body { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
 .cl-panel { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
 @media (max-width: 1023px) {
-  .adm-top { padding-top: calc(12px + env(safe-area-inset-top)); }
+  .adm-top { padding-top: calc(18px + env(safe-area-inset-top)); }
 }
 
 /* ---------- v nainstalované aplikaci ---------- */
 @media (display-mode: standalone) {
   /* Ve vlastním okně už prohlížeč nemá lištu, obsah smí výš. */
-  .adm-top { padding-top: calc(10px + env(safe-area-inset-top)); }
+  .adm-top { padding-top: calc(16px + env(safe-area-inset-top)); }
   body { overscroll-behavior: none; }
 }
 
