@@ -3,6 +3,7 @@
 import { useState } from "react";
 import LogoutButton from "@/components/dashboard/LogoutButton";
 import Logo from "@/components/brand/Logo";
+import Avatar from "@/components/ui/Avatar";
 import { bezpecnaRole, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 
 /**
@@ -24,7 +25,6 @@ export default function Topbar({
 }) {
   const [hledani, setHledani] = useState(false);
   const r = bezpecnaRole(role);
-  const initial = (name.trim()[0] ?? "?").toUpperCase();
 
   return (
     <header className="adm-top">
@@ -51,12 +51,7 @@ export default function Topbar({
       </button>
 
       <span className="adm-user">
-        <span
-          className="adm-user__pic"
-          style={{ background: `${ROLE_BARVA[r]}22`, color: ROLE_BARVA[r] }}
-        >
-          {initial}
-        </span>
+        <Avatar jmeno={name} velikost={30} />
         <span className="adm-user__meta">
           <span className="adm-user__name">{name}</span>
           <span className="adm-user__role" style={{ color: ROLE_BARVA[r] }}>

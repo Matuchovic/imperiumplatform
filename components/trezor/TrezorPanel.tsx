@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Avatar from "@/components/ui/Avatar";
 
 /**
  * Trezor hesel.
@@ -59,9 +60,6 @@ const kdy = (iso: string) => {
   if (min < 1440) return `před ${Math.round(min / 60)} h`;
   return new Date(iso).toLocaleDateString("cs-CZ");
 };
-
-const iniciály = (j: string | null) =>
-  (j ?? "?").split(" ").map((x) => x[0]).slice(0, 2).join("").toUpperCase();
 
 export default function TrezorPanel({ jeSpravce }: { jeSpravce: boolean }) {
   const [polozky, setPolozky] = useState<Polozka[]>([]);
@@ -286,9 +284,7 @@ export default function TrezorPanel({ jeSpravce }: { jeSpravce: boolean }) {
           <div style={{ marginTop: 11 }}>
             {pristupy.map((a, i) => (
               <div key={i} className="tz-pristup">
-                <span className="tz-avatar">
-                  {(a.jmeno ?? "?").split(" ").map((x) => x[0]).slice(0, 2).join("").toUpperCase()}
-                </span>
+                <Avatar jmeno={a.jmeno} velikost={27} />
                 <span style={{ flex: 1, minWidth: 0 }}>
                   {a.jmeno ?? "někdo"} {a.akce === "zkopirovano" ? "zkopíroval" : "zobrazil"}{" "}
                   <strong>{a.nazev}</strong>

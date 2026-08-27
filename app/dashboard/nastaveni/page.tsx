@@ -7,6 +7,7 @@ import { jeSprava, ROLE_LABEL, type Role } from "@/components/admin/nav";
 import SettingsPanel, { type Settings } from "@/components/admin/SettingsPanel";
 import { Row } from "@/components/admin/ui";
 import IntegracePanel from "@/components/admin/IntegracePanel";
+import VolbaAvataru from "@/components/ui/VolbaAvataru";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,13 @@ export default async function Nastaveni() {
   if (!user) redirect("/login");
 
   const me = await roleOf();
+
+  // roleOf vrací jen id a roli — jméno a efekt jsou v profilu.
+  const { data: profil } = await serviceClient()
+    .from("profiles").select("name, avatar_efekt").eq("id", me?.id ?? "")
+    .maybeSingle<{ name: string; avatar_efekt: string }>();
+  const jmeno = profil?.name ?? "Uživatel";
+  const efekt = (profil?.avatar_efekt ?? "zadny") as Parameters<typeof VolbaAvataru>[0]["vychozi"];
 
   if (!me || !jeSprava(me.role as Role)) {
     return (
@@ -76,6 +84,8 @@ export default async function Nastaveni() {
       )}
 
       <SettingsPanel initial={settings} />
+
+      <VolbaAvataru jmeno={jmeno} vychozi={efekt} />
 
       <IntegracePanel />
 

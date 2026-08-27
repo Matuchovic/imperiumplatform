@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROLE_LABEL, ROLE_BARVA, ROLE_PORADI, type Role } from "./nav";
+import Avatar from "@/components/ui/Avatar";
 
 export type Clen = { id: string; name: string; role: Role };
 
@@ -25,9 +26,6 @@ const MATICE: [string, Role[]][] = [
   ["Role", ["ceo", "vyvojar"]],
   ["Audit log", ["ceo", "vyvojar", "ucetni"]],
 ];
-
-const iniciály = (jmeno: string) =>
-  jmeno.split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase();
 
 export default function RolePanel({ tym, jaId }: { tym: Clen[]; jaId: string }) {
   const router = useRouter();
@@ -87,12 +85,7 @@ export default function RolePanel({ tym, jaId }: { tym: Clen[]; jaId: string }) 
             {seznam.map((c) => (
               <div key={c.id} className="rl-row">
                 <span className="rl-who">
-                  <span
-                    className="rl-pic"
-                    style={{ background: `${ROLE_BARVA[c.role]}22`, color: ROLE_BARVA[c.role] }}
-                  >
-                    {iniciály(c.name)}
-                  </span>
+                  <Avatar jmeno={c.name} velikost={32} />
                   <span style={{ minWidth: 0 }}>
                     <span className="rl-name">
                       {c.name}

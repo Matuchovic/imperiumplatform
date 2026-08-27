@@ -32,3 +32,9 @@ create table if not exists notifikace_volby (
 
 alter table push_odbery enable row level security;
 alter table notifikace_volby enable row level security;
+
+-- ── AVATAR ───────────────────────────────────────────────────
+-- Volitelný efekt kolem kolečka. Barva se odvozuje ze jména,
+-- takže se neukládá.
+
+alter table profiles add column if not exists avatar_efekt text not null default 'zadny';
