@@ -120,6 +120,25 @@ Odpověz výhradně JSON objektem: {"klic": "...", "parametry": {...}}.
 Když žádný nástroj nesedí, vrať {"klic": "zadny", "parametry": {}}.
 Nikdy nevymýšlej klíče, které nejsou v nabídce.`;
 
+/**
+ * Když žádný nástroj nesedí, asistent prostě odpoví.
+ *
+ * Vypsat uživateli názvy vnitřních funkcí je k ničemu — nikdo
+ * netuší, co „rozpad_pasem" znamená, a na pozdrav to není odpověď.
+ */
+const HOVOR = `Jsi Imperium AI, asistent v systému BETIMPERIUM pro sázkové poradenství.
+Odpovídáš česky, stručně a přirozeně — dvě až tři věty.
+Tykáš. Nepoužíváš odrážky ani nadpisy, mluvíš jako kolega.
+
+Na dotaz o datech systému nemáš teď nástroj, tak to řekni rovnou
+a navrhni, na co se zeptat jinak. Nevymýšlej si čísla ani jména klientů.
+Nikdy neuváděj vnitřní názvy funkcí.
+
+Umíš: přehled provozu, výkonnost a CLV, klienty vyžadující pozornost,
+úkoly, hledání v kontaktech, přechod na sekci. V režimu Search hledáš
+na webu, v Build zakládáš úkoly a poznámky, v Operate navrhuješ akce
+ke schválení.`;
+
 /** Co má model v daném režimu dělat. Zúžení zpřesňuje volbu. */
 const POKYN_REZIMU: Record<Rezim, string> = {
   ask: "Režim ASK: jen odpovídáš z dat. Nic nezakládáš ani neměníš.",
@@ -184,10 +203,19 @@ export async function zeptejSe(
   try { volba = JSON.parse(vyber); } catch { volba = null; }
 
   const tvar = validateShape<{ klic: string }>(volba, { klic: "string" });
+
+  /**
+   * Žádný nástroj nesedí — odpoví se normálně.
+   *
+   * Pozdrav, otázka mimo data nebo nejasně rozpoznaná věta mají
+   * dostat odpověď, ne výpis vnitřních funkcí.
+   */
   if (!tvar || tvar.klic === "zadny") {
-    const seznam = nabidka.map((n) => n.klic).join(", ");
+    const odpoved = await groq(HOVOR, bezpecny);
+
     return { ...prazdna,
-      text: `V režimu ${rezim.toUpperCase()} na tohle nemám nástroj. Dostupné jsou: ${seznam}. Zkus jiný režim.` };
+      text: odpoved?.trim()
+        || "Tomuhle jsem nerozuměl. Zkus to říct jinak — třeba „jak si vedeme tenhle měsíc“ nebo „kdo potřebuje pozornost“." };
   }
 
   const nastroj = najdiNastroj(tvar.klic);
