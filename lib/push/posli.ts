@@ -32,6 +32,8 @@ export const pushPripraven = () =>
 export type Zprava = {
   titulek: string;
   text: string;
+  /** Vzorec vibrace v milisekundách. */
+  vibrace?: number[];
   /** Kam skočit po klepnutí. */
   url?: string;
   /** Stejný tag nahradí předchozí zprávu místo přidání další. */

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { zahraj } from "@/lib/zvuk/prehravac";
 
 /**
  * Zvoneček.
@@ -20,13 +21,25 @@ export default function Zvonecek() {
   const [jmeniny, setJmeniny] = useState("");
   const [svatky, setSvatky] = useState<Svatek[]>([]);
   const obal = useRef<HTMLDivElement>(null);
+  /** Předchozí počet. Zvuk jen při přírůstku, ne při každém načtení. */
+  const posledni = useRef<number | null>(null);
 
   const nacti = useCallback(async () => {
     try {
       const r = await fetch("/api/upozorneni", { cache: "no-store" });
       const d = await r.json().catch(() => null);
       if (!r.ok) return;
-      setPolozky(d.polozky ?? []);
+      const nove = (d.polozky ?? []) as Polozka[];
+      const soucet = nove.reduce((a: number, p: Polozka) => a + p.pocet, 0);
+
+      // První načtení mlčí — jinak by to zvonilo při každém
+      // otevření aplikace, i když se nic nezměnilo.
+      if (posledni.current !== null && soucet > posledni.current) {
+        zahraj("upozorneni");
+      }
+      posledni.current = soucet;
+
+      setPolozky(nove);
       setJmeniny(d.jmeniny ?? "");
       setSvatky(d.svatky ?? []);
     } catch { /* příště */ }

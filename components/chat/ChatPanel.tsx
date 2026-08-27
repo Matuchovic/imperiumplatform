@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { zahraj } from "@/lib/zvuk/prehravac";
 
 /**
  * Týmový chat.
@@ -59,7 +60,11 @@ export default function ChatPanel({ jaId }: { jaId: string }) {
         if (!r.ok || zruseno) return;
         const nove = (d.zpravy ?? []) as Zprava[];
         if (od === 0) setZpravy(nove);
-        else if (nove.length) setZpravy((z) => [...z, ...nove]);
+        else if (nove.length) {
+          setZpravy((z) => [...z, ...nove]);
+          // Jen cizí zprávy. Vlastní odeslání si člověk uvědomuje sám.
+          if (nove.some((z) => z.autor !== jaId)) zahraj("zprava");
+        }
       } catch { /* další pokus za pět vteřin */ }
     };
 

@@ -95,6 +95,8 @@ self.addEventListener("push", (e) => {
       tag: d.tag || "betimperium",
       data: { url: d.url || "/dashboard" },
       renotify: Boolean(d.tag),
+      // Vzorec vibrace. Android ho použije, iOS vibruje po svém.
+      vibrate: d.vibrace || [18, 60, 30],
     })
   );
 });

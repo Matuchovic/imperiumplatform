@@ -7104,3 +7104,65 @@ textarea,
 @media (max-width: 340px) {
   .brand__suffix { display: none; }
 }
+
+/* ---------- ukázky zvuků ---------- */
+.zv-ukazky__nadpis {
+  margin: 20px 0 9px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: #4d5c53;
+}
+.zv-ukazky {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+}
+
+.zv-ukazka {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 13px;
+  border-radius: 11px;
+  border: 1px solid rgba(126, 240, 168, 0.11);
+  background: rgba(2, 8, 5, 0.55);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 180ms ease, transform 160ms ease;
+}
+.zv-ukazka:hover { border-color: rgba(126, 240, 168, 0.38); transform: translateY(-1px); }
+.zv-ukazka--hraje { border-color: rgba(126, 240, 168, 0.55); background: rgba(126, 240, 168, 0.07); }
+.zv-ukazka > i { font-size: 15px; color: #4d5c53; flex-shrink: 0; }
+.zv-ukazka--hraje > i { color: var(--color-signal); }
+
+/* Sloupečky odpovídají tónům melodie — vyšší tón, vyšší sloupec. */
+.zv-vlny {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 26px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.zv-vlny span {
+  flex: 1;
+  border-radius: 1px;
+  background: rgba(126, 240, 168, 0.35);
+  transition: background 200ms ease, transform 200ms ease;
+}
+.zv-ukazka--hraje .zv-vlny span {
+  background: var(--color-signal);
+  box-shadow: 0 0 6px rgba(126, 240, 168, 0.8);
+}
+.zv-ukazka--hraje .zv-vlny span:nth-child(1) { animation: zv-skok 0.5s ease; }
+.zv-ukazka--hraje .zv-vlny span:nth-child(2) { animation: zv-skok 0.5s ease 0.08s; }
+.zv-ukazka--hraje .zv-vlny span:nth-child(3) { animation: zv-skok 0.5s ease 0.16s; }
+@keyframes zv-skok {
+  0%, 100% { transform: scaleY(1); }
+  40% { transform: scaleY(1.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zv-ukazka--hraje .zv-vlny span { animation: none; }
+}

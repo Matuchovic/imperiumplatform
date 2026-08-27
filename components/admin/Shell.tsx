@@ -7,6 +7,7 @@ import Jadro from "@/components/asistent/Jadro";
 import { jeTym, type Role } from "./nav";
 import type { Efekt } from "@/lib/avatar";
 import Tep from "@/components/pritomnost/Tep";
+import OdemkniZvuk from "@/components/pritomnost/OdemkniZvuk";
 
 /**
  * Skořápka administrace.
@@ -52,6 +53,7 @@ export default function Shell({
 
       <div className="adm-main">
         <Tep />
+        <OdemkniZvuk />
 
         <Topbar
           name={name}
