@@ -6,6 +6,7 @@ import { VERZE, VERZE_POPIS } from "@/lib/verze";
 import { jeSprava, ROLE_LABEL, type Role } from "@/components/admin/nav";
 import SettingsPanel, { type Settings } from "@/components/admin/SettingsPanel";
 import { Row } from "@/components/admin/ui";
+import IntegracePanel from "@/components/admin/IntegracePanel";
 
 export const dynamic = "force-dynamic";
 
