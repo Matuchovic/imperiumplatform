@@ -3,6 +3,18 @@
     {
       "path": "/api/pripominky",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/engine/scan",
+      "schedule": "0 8,14,18 * * *"
+    },
+    {
+      "path": "/api/engine/closing",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/engine/settle",
+      "schedule": "0 7 * * *"
     }
   ]
 }
