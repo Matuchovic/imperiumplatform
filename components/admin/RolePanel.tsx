@@ -18,7 +18,6 @@ const MATICE: [string, Role[]][] = [
   ["Support", ["ceo", "vyvojar", "manazer", "marketing"]],
   ["Týmový chat", ["ceo", "vyvojar", "manazer", "marketing", "scout", "ucetni"]],
   ["Betmail", ["ceo", "vyvojar", "manazer", "marketing", "scout", "ucetni"]],
-  ["Betmail", ["ceo", "vyvojar", "manazer", "marketing", "scout", "ucetni"]],
   ["Cloud", ["ceo", "vyvojar", "manazer", "marketing", "scout", "ucetni"]],
   ["Automatizace", ["ceo", "vyvojar"]],
   ["Email a SMS", ["ceo", "vyvojar", "marketing"]],
@@ -26,6 +25,7 @@ const MATICE: [string, Role[]][] = [
   ["Notifikace", ROLE_PORADI],
   ["Aplikace na plochu", ROLE_PORADI],
   ["Trezor", ["ceo", "vyvojar"]],
+  ["Bezpečnost", ["ceo", "vyvojar"]],
   ["Role", ["ceo", "vyvojar"]],
   ["Audit log", ["ceo", "vyvojar", "ucetni"]],
 ];
