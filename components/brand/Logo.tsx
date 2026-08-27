@@ -1,8 +1,8 @@
 /**
  * Značka.
  *
- * Přívlastek MANAGEMENT je pod názvem. Vedle něj se do panelu
- * širokého 232 px nevejde a ořezané slovo vypadá jako chyba.
+ * Přívlastek MANAGEMENT PLATFORM je pod názvem. Vedle něj se do
+ * panelu širokého 232 px nevejde a ořezané slovo vypadá jako chyba.
  * Světlo po něm přejede jednou za sedm vteřin.
  *
  * Znak vlevo je samostatný soubor bez textu. Plná ikona obsahuje
@@ -27,7 +27,7 @@ export default function Logo({
       </span>
       {suffix && (
         <span className="brand__suffix" style={{ fontSize: Math.max(7, size * 0.44) }}>
-          MANAGEMENT
+          MANAGEMENT PLATFORM
         </span>
       )}
     </span>

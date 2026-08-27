@@ -1806,6 +1806,9 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 
 .brand__suffix {
   flex-shrink: 0;
+  /* Delší přívlastek se na úzkém místě raději zalomí,
+     než aby se uřízl. */
+  white-space: nowrap;
   font-family: var(--font-data);
   letter-spacing: 0.26em;
   background: linear-gradient(100deg, #3f6a55 30%, #7ef0a8 46%, #eafff2 52%, #7ef0a8 58%, #3f6a55 74%);
