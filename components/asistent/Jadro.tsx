@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { rekni, zmlkni, hlasZapnut, prepniHlas, umiMluvit } from "@/lib/asistent/hlas";
+import { rekni, zmlkni, hlasZapnut, prepniHlas, umiMluvit, posledniDuvodZalohy } from "@/lib/asistent/hlas";
 import { poslouchejTlesk, type Poslech } from "@/lib/asistent/tlesk";
 import { REZIMY, type Rezim } from "@/lib/asistent/rezimy";
 
@@ -77,6 +77,7 @@ export default function Jadro() {
   const [odp, setOdp] = useState<Odpoved | null>(null);
   const [chyba, setChyba] = useState<string | null>(null);
   const [hlas, setHlas] = useState(false);
+  const [zaloha, setZaloha] = useState<string | null>(null);
   const [tlesk, setTlesk] = useState(false);
   const [provadim, setProvadim] = useState(false);
   const [rezim, setRezim] = useState<Rezim>("ask");
@@ -157,7 +158,11 @@ export default function Jadro() {
         }
         // Mluví se jen první věta. Výhrady o velikosti vzorku
         // se lépe čtou, než poslouchají.
-        if (!o.degradovano) rekni(o.text);
+        if (!o.degradovano) {
+          rekni(o.text);
+          // Za chvíli je jasné, jestli služba odpověděla.
+          setTimeout(() => setZaloha(posledniDuvodZalohy()), 1500);
+        }
       }
     } catch {
       setChyba("Nepodařilo se spojit se serverem.");
@@ -377,6 +382,13 @@ export default function Jadro() {
               >
                 <i className={`ti ti-${hlas ? "volume" : "volume-off"}`} aria-hidden="true" />
                 {hlas ? "Mluví" : "Mlčí"}
+                {/* Když ElevenLabs selhalo, mluví prohlížeč — a je fér
+                    to říct, ne nechat člověka hádat, proč zní robot. */}
+                {hlas && zaloha && (
+                  <span className="jd-zaloha" title={zaloha}>
+                    <i className="ti ti-alert-circle" aria-hidden="true" />
+                  </span>
+                )}
               </button>
             )}
             <button

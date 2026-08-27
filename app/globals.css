@@ -7244,3 +7244,12 @@ textarea,
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Značka, že asistent mluví záložním hlasem. */
+.jd-zaloha {
+  display: inline-flex;
+  margin-left: 5px;
+  color: var(--color-amber);
+  cursor: help;
+}
+.jd-zaloha i { font-size: 13px; }

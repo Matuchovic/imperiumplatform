@@ -53,6 +53,15 @@ let prehravac: HTMLAudioElement | null = null;
 /** Zda je služba dostupná. Zjistí se jednou a pamatuje se. */
 let sluzba: boolean | null = null;
 
+/**
+ * Poslední důvod, proč se mluvilo prohlížečem.
+ *
+ * Tiché přepnutí na zálohu je nejhorší možnost — člověk slyší
+ * robota a neví proč. Rozhraní si důvod přečte a ukáže ho.
+ */
+let duvodZalohy: string | null = null;
+export const posledniDuvodZalohy = (): string | null => duvodZalohy;
+
 export function rekni(text: string, vse = false): void {
   if (!hlasZapnut() || !text.trim()) return;
 
@@ -70,8 +79,14 @@ export function rekni(text: string, vse = false): void {
         body: JSON.stringify({ text: veta }),
       });
 
-      if (!r.ok) { sluzba = false; prohlizecem(veta); return; }
+      if (!r.ok) {
+        duvodZalohy = await r.text().catch(() => `Chyba ${r.status}.`);
+        sluzba = false;
+        prohlizecem(veta);
+        return;
+      }
       sluzba = true;
+      duvodZalohy = null;
 
       const zvuk = await r.blob();
       const url = URL.createObjectURL(zvuk);
@@ -83,7 +98,8 @@ export function rekni(text: string, vse = false): void {
       a.onerror = () => { URL.revokeObjectURL(url); prohlizecem(veta); };
 
       await a.play().catch(() => prohlizecem(veta));
-    } catch {
+    } catch (e) {
+      duvodZalohy = e instanceof Error ? e.message : "Spojení selhalo.";
       sluzba = false;
       prohlizecem(veta);
     }

@@ -61,8 +61,24 @@ export async function POST(req: Request) {
     );
 
     if (!r.ok || !r.body) {
-      log("error", "hlas", "stream selhal", { stav: r.status });
-      return new Response("Nepodařilo se namluvit.", { status: 502 });
+      /**
+       * Důvod od ElevenLabs se posílá dál.
+       *
+       * Obecné „nepodařilo se" nutí hádat mezi špatným klíčem,
+       * neexistujícím hlasem a vyčerpaným kreditem — a to jsou
+       * tři různá řešení.
+       */
+      const detail = await r.text().catch(() => "");
+      log("error", "hlas", "stream selhal", { stav: r.status, detail: detail.slice(0, 300) });
+
+      const duvod =
+        r.status === 401 ? "Klíč ELEVENLABS_API_KEY je neplatný."
+        : r.status === 404 ? `Hlas ${hlas} u ElevenLabs neexistuje.`
+        : r.status === 422 ? "Vybraný model nezvládne tenhle text nebo hlas."
+        : r.status === 429 ? "Vyčerpaný kredit nebo příliš mnoho požadavků."
+        : `ElevenLabs vrátil ${r.status}. ${detail.slice(0, 160)}`;
+
+      return new Response(duvod, { status: 502 });
     }
 
     // Proud se posílá dál, ne až celý soubor.

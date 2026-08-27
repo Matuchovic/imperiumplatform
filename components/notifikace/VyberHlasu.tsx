@@ -25,6 +25,7 @@ export default function VyberHlasu() {
   const [nacitam, setNacitam] = useState(true);
   const [uklada, setUklada] = useState(false);
   const [zkouska, setZkouska] = useState(false);
+  const [vysledek, setVysledek] = useState<string | null>(null);
 
   const nacti = useCallback(async () => {
     try {
@@ -64,21 +65,39 @@ export default function VyberHlasu() {
   /** Zkouška českou větou. Tahle už jde přes náš server a stojí znaky. */
   async function zkusCesky() {
     setZkouska(true);
+    setVysledek(null);
     try {
       const r = await fetch("/api/hlas/rec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: "Dobrý den. Faktura dva tisíce dvacet šest je po splatnosti a klient Procházka potřebuje pozornost.",
+          text: "Dobrý den. Faktura je po splatnosti a klient Procházka potřebuje pozornost.",
         }),
       });
-      if (r.ok) {
-        const url = URL.createObjectURL(await r.blob());
-        const a = new Audio(url);
-        a.onended = () => URL.revokeObjectURL(url);
-        await a.play();
+
+      if (!r.ok) {
+        // Důvod od serveru, ne obecné selhání — každý má jiné řešení.
+        setVysledek(await r.text().catch(() => `Chyba ${r.status}.`));
+        setZkouska(false);
+        return;
       }
-    } catch { /* nevadí */ }
+
+      const zvuk = await r.blob();
+      if (zvuk.size < 500) {
+        setVysledek("Server vrátil prázdný zvuk.");
+        setZkouska(false);
+        return;
+      }
+
+      const url = URL.createObjectURL(zvuk);
+      const a = new Audio(url);
+      a.onended = () => URL.revokeObjectURL(url);
+      a.onerror = () => setVysledek("Prohlížeč zvuk nepřehrál.");
+      await a.play().catch(() => setVysledek("Prohlížeč přehrání odmítl — klepni nejdřív na stránku."));
+      setVysledek(`Hraje. ${Math.round(zvuk.size / 1024)} kB z ElevenLabs.`);
+    } catch (e) {
+      setVysledek(e instanceof Error ? e.message : "Spojení selhalo.");
+    }
     setZkouska(false);
   }
 
@@ -166,6 +185,14 @@ export default function VyberHlasu() {
           {zkouska ? "Načítám…" : "Zkusit českou větu"}
         </button>
       </div>
+
+      {vysledek && (
+        <div className={`adm-alert ${vysledek.startsWith("Hraje") ? "" : "adm-alert--bad"}`}>
+          <span className="adm-alert__text">
+            <span className="adm-alert__title">{vysledek}</span>
+          </span>
+        </div>
+      )}
 
       <p className="adm-todo__note">
         Zkouška jde přes ElevenLabs a spotřebuje sto znaků. Ukázky u jednotlivých
