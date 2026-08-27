@@ -52,8 +52,6 @@ export const NAV: NavGroup[] = [
   {
     title: "Automatizace",
     items: [
-      { label: "Motor hodnoty", href: "/dashboard/motor", icon: "cpu",
-        roles: ["ceo", "vyvojar", "manazer"] },
       { label: "Automatizace", href: "/dashboard/automatizace", icon: "rotate-clockwise",
         roles: SPRAVA },
       { label: "Email a SMS", href: "/dashboard/komunikace", icon: "mail",

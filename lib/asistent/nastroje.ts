@@ -82,7 +82,6 @@ export const NASTROJE: Nastroj[] = [
         klienti: "/dashboard/klienti",
         kontakty: "/dashboard/kontakty",
         analytika: "/dashboard/analytika",
-        motor: "/dashboard/motor",
         automatizace: "/dashboard/automatizace",
         ukoly: "/dashboard/ukoly",
         audit: "/dashboard/audit",
@@ -246,7 +245,6 @@ export const NASTROJE: Nastroj[] = [
     klic: "stav_systemu",
     rezimy: ["ask", "search", "operate"] as Rezim[],
     popis: "Poslední sken motoru, kolik našel, jestli něco vypadá špatně.",
-    sekce: "/dashboard/motor",
     spust: async () => {
       const db = serviceClient();
       const { data } = await db
