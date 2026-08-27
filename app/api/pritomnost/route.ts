@@ -44,12 +44,28 @@ export async function GET() {
   const db = serviceClient();
   const zivy = new Date(Date.now() - ZIVY_MS).toISOString();
 
+  /**
+   * Jména se dotahují zvlášť.
+   *
+   * Relace odkazuje na auth.users, ne na profiles — vnořený dotaz
+   * by to spojení nenašel a vrátil prázdno.
+   */
   const { data } = await db.from("relace")
-    .select("user_id, posledni, zarizeni, system, pwa, profiles(name, avatar_efekt)")
+    .select("user_id, posledni, zarizeni, system, pwa")
     .is("ukoncena_at", null)
     .gte("posledni", zivy)
     .order("posledni", { ascending: false })
     .limit(50);
+
+  const idcka = [...new Set((data ?? []).map((r) => r.user_id as string))];
+  const { data: profily } = idcka.length
+    ? await db.from("profiles").select("id, name, avatar_efekt").in("id", idcka)
+    : { data: [] };
+
+  const jmena = new Map(
+    ((profily ?? []) as { id: string; name: string; avatar_efekt: string | null }[])
+      .map((p) => [p.id, p])
+  );
 
   // Jeden člověk může mít víc zařízení — v seznamu má být jednou.
   const podleCloveka = new Map<string, {
@@ -57,10 +73,10 @@ export async function GET() {
     zarizeni: string[]; posledni: string;
   }>();
 
-  for (const r of (data ?? []) as unknown as {
+  for (const r of (data ?? []) as {
     user_id: string; posledni: string; zarizeni: string; system: string; pwa: boolean;
-    profiles: { name: string; avatar_efekt: string | null } | null;
   }[]) {
+    const profil = jmena.get(r.user_id);
     const kus = `${r.system}${r.pwa ? " (aplikace)" : ""}`;
     const uz = podleCloveka.get(r.user_id);
     if (uz) {
@@ -69,8 +85,8 @@ export async function GET() {
     }
     podleCloveka.set(r.user_id, {
       id: r.user_id,
-      jmeno: r.profiles?.name ?? "neznámý",
-      efekt: r.profiles?.avatar_efekt ?? "zadny",
+      jmeno: profil?.name ?? "neznámý",
+      efekt: profil?.avatar_efekt ?? "zadny",
       zarizeni: [kus],
       posledni: r.posledni,
     });

@@ -28,7 +28,7 @@ export default async function Bezpecnost() {
 
     const [r, u, d, n] = await Promise.all([
       db.from("relace")
-        .select("id, user_id, ip, zeme, mesto, vpn, zarizeni, system, prohlizec, pwa, zacatek, posledni, profiles(name)")
+        .select("id, user_id, ip, zeme, mesto, vpn, zarizeni, system, prohlizec, pwa, zacatek, posledni")
         .is("ukoncena_at", null).gte("posledni", cerstve)
         .order("posledni", { ascending: false }).limit(30),
       db.from("bezpecnostni_udalosti")
@@ -39,18 +39,26 @@ export default async function Bezpecnost() {
         .eq("typ", "neuspech").gte("created_at", pulnoc.toISOString()),
     ]);
 
+    // Relace odkazuje na auth.users, ne na profiles — jména se
+    // proto dotahují druhým dotazem.
+    const idcka = [...new Set((r.data ?? []).map((x) => (x as { user_id: string }).user_id))];
+    const { data: profily } = idcka.length
+      ? await db.from("profiles").select("id, name").in("id", idcka)
+      : { data: [] };
+    const jmena = new Map(
+      ((profily ?? []) as { id: string; name: string }[]).map((p) => [p.id, p.name])
+    );
+
     type Radek = {
       id: number; user_id: string; ip: string | null; zeme: string | null; mesto: string | null;
       vpn: boolean; zarizeni: string; system: string; prohlizec: string; pwa: boolean;
       zacatek: string; posledni: string;
-      profiles: { name: string } | { name: string }[] | null;
     };
 
     zive = ((r.data ?? []) as Radek[]).map((x) => {
-      const p = Array.isArray(x.profiles) ? x.profiles[0] : x.profiles;
       return {
         id: x.id,
-        jmeno: p?.name ?? "Neznámý",
+        jmeno: jmena.get(x.user_id) ?? "Neznámý",
         jaTo: x.user_id === me.id,
         ipZkracena: zkratIp(x.ip),
         misto: [x.mesto, x.zeme].filter(Boolean).join(", ") || "neznámé",

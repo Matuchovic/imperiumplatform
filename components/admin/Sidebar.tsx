@@ -25,7 +25,7 @@ export default function Sidebar({
 
       <aside className={`adm-side ${open ? "adm-side--open" : ""}`}>
         <div className="adm-side__brand">
-          <Logo size={17} />
+          <Logo size={17} suffix znak />
           {/* Zavírací křížek jen v zásuvce — na desktopu je panel trvalý. */}
           <button className="adm-side__close tap" onClick={onClose} aria-label="Zavřít menu">
             <i className="ti ti-x" aria-hidden="true" />

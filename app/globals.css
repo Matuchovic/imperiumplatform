@@ -629,7 +629,9 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 0 8px 22px;
+  /* Značka potřebuje prostor. Natěsno na navigaci působí,
+     jako by byla méně důležitá než položky pod ní. */
+  padding: 4px 6px 24px;
 }
 .adm-side__close {
   border: 0;
@@ -1738,51 +1740,47 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 }
 
 
-.brand {
-  /* flex-start zvedne přívlastek k horní hraně. Baseline by ho
-     posadila dolů vedle účaří loga. */
-  display: inline-flex;
-  align-items: flex-start;
-  gap: 6px;
-  user-select: none;
+.brand { display: inline-flex; flex-direction: column; line-height: 1; }
+.brand__word {
   font-family: var(--font-display);
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-shadow: 0 0 24px rgba(126, 240, 168, 0.2);
 }
 
-.brand__word { white-space: nowrap; }
-
+/* Přívlastek pod názvem, ne vedle. */
+.brand__radka { display: flex; align-items: center; gap: 9px; margin-top: 5px; }
 .brand__suffix {
   font-family: var(--font-data);
-  font-weight: 400;
-  letter-spacing: 0.22em;
-  line-height: 1;
-  white-space: nowrap;
-  /* Mono má nad verzálkami mezeru — bez dorovnání by přívlastek
-     visel výš než horní hrana písmen loga. */
-  padding-top: 0.12em;
-
-  /* Světlo je posouvající se gradient ořezaný textem, ne skutečná
-     záře. Nesvítí tedy nic navíc a animuje se jen pozice pozadí. */
-  background: linear-gradient(
-    100deg,
-    #3f6a55 30%,
-    #7ef0a8 46%,
-    #eafff2 52%,
-    #7ef0a8 58%,
-    #3f6a55 74%
-  );
+  letter-spacing: 0.26em;
+  background: linear-gradient(100deg, #3f6a55 30%, #7ef0a8 46%, #eafff2 52%, #7ef0a8 58%, #3f6a55 74%);
   background-size: 240% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: brand-shine 7s ease-in-out infinite;
+  white-space: nowrap;
+  animation: brand-lesk 7s ease-in-out infinite;
+}
+@keyframes brand-lesk {
+  0%, 72% { background-position: -140% 0; }
+  92%, 100% { background-position: 240% 0; }
 }
 
-@keyframes brand-shine {
-  0%, 74%   { background-position: -140% 0; }
-  94%, 100% { background-position: 240% 0; }
+.brand__cara {
+  flex: 1;
+  min-width: 12px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(126, 240, 168, 0.3), transparent);
+  animation: brand-dech 3.4s ease-in-out infinite;
+}
+@keyframes brand-dech { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.9; } }
+
+/* Znak vlevo — táž ikona jako na ploše, aby se obojí spojilo. */
+.brand-obal { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.brand-znak {
+  flex-shrink: 0;
+  border-radius: 10px;
+  box-shadow: 0 0 20px -8px rgba(126, 240, 168, 0.85);
 }
 
 /* Na nejužších displejích se přívlastek zalomí pod logo,
