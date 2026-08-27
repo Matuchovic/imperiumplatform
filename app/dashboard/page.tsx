@@ -5,6 +5,8 @@ import { performance, confidenceNote, type SettledTicket } from "@/lib/stats/per
 import { PageTitle } from "@/components/admin/PageTitle";
 import { Stat, Panel, Row } from "@/components/admin/ui";
 import { log } from "@/lib/log";
+import Kalendare from "@/components/kalendar/Kalendare";
+import Poznamky from "@/components/kalendar/Poznamky";
 
 export const dynamic = "force-dynamic";
 
@@ -133,6 +135,17 @@ export default async function Prehled() {
             />
           </div>
         </Panel>
+      )}
+
+      {staff && (
+        <>
+          <div style={{ marginTop: 20 }}>
+            <Kalendare jaId={me.id} />
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <Poznamky jaId={me.id} />
+          </div>
+        </>
       )}
 
       {staff && (
