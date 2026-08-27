@@ -225,7 +225,7 @@ export const KAPITOLY: Kapitola[] = [
       {
         typ: "text",
         obsah:
-          "Rozdíl mezi „řekni mi, jak si vede Procházka" a „sniž Procházkovi jednotku" " +
+          "Rozdíl mezi \u201Eřekni mi, jak si vede Procházka\u201C a \u201Esniž Procházkovi jednotku\u201C " +
           "není v obtížnosti, ale v následcích. První se dá vzít zpět, druhé ne.",
       },
       {
