@@ -161,9 +161,9 @@ export const KAPITOLY: Kapitola[] = [
           "Sázkové poradenství je jen předmět podnikání. Pod ním je úplně stejná " +
           "práce jako v jakékoli jiné firmě: vědět o klientech, hlídat peníze, " +
           "nezapomenout na to, co se slíbilo, a mít po ruce doklady, když je potřeba.\n\n" +
-          "Stavím to pro Denise a pro firmu, kterou spolu rozjíždíme. Ne jako " +
-          "zakázku, ale protože mě baví dělat věci pořádně a tohle je příležitost, " +
-          "kde se to sejde s tím, že to má komu sloužit.",
+          "Dělám vývoj a stavím to pro Denise. Ne jako zakázku a ne za peníze — " +
+          "prostě proto, že mě baví dělat věci pořádně a tohle je příležitost, " +
+          "kde má výsledek komu sloužit.",
       },
       {
         typ: "zvyrazneni",
@@ -176,7 +176,7 @@ export const KAPITOLY: Kapitola[] = [
         polozky: [
           "Ulehčit administrativu — dělá se pořád a nikdo za ni neplatí.",
           "Mít vlastní systém — nepůjčovat si cizí, který se zítra zdraží nebo skončí.",
-          "Vydělat peníze — ať už poradenstvím, nebo tím systémem samotným.",
+          "Aby na tom šlo vydělat — ať už poradenstvím, nebo tím systémem.",
           "Dát do oběhu něco, co tady nebylo.",
         ],
       },
@@ -332,7 +332,7 @@ export const KAPITOLY: Kapitola[] = [
       {
         typ: "citat",
         obsah:
-          "Buď to vyjde a máme firmu s vlastním systémem, nebo nevyjde a já umím " +
+          "Buď to vyjde a Denis má firmu s vlastním systémem, nebo nevyjde a já umím " +
           "postavit další — rychleji a líp. Obojí je lepší než to nezkusit.",
       },
       { typ: "nadpis", obsah: "Co už stojí" },
@@ -360,8 +360,8 @@ export const KAPITOLY: Kapitola[] = [
         obsah:
           "Nic z toho není hotové. Ale všechno stojí na základu, který drží — a to je " +
           "ta část, která se dělá nejhůř a je nejvíc vidět, když chybí.\n\n" +
-          "Denisi, tohle je zatím moje odpověď na to, co jsi chtěl. Zbytek " +
-          "postavíme podle toho, co se ukáže jako potřebné.",
+          "Denisi, tohle je zatím moje odpověď na to, co jsi chtěl. Co bude dál, " +
+          "se ukáže podle toho, co bude potřeba.",
       },
     ],
   },

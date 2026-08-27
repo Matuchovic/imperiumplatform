@@ -135,7 +135,7 @@ function Uvod() {
 
       <p className="vi-uvod__podpis">
         <span className="vi-uvod__od">Ondřej Matucha</span>
-        <span>pro Denise a BETIMPERIUM</span>
+        <span>vývoj · pro Denise</span>
       </p>
 
       <div className="vi-uvod__sipka" aria-hidden="true">

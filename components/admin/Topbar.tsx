@@ -5,6 +5,9 @@ import LogoutButton from "@/components/dashboard/LogoutButton";
 import Logo from "@/components/brand/Logo";
 import Avatar from "@/components/ui/Avatar";
 import Hledani from "@/components/hledani/Hledani";
+import Zvonecek from "@/components/lista/Zvonecek";
+import Spotify from "@/components/lista/Spotify";
+import Verze from "@/components/lista/Verze";
 import type { Efekt } from "@/lib/avatar";
 import { bezpecnaRole, ROLE_LABEL, ROLE_BARVA, type Role } from "./nav";
 
@@ -54,6 +57,14 @@ export default function Topbar({
       >
         <i className={`ti ti-${hledani ? "x" : "search"}`} aria-hidden="true" />
       </button>
+
+      {/* Nástroje vpravo. Na telefonu zůstane jen zvoneček —
+          ostatní by vytlačily jméno i odhlášení. */}
+      <span className="adm-nastroje">
+        <Verze />
+        <Spotify />
+        <Zvonecek />
+      </span>
 
       <span className="adm-user">
         <Avatar jmeno={name} velikost={30} efekt={efekt} />
