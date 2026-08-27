@@ -7176,3 +7176,71 @@ textarea,
 @media (prefers-reduced-motion: reduce) {
   .zv-ukazka--hraje .zv-vlny span { animation: none; }
 }
+
+/* ---------- výběr hlasu ---------- */
+.vh-mrizka {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+}
+
+.vh-karta {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border-radius: 11px;
+  border: 1px solid rgba(126, 240, 168, 0.11);
+  background: rgba(2, 8, 5, 0.55);
+  transition: border-color 180ms ease;
+}
+.vh-karta:hover { border-color: rgba(126, 240, 168, 0.3); }
+.vh-karta--on {
+  border-color: rgba(126, 240, 168, 0.45);
+  background: rgba(126, 240, 168, 0.07);
+}
+
+.vh-hrat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(126, 240, 168, 0.22);
+  background: rgba(126, 240, 168, 0.07);
+  color: var(--color-signal);
+  cursor: pointer;
+  transition: background 160ms ease, transform 140ms ease;
+}
+.vh-hrat:hover:not(:disabled) { background: rgba(126, 240, 168, 0.16); transform: scale(1.06); }
+.vh-hrat:disabled { opacity: 0.35; cursor: default; }
+.vh-hrat i { font-size: 15px; }
+
+.vh-nazev {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--color-chalk);
+}
+/* Ověřená čeština je hlavní kritérium, proto vlastní štítek. */
+.vh-cesky {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(126, 240, 168, 0.16);
+  color: var(--color-signal);
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+.vh-popis {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #5b6c61;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

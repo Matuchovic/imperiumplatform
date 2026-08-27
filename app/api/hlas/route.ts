@@ -12,6 +12,31 @@ export const maxDuration = 30;
  * Prohlížeč si je stáhne jednou a dál přehrává z paměti. Klíč
  * k ElevenLabs zůstává na serveru.
  */
+/** Uložení vybraného hlasu. */
+export async function PUT(req: Request) {
+  const me = await roleOf();
+  if (!me) return NextResponse.json({ error: "Nepovoleno." }, { status: 403 });
+
+  let b: { hlas_id?: string; hlas_nazev?: string; model?: string };
+  try { b = await req.json(); }
+  catch { return NextResponse.json({ error: "Neplatný požadavek." }, { status: 400 }); }
+
+  const { serviceClient } = await import("@/lib/supabase/server");
+  const db = serviceClient();
+
+  const { error } = await db.from("hlas_nastaveni").upsert({
+    id: 1,
+    hlas_id: String(b.hlas_id ?? "").trim() || null,
+    hlas_nazev: String(b.hlas_nazev ?? "").trim() || null,
+    model: ["eleven_multilingual_v2", "eleven_turbo_v2_5", "eleven_flash_v2_5"]
+      .includes(String(b.model)) ? b.model : "eleven_multilingual_v2",
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "id" });
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}
+
 export async function GET(req: Request) {
   const me = await roleOf();
   if (!me) return NextResponse.json({ error: "Nepovoleno." }, { status: 403 });
@@ -28,7 +53,28 @@ export async function GET(req: Request) {
 
   // Výpis hlasů k výběru, ne k přehrávání.
   if (u.searchParams.get("hlasy") === "1") {
-    return NextResponse.json({ pripraven: true, hlasy: await dostupneHlasy() });
+    const { serviceClient } = await import("@/lib/supabase/server");
+    const db = serviceClient();
+    const [hlasy, { data: volba }] = await Promise.all([
+      dostupneHlasy(),
+      db.from("hlas_nastaveni").select("hlas_id, model").eq("id", 1)
+        .maybeSingle<{ hlas_id: string | null; model: string }>(),
+    ]);
+
+    /**
+     * Hlasy ověřené pro češtinu nahoru.
+     *
+     * Anglicky trénovaný hlas češtinu zvládne, ale s přízvukem —
+     * a to je přesně ten rozdíl, který je slyšet.
+     */
+    hlasy.sort((a, b) => Number(b.cesky) - Number(a.cesky) || a.nazev.localeCompare(b.nazev, "cs"));
+
+    return NextResponse.json({
+      pripraven: true,
+      hlasy,
+      vybrany: volba?.hlas_id ?? process.env.ELEVENLABS_HLAS ?? null,
+      model: volba?.model ?? "eleven_multilingual_v2",
+    });
   }
 
   const co = u.searchParams.get("co");

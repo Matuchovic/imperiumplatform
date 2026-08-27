@@ -13,16 +13,33 @@ import { log } from "@/lib/log";
  */
 
 const BUCKET = "hlas";
-const MODEL = "eleven_multilingual_v2";
 
-export const hlasPripraven = (): boolean =>
-  Boolean(process.env.ELEVENLABS_API_KEY && process.env.ELEVENLABS_HLAS);
+/**
+ * Vybraný hlas se bere z databáze, ne z prostředí.
+ *
+ * Měnit ho po každém poslechu přes Vercel a čekat na nasazení
+ * by bylo nepoužitelné. Proměnná zůstává jako výchozí hodnota.
+ */
+async function vybranyHlas(): Promise<{ id: string; model: string } | null> {
+  const db = serviceClient();
+  const { data } = await db.from("hlas_nastaveni").select("hlas_id, model").eq("id", 1)
+    .maybeSingle<{ hlas_id: string | null; model: string }>();
+
+  const id = data?.hlas_id || process.env.ELEVENLABS_HLAS;
+  if (!id) return null;
+  return { id, model: data?.model ?? "eleven_multilingual_v2" };
+}
+
+export const hlasPripraven = (): boolean => Boolean(process.env.ELEVENLABS_API_KEY);
 
 /** Odkaz na nahrávku. Vygeneruje ji, když ještě neexistuje. */
 export async function odkazNaVetu(v: Vysloveni): Promise<string | null> {
   if (!hlasPripraven()) return null;
 
-  const hlas = process.env.ELEVENLABS_HLAS!;
+  const volba = await vybranyHlas();
+  if (!volba) return null;
+
+  const hlas = volba.id;
   const klic = klicNahravky(v, hlas);
   const db = serviceClient();
 
@@ -30,7 +47,7 @@ export async function odkazNaVetu(v: Vysloveni): Promise<string | null> {
   const { data: uz } = await db.storage.from(BUCKET).createSignedUrl(klic, 31_536_000);
   if (uz?.signedUrl) return uz.signedUrl;
 
-  const zvuk = await vygeneruj(VETY[v], hlas);
+  const zvuk = await vygeneruj(VETY[v], hlas, volba.model);
   if (!zvuk) return null;
 
   const { error } = await db.storage.from(BUCKET)
@@ -45,7 +62,11 @@ export async function odkazNaVetu(v: Vysloveni): Promise<string | null> {
   return novy?.signedUrl ?? null;
 }
 
-async function vygeneruj(text: string, hlas: string): Promise<ArrayBuffer | null> {
+export async function vygeneruj(
+  text: string,
+  hlas: string,
+  model = "eleven_multilingual_v2"
+): Promise<ArrayBuffer | null> {
   try {
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${hlas}`, {
       method: "POST",
@@ -56,7 +77,7 @@ async function vygeneruj(text: string, hlas: string): Promise<ArrayBuffer | null
       },
       body: JSON.stringify({
         text,
-        model_id: MODEL,
+        model_id: model,
         voice_settings: {
           // Vyšší stabilita drží stejný tón napříč větami. U upozornění
           // je jednotnost důležitější než výraz.
@@ -88,7 +109,11 @@ async function vygeneruj(text: string, hlas: string): Promise<ArrayBuffer | null
 }
 
 /** Seznam hlasů k výběru. */
-export async function dostupneHlasy(): Promise<{ id: string; nazev: string }[]> {
+export type Hlas = {
+  id: string; nazev: string; popis: string; cesky: boolean; ukazka: string | null;
+};
+
+export async function dostupneHlasy(): Promise<Hlas[]> {
   if (!process.env.ELEVENLABS_API_KEY) return [];
 
   try {
@@ -99,8 +124,25 @@ export async function dostupneHlasy(): Promise<{ id: string; nazev: string }[]> 
     if (!r.ok) return [];
 
     const d = await r.json();
-    return ((d.voices ?? []) as { voice_id: string; name: string }[])
-      .map((h) => ({ id: h.voice_id, nazev: h.name }));
+    /**
+     * Jazyky u hlasu.
+     *
+     * Hlas trénovaný na češtině zní líp než anglický, který
+     * češtinu jen zvládá — to je ten rozdíl, který je slyšet.
+     */
+    return ((d.voices ?? []) as {
+      voice_id: string;
+      name: string;
+      labels?: Record<string, string>;
+      verified_languages?: { language: string }[];
+      preview_url?: string;
+    }[]).map((h) => ({
+      id: h.voice_id,
+      nazev: h.name,
+      popis: [h.labels?.accent, h.labels?.description].filter(Boolean).join(" · "),
+      cesky: (h.verified_languages ?? []).some((j) => j.language === "cs"),
+      ukazka: h.preview_url ?? null,
+    }));
   } catch {
     return [];
   }

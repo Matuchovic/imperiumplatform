@@ -1,9 +1,12 @@
 /**
  * Řeč asistenta.
  *
- * Používá syntézu vestavěnou v prohlížeči — nic se nikam neodesílá
- * a nestojí to nic. Hlas je robotický, ale výměna za placenou službu
- * je pak jeden soubor.
+ * Mluví přes ElevenLabs. Zvuk se streamuje, takže přehrávání
+ * začne dřív, než je celá věta hotová.
+ *
+ * Když služba není nastavená nebo neodpoví, použije se syntéza
+ * vestavěná v prohlížeči. Zní roboticky, ale asistent nemá
+ * zmlknout jen proto, že cizí služba měla výpadek.
  */
 
 const KLIC = "bi:hlas";
@@ -44,11 +47,54 @@ export function prvniVeta(text: string): string {
   return konec === -1 ? text : text.slice(0, konec + 1);
 }
 
-export function rekni(text: string, vse = false): void {
-  if (!umiMluvit() || !hlasZapnut() || !text.trim()) return;
+/** Právě hrající zvuk. Nová věta přeruší předchozí. */
+let prehravac: HTMLAudioElement | null = null;
 
+/** Zda je služba dostupná. Zjistí se jednou a pamatuje se. */
+let sluzba: boolean | null = null;
+
+export function rekni(text: string, vse = false): void {
+  if (!hlasZapnut() || !text.trim()) return;
+
+  const veta = proRec(vse ? text : prvniVeta(text));
   zmlkni();
-  const u = new SpeechSynthesisUtterance(proRec(vse ? text : prvniVeta(text)));
+
+  // Když už víme, že služba není, nezkoušíme ji znovu.
+  if (sluzba === false) { prohlizecem(veta); return; }
+
+  void (async () => {
+    try {
+      const r = await fetch("/api/hlas/rec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: veta }),
+      });
+
+      if (!r.ok) { sluzba = false; prohlizecem(veta); return; }
+      sluzba = true;
+
+      const zvuk = await r.blob();
+      const url = URL.createObjectURL(zvuk);
+
+      const a = new Audio(url);
+      prehravac = a;
+      // Adresa se uvolní, jinak by v paměti zůstala každá věta.
+      a.onended = () => URL.revokeObjectURL(url);
+      a.onerror = () => { URL.revokeObjectURL(url); prohlizecem(veta); };
+
+      await a.play().catch(() => prohlizecem(veta));
+    } catch {
+      sluzba = false;
+      prohlizecem(veta);
+    }
+  })();
+}
+
+/** Záloha. Robotická, ale vždycky po ruce. */
+function prohlizecem(veta: string): void {
+  if (!umiMluvit()) return;
+
+  const u = new SpeechSynthesisUtterance(veta);
   u.lang = "cs-CZ";
   u.rate = 1.02;
   u.pitch = 0.95;
@@ -60,5 +106,10 @@ export function rekni(text: string, vse = false): void {
 }
 
 export function zmlkni(): void {
+  if (prehravac) {
+    prehravac.pause();
+    prehravac.currentTime = 0;
+    prehravac = null;
+  }
   if (umiMluvit()) window.speechSynthesis.cancel();
 }
