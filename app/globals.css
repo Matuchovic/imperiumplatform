@@ -4505,3 +4505,341 @@ textarea,
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================
+   BETMAIL
+   ============================================================ */
+
+.bm { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
+@media (min-width: 900px) { .bm { grid-template-columns: 340px 1fr; } }
+
+/* Na telefonu se seznam schová, jakmile je něco otevřené —
+   dva sloupce na 380 pixelech nedávají smysl. */
+@media (max-width: 899px) {
+  .bm--otevreno .bm-seznam { display: none; }
+  .bm:not(.bm--otevreno) .bm-detail { display: none; }
+}
+
+.bm-seznam {
+  border-radius: 13px;
+  overflow: hidden;
+  background: rgba(12, 19, 16, 0.78);
+  border: 1px solid rgba(126, 240, 168, 0.12);
+  max-height: 68dvh;
+  overflow-y: auto;
+}
+
+.bm-radek {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 13px 13px 13px 16px;
+  border: 0;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.06);
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 150ms ease;
+}
+.bm-radek:last-child { border-bottom: 0; }
+.bm-radek:hover { background: rgba(126, 240, 168, 0.04); }
+.bm-radek--on { background: rgba(126, 240, 168, 0.09); }
+
+/* Levý pruh nese prioritu. Nepřečtené má plnou sytost. */
+.bm-radek::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--pruh, #8fa396);
+  opacity: 0.35;
+}
+.bm-radek--nova::before { opacity: 1; box-shadow: 0 0 8px var(--pruh, #8fa396); }
+
+.bm-hlava { display: flex; align-items: baseline; gap: 9px; }
+.bm-kdo { flex: 1; min-width: 0; font-size: 12.5px; color: var(--color-ash); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bm-radek--nova .bm-kdo { color: var(--color-chalk); }
+.bm-cas { font-size: 10px; color: #4d5c53; flex-shrink: 0; }
+
+.bm-predmet {
+  display: block;
+  margin-top: 2px;
+  font-size: 13.5px;
+  color: var(--color-chalk);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bm-radek--nova .bm-predmet { font-weight: 500; }
+.bm-utrzek {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5b6c61;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.bm-detail {
+  border-radius: 13px;
+  padding: 18px;
+  background: rgba(12, 19, 16, 0.78);
+  border: 1px solid rgba(126, 240, 168, 0.12);
+  align-self: start;
+}
+.bm-detail__top { display: flex; align-items: flex-start; gap: 11px; }
+.bm-zpet {
+  display: flex;
+  padding: 6px;
+  border: 1px solid rgba(126, 240, 168, 0.16);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-signal);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+@media (min-width: 900px) { .bm-zpet { display: none; } }
+.bm-zpet i { font-size: 15px; }
+
+.bm-detail__predmet {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-chalk);
+  line-height: 1.35;
+}
+.bm-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+  margin-top: 6px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  color: #5b6c61;
+}
+
+.bm-telo {
+  margin: 16px 0 0;
+  padding-top: 15px;
+  border-top: 1px solid rgba(126, 240, 168, 0.08);
+  font-size: 14px;
+  line-height: 1.75;
+  color: #cfe6d8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.bm-reakce { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+.bm-znak {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 5px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(126, 240, 168, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+.bm-znak:hover { border-color: rgba(126, 240, 168, 0.35); }
+.bm-znak--on { border-color: rgba(126, 240, 168, 0.5); background: rgba(126, 240, 168, 0.1); }
+.bm-pocet { font-family: var(--font-data); font-size: 10.5px; color: var(--color-ash); }
+
+/* ============================================================
+   BETMAIL
+   ============================================================ */
+
+/* Tři sloupce na širokém, přes sebe na úzkém. */
+.bm { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
+@media (min-width: 900px) { .bm { grid-template-columns: 170px 1fr; } }
+@media (min-width: 1280px) { .bm { grid-template-columns: 170px 340px 1fr; } }
+
+.bm__slozky {
+  display: grid;
+  gap: 3px;
+  align-content: start;
+  border-radius: 13px;
+  padding: 10px;
+  background: rgba(12, 19, 16, 0.78);
+  border: 1px solid rgba(126, 240, 168, 0.12);
+}
+.bm__slozka {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--color-ash);
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+.bm__slozka:hover { background: rgba(126, 240, 168, 0.05); color: var(--color-chalk); }
+.bm__slozka--on {
+  background: rgba(126, 240, 168, 0.1);
+  border-color: rgba(126, 240, 168, 0.2);
+  color: var(--color-chalk);
+}
+.bm__slozka i { font-size: 15px; color: #5b6c61; }
+.bm__slozka--on i { color: var(--color-signal); }
+.bm__pocet {
+  padding: 1px 7px;
+  border-radius: 9px;
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: #04140a;
+  background: var(--color-signal);
+}
+
+.bm__seznam {
+  border-radius: 13px;
+  overflow: hidden;
+  max-height: 62dvh;
+  overflow-y: auto;
+  background: rgba(12, 19, 16, 0.78);
+  border: 1px solid rgba(126, 240, 168, 0.12);
+}
+
+.bm__radek {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 13px;
+  border: 0;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.06);
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.bm__radek:hover { background: rgba(126, 240, 168, 0.04); }
+.bm__radek--on { background: rgba(126, 240, 168, 0.09); }
+/* Nepřečtená má světlejší text a zelený pruh — pozná se okrajem oka. */
+.bm__radek--nova { border-left: 2px solid var(--color-signal); padding-left: 11px; }
+
+.bm__hlava { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.bm__kdo { font-size: 12.5px; color: var(--color-ash); }
+.bm__radek--nova .bm__kdo { color: var(--color-chalk); font-weight: 500; }
+.bm__kdy { font-size: 10px; color: #4d5c53; flex-shrink: 0; }
+
+.bm__predmet {
+  display: block;
+  margin-top: 3px;
+  font-size: 13.5px;
+  color: var(--color-ash);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bm__radek--nova .bm__predmet { color: var(--color-chalk); font-weight: 500; }
+.bm__nahled {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5b6c61;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bm__spona { font-size: 14px; color: #5b6c61; flex-shrink: 0; }
+
+.bm__detail {
+  border-radius: 13px;
+  padding: 18px;
+  background: rgba(12, 19, 16, 0.78);
+  border: 1px solid rgba(126, 240, 168, 0.12);
+}
+.bm__d-hlava { display: flex; align-items: flex-start; gap: 12px; }
+.bm__d-predmet {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-chalk);
+}
+.bm__d-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+  margin-top: 5px;
+  font-family: var(--font-data);
+  font-size: 10.5px;
+  color: #5b6c61;
+}
+
+.bm__telo {
+  margin-top: 16px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(126, 240, 168, 0.08);
+  font-size: 14px;
+  line-height: 1.7;
+  color: #cfe6d8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.bm__reakce { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+.bm__reakce-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 5px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(126, 240, 168, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+  font-family: inherit;
+  font-size: 14px;
+  color: #8fa396;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, transform 120ms ease;
+}
+.bm__reakce-btn:hover { border-color: rgba(126, 240, 168, 0.4); transform: translateY(-1px); }
+.bm__reakce-btn--on {
+  border-color: rgba(126, 240, 168, 0.45);
+  background: rgba(126, 240, 168, 0.1);
+  color: var(--color-chalk);
+}
+.bm__reakce-btn .data { font-size: 10.5px; }
+
+.bm__prijemci { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.bm__osoba {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px 5px 5px;
+  border-radius: 20px;
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  background: transparent;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--color-ash);
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+.bm__osoba:hover { border-color: rgba(126, 240, 168, 0.35); }
+.bm__osoba--on {
+  border-color: rgba(126, 240, 168, 0.5);
+  background: rgba(126, 240, 168, 0.1);
+  color: var(--color-chalk);
+}
