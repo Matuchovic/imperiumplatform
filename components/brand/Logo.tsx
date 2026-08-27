@@ -26,7 +26,7 @@ export default function Logo({
         <span className="text-chalk">IMPERIUM</span>
       </span>
       {suffix && (
-        <span className="brand__suffix" style={{ fontSize: Math.max(7, size * 0.42) }}>
+        <span className="brand__suffix" style={{ fontSize: Math.max(6.5, size * 0.38) }}>
           MANAGEMENT
         </span>
       )}
@@ -42,7 +42,7 @@ export default function Logo({
         src="/icons/znak-192.png"
         alt=""
         className="brand-znak"
-        style={{ width: size * 2.1, height: size * 2.1 }}
+        style={{ width: size * 1.75, height: size * 1.75 }}
       />
       {jadro}
     </span>
