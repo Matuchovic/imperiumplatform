@@ -3,7 +3,6 @@ import LoginForm from "@/components/auth/LoginForm";
 import Logo from "@/components/brand/Logo";
 import PozadiSystemu from "@/components/effects/PozadiSystemu";
 import { VERZE } from "@/lib/verze";
-import BootGate from "@/components/boot/BootGate";
 
 /* Skořápka bez uživatelských dat — může se předgenerovat
    a servírovat z okraje sítě místo vykreslení na serveru. */
@@ -11,7 +10,6 @@ export const dynamic = "force-static";
 
 export default function LoginPage() {
   return (
-    <BootGate>
     <main className="relative flex min-h-dvh items-center justify-center px-5 py-10">
       <div className="page-bg" aria-hidden="true">
         <PozadiSystemu />
@@ -52,15 +50,15 @@ export default function LoginPage() {
 
           <Suspense fallback={<div className="h-[420px]" />}>
             <LoginForm />
-
-        <p className="data mt-5 flex flex-wrap justify-center gap-x-3 gap-y-1 text-center text-[9.5px] tracking-[0.12em] text-ash-2">
-          <span>BETIMPERIUM s.r.o.</span>
-          <span aria-hidden="true">·</span>
-          {/* Až vznikne testovací instance, tohle je jediná věc, která
-              zabrání práci v ostrém provozu omylem. */}
-          <span>{process.env.NEXT_PUBLIC_PROSTREDI ?? "PRODUKČNÍ PROSTŘEDÍ"}</span>
-        </p>
           </Suspense>
+
+          <p className="data mt-5 flex flex-wrap justify-center gap-x-3 gap-y-1 text-center text-[9.5px] tracking-[0.12em] text-ash-2">
+            <span>BETIMPERIUM s.r.o.</span>
+            <span aria-hidden="true">·</span>
+            {/* Až vznikne testovací instance, tohle je jediná věc, která
+                zabrání práci v ostrém provozu omylem. */}
+            <span>{process.env.NEXT_PUBLIC_PROSTREDI ?? "PRODUKČNÍ PROSTŘEDÍ"}</span>
+          </p>
         </section>
 
         <div
@@ -80,6 +78,5 @@ export default function LoginPage() {
         </p>
       </div>
     </main>
-    </BootGate>
   );
 }
