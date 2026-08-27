@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { velikost, ikona, DRUHY, MAX_SOUBOR } from "@/lib/cloud/soubory";
+import { lzePrehlednout } from "@/lib/betmail/prilohy";
+import Prohlizec from "@/components/prohlizec/Prohlizec";
 
 /**
  * Cloud.
