@@ -28,6 +28,8 @@ export default function NotifikacePanel() {
   const [klic, setKlic] = useState<string | null>(null);
   const [pripraveno, setPripraveno] = useState(true);
   const [povoleno, setPovoleno] = useState<NotificationPermission | "nepodporovano">("default");
+  /** Má tenhle prohlížeč odběr uložený u nás? Povolení samo nestačí. */
+  const [prihlaseno, setPrihlaseno] = useState<boolean | null>(null);
   const [bezi, setBezi] = useState(false);
   const [hlaska, setHlaska] = useState<string | null>(null);
   const [chyba, setChyba] = useState<string | null>(null);
@@ -48,12 +50,19 @@ export default function NotifikacePanel() {
   }, []);
 
   useEffect(() => {
-    setPovoleno(
-      typeof Notification === "undefined" || !("serviceWorker" in navigator)
-        ? "nepodporovano"
-        : Notification.permission
-    );
+    const podporovano = typeof Notification !== "undefined" && "serviceWorker" in navigator;
+    setPovoleno(podporovano ? Notification.permission : "nepodporovano");
     nacti();
+
+    if (!podporovano) { setPrihlaseno(false); return; }
+
+    // Povolení je stav prohlížeče, odběr je záznam u nás. Když se
+    // rozejdou — třeba po smazání aplikace nebo změně klíčů —
+    // panel by tvrdil, že to funguje, a ono ne.
+    navigator.serviceWorker.ready
+      .then((reg) => reg.pushManager.getSubscription())
+      .then((o) => setPrihlaseno(Boolean(o)))
+      .catch(() => setPrihlaseno(false));
   }, [nacti]);
 
   async function povol() {
@@ -83,7 +92,7 @@ export default function NotifikacePanel() {
         body: JSON.stringify(odber.toJSON()),
       });
       if (!r.ok) setChyba("Odběr se nepodařilo uložit.");
-      else { setHlaska("Zařízení přihlášeno."); nacti(); }
+      else { setHlaska("Zařízení přihlášeno."); setPrihlaseno(true); nacti(); }
     } catch (err) {
       setChyba(`Povolení selhalo: ${String(err).slice(0, 100)}`);
     }
@@ -110,6 +119,15 @@ export default function NotifikacePanel() {
   async function odeber(id: number) {
     setZarizeni((z) => z.filter((x) => x.id !== id));
     await fetch(`/api/push?id=${id}`, { method: "DELETE" }).catch(() => nacti());
+
+    // Zrušit jen záznam nestačí — prohlížeč by odběr držel dál
+    // a znovupovolení by vrátilo tentýž neplatný endpoint.
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const o = await reg.pushManager.getSubscription();
+      await o?.unsubscribe();
+      setPrihlaseno(false);
+    } catch { /* zařízení nemusí být tohle */ }
   }
 
   if (!pripraveno) {
@@ -149,16 +167,21 @@ export default function NotifikacePanel() {
             </span>
           </span>
         </div>
-      ) : povoleno !== "granted" ? (
+      ) : povoleno !== "granted" || prihlaseno === false ? (
         <div className="nt-vyzva">
           <span className="nt-vyzva__znak">
             <i className="ti ti-bell" aria-hidden="true" />
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p className="nt-vyzva__nadpis">Na tomhle zařízení notifikace nechodí</p>
+            <p className="nt-vyzva__nadpis">
+              {povoleno === "granted"
+                ? "Zařízení není přihlášené k odběru"
+                : "Na tomhle zařízení notifikace nechodí"}
+            </p>
             <p className="nt-vyzva__popis">
-              Povolení se dává na každém zařízení zvlášť. Na iPhonu funguje jen po přidání
-              aplikace na plochu.
+              {povoleno === "granted"
+                ? "Prohlížeč notifikace povolil, ale odběr u nás uložený není. Stačí klepnout na Povolit."
+                : "Povolení se dává na každém zařízení zvlášť. Na iPhonu funguje jen po přidání aplikace na plochu."}
             </p>
           </div>
           <button className="adm-btn adm-btn--primary" onClick={povol} disabled={bezi}>

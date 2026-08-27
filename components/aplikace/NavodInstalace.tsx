@@ -148,6 +148,17 @@ export default function NavodInstalace() {
 
   return (
     <>
+      <div className="ap-uvodni">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icons/icon-512.png" alt="Ikona BETIMPERIUM" className="ap-ikona-velka" />
+        <span>
+          <span className="ap-ikona-nadpis">Takhle bude vypadat na ploše</span>
+          <span className="ap-ikona-popis">
+            Mezi ostatními aplikacemi, se jménem BETIMPERIUM.
+          </span>
+        </span>
+      </div>
+
       <div className="ap-vyhody">
         {VYHODY.map((v) => (
           <span key={v.i} className="ap-vyhoda">
@@ -205,12 +216,13 @@ export default function NavodInstalace() {
         <div className="ap-ukazka">
           <div className="ap-telefon">
             <div className="ap-obraz">
-              <span className="ap-logo">
-                <span style={{ color: "#7ef0a8" }}>BET</span>
-                <span style={{ color: "#f4fff9" }}>IMP</span>
-              </span>
+              {/* Skutečná ikona, ne text — člověk pak na ploše hledá
+                  přesně to, co viděl v návodu. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/icons/icon-192.png" alt="" className="ap-znacka" />
               <span className="ap-hotova-ikona">
-                <span className="ap-dlazdice">BI</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/icons/icon-192.png" alt="" className="ap-dlazdice" />
                 <span className="ap-popisek">na ploše</span>
               </span>
             </div>

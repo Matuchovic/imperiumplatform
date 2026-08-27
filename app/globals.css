@@ -3826,20 +3826,14 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   100% { opacity: 0; }
 }
 .ap-dlazdice {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 11px;
-  background: linear-gradient(168deg, #0e2a1c, #04120b);
-  border: 1px solid rgba(126, 240, 168, 0.4);
   box-shadow: 0 0 24px -6px rgba(126, 240, 168, 0.95);
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-signal);
 }
+
+/* Značka na obrazovce telefonu v animaci. */
+.ap-znacka { width: 52px; height: 52px; opacity: 0.9; }
 .ap-popisek { font-size: 7px; color: var(--color-ash); }
 
 .ap-pata {
@@ -4302,3 +4296,36 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 }
 .pe-sipka { font-size: 15px; color: #3f4d45; flex-shrink: 0; }
 .pe-karta:hover .pe-sipka { color: var(--color-signal); }
+
+/* ---------- náhled ikony ---------- */
+.ap-uvodni {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(12, 19, 16, 0.78);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+}
+.ap-ikona-velka {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 17px;
+  /* Záře pod ikonou — na ploše ji systém stejně vykreslí se stínem. */
+  box-shadow: 0 8px 28px -10px rgba(126, 240, 168, 0.85);
+}
+.ap-ikona-nadpis {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-chalk);
+}
+.ap-ikona-popis { display: block; margin-top: 4px; font-size: 12.5px; line-height: 1.6; color: var(--color-ash); }
+
+@media (max-width: 520px) {
+  .ap-uvodni { gap: 13px; padding: 14px; }
+  .ap-ikona-velka { width: 58px; height: 58px; border-radius: 14px; }
+}
