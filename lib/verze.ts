@@ -9,10 +9,10 @@
  * nedá zapomenout. Původní řešení záviselo na tom, že si někdo
  * vzpomene zvednout konstantu, a dvakrát za sebou se to nestalo.
  */
-export const VERZE = "1.13.1";
+export const VERZE = "1.13.2";
 
 /** Jedna věta o tom, co se změnilo. „Nová verze" nikoho nepřesvědčí. */
-export const VERZE_POPIS = "Odstranění sekce Motor hodnoty.";
+export const VERZE_POPIS = "Potvrzení při odhlášení se zavírajícím zámkem.";
 
 /**
  * Důležitá oprava se nedá odložit.

@@ -1,28 +1,103 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
+/**
+ * Odhlášení s potvrzením.
+ *
+ * Zavírající se zámek je přesnější než fajfka: fajfka říká
+ * „povedlo se", zámek říká „je zavřeno" — a to je u odhlášení
+ * podstatnější.
+ *
+ * Průběh se ukáže jen tehdy, když volání trvá déle než 400 ms.
+ * Kdyby naskočil vždycky, blikl by i u rychlé odpovědi.
+ */
+
+type Stav = "klid" | "bezi" | "hotovo";
+
+const PRODLEVA_MS = 400;   // do kdy se průběh neukazuje
+const POTVRZENI_MS = 2300; // jak dlouho je vidět potvrzení
+
 export default function LogoutButton() {
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
+  const [stav, setStav] = useState<Stav>("klid");
+  const casovace = useRef<number[]>([]);
 
-  async function logout() {
-    setBusy(true);
-    await supabaseBrowser().auth.signOut();
-    router.push("/login");
-    router.refresh();
+  useEffect(() => () => casovace.current.forEach(clearTimeout), []);
+
+  async function odhlas() {
+    if (stav !== "klid") return;
+
+    // Průběh až po prodlevě — u rychlé odpovědi by jinom blikl.
+    const t = window.setTimeout(() => setStav((s) => (s === "klid" ? "bezi" : s)), PRODLEVA_MS);
+    casovace.current.push(t);
+
+    try {
+      await supabaseBrowser().auth.signOut();
+    } catch {
+      // I když odhlášení selže, uživatele pryč pustíme — relace
+      // vyprší sama a držet ho uvnitř je horší než ho odhlásit.
+    }
+
+    clearTimeout(t);
+    setStav("hotovo");
+
+    casovace.current.push(
+      window.setTimeout(() => {
+        router.push("/login");
+        router.refresh();
+      }, POTVRZENI_MS)
+    );
   }
 
   return (
-    <button
-      onClick={logout}
-      disabled={busy}
-      className="tap rounded-lg px-4 py-2.5 text-[13.5px] text-ash transition-colors hover:text-chalk disabled:opacity-50"
-      style={{ border: "1px solid rgba(126,240,168,0.14)", background: "rgba(255,255,255,0.02)" }}
-    >
-      {busy ? "Odhlašuji…" : "Odhlásit se"}
-    </button>
+    <>
+      <button
+        onClick={odhlas}
+        disabled={stav !== "klid"}
+        className="tap rounded-lg px-4 py-2.5 text-[13.5px] text-ash transition-colors hover:text-chalk disabled:opacity-50"
+        style={{ border: "1px solid rgba(126,240,168,0.14)", background: "rgba(255,255,255,0.02)" }}
+      >
+        Odhlásit se
+      </button>
+
+      {stav !== "klid" && (
+        <div className="od-scrim" role="status" aria-live="polite">
+          <div className="od-panel">
+            {stav === "bezi" ? (
+              <>
+                <div className="od-spin-wrap"><span className="od-spin" /></div>
+                <p className="od-nadpis od-nadpis--hned">Odhlašuji…</p>
+                <p className="od-popis od-popis--hned">Ukončuji relaci a mažu přihlášení.</p>
+              </>
+            ) : (
+              <>
+                <div className="od-znak">
+                  <span className="od-zar" aria-hidden="true" />
+                  <svg viewBox="0 0 72 72" className="od-kruh-svg" aria-hidden="true">
+                    <circle cx="36" cy="36" r="32" fill="none"
+                      stroke="rgba(126,240,168,.14)" strokeWidth="2.5" />
+                    <circle className="od-kruh" cx="36" cy="36" r="32" fill="none"
+                      stroke="#7ef0a8" strokeWidth="2.5" strokeLinecap="round"
+                      transform="rotate(-90 36 36)" />
+                  </svg>
+                  <span className="od-zamek" aria-hidden="true">
+                    <i className="ti ti-lock" />
+                  </span>
+                </div>
+
+                <p className="od-nadpis">Odhlášeno</p>
+                <p className="od-popis">Relace ukončena. Přesměrovávám na přihlášení.</p>
+                {/* Odpočet místo prázdného čekání — bez něj člověk neví,
+                    jestli se něco děje, a začne klikat. */}
+                <div className="od-drah"><div className="od-lista" /></div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
