@@ -5,17 +5,46 @@ import { jeTym, type Role } from "@/components/admin/nav";
 import { cestaVUlozisti, MAX_DAVKA, MAX_SOUBOR } from "@/lib/cloud/soubory";
 import { audit } from "@/lib/audit";
 import { log } from "@/lib/log";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const BUCKET = "cloud";
 
+/**
+ * Zámek se ověřuje na serveru, ne jen v rozhraní.
+ *
+ * Kdyby stačilo schovat obrazovku, dala by se obejít přímým voláním
+ * API — a zámek by byl jen dekorace.
+ */
+async function odemceno(userId: string): Promise<boolean> {
+  const db = serviceClient();
+  const { data } = await db.from("cloud_zamek").select("user_id").eq("user_id", userId).maybeSingle();
+  // Kdo PIN nemá nastavený, nemá co odemykat.
+  if (!data) return true;
+
+  const jar = await cookies();
+  return jar.get("bi_cloud")?.value === userId;
+}
+
 /** Obsah složky, koš a obsazení úložiště. */
 export async function GET(req: Request) {
   const me = await roleOf();
   if (!me || !jeTym(me.role as Role)) {
     return NextResponse.json({ error: "Nepovoleno." }, { status: 403 });
+  }
+  if (!(await odemceno(me.id))) {
+    return NextResponse.json({ error: "Cloud je zamčený." }, { status: 423 });
+  }
+  if (!(await odemceno(me.id))) {
+    return NextResponse.json({ error: "Cloud je zamčený." }, { status: 423 });
+  }
+  if (!(await odemceno(me.id))) {
+    return NextResponse.json({ error: "Cloud je zamčený." }, { status: 423 });
+  }
+  if (!(await odemceno(me.id))) {
+    return NextResponse.json({ error: "Cloud je zamčený." }, { status: 423 });
   }
 
   const u = new URL(req.url);
@@ -45,14 +74,22 @@ export async function GET(req: Request) {
   // Cesta k aktuální složce, aby se dalo vrátit o úroveň výš.
   const cesta: { id: number; nazev: string }[] = [];
   if (rodic) {
+    // Typ řádku pojmenovaný předem. Bez toho by se `id` odvozovalo
+    // z `data` a `data` z `id` — kruhová závislost, kterou
+    // TypeScript nerozplete.
+    type Uzel = { id: number; nazev: string; rodic_id: number | null };
+
     let id: number | null = Number(rodic);
     // Strop proti zacyklení, kdyby data byla poškozená.
-    for (let i = 0; i < 12 && id; i++) {
-      const { data } = await db.from("dokumenty").select("id, nazev, rodic_id").eq("id", id)
-        .maybeSingle<{ id: number; nazev: string; rodic_id: number | null }>();
-      if (!data) break;
-      cesta.unshift({ id: data.id, nazev: data.nazev });
-      id = data.rodic_id;
+    for (let i = 0; i < 12 && id !== null; i++) {
+      const vysledek = await db
+        .from("dokumenty").select("id, nazev, rodic_id").eq("id", id)
+        .maybeSingle<Uzel>();
+
+      const uzel: Uzel | null = vysledek.data;
+      if (!uzel) break;
+      cesta.unshift({ id: uzel.id, nazev: uzel.nazev });
+      id = uzel.rodic_id;
     }
   }
 

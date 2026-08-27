@@ -3,6 +3,7 @@ import { serviceClient } from "@/lib/supabase/server";
 import { roleOf } from "@/lib/auth/guard";
 import { jeTym, type Role } from "@/components/admin/nav";
 import { MAX_DAVKA } from "@/lib/cloud/soubory";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,18 @@ export async function POST(req: Request) {
   const me = await roleOf();
   if (!me || !jeTym(me.role as Role)) {
     return NextResponse.json({ error: "Nepovoleno." }, { status: 403 });
+  }
+
+  // Zamčený cloud nesmí vydat ani podepsaný odkaz — jinak by se
+  // zámek dal obejít voláním tohohle endpointu.
+  const db0 = serviceClient();
+  const { data: zamek } = await db0.from("cloud_zamek")
+    .select("user_id").eq("user_id", me.id).maybeSingle();
+  if (zamek) {
+    const jar = await cookies();
+    if (jar.get("bi_cloud")?.value !== me.id) {
+      return NextResponse.json({ error: "Cloud je zamčený." }, { status: 423 });
+    }
   }
 
   let b: { ids?: number[]; nahled?: boolean };

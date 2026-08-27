@@ -29,7 +29,9 @@ export type AuditAction =
   | "trezor.revealed"
   | "trezor.created"
   | "trezor.deleted"
-  | "cloud.deleted";
+  | "cloud.deleted"
+  | "cloud.pin_set"
+  | "cloud.pin_changed";
 
 export type AuditEntry = {
   action: AuditAction;

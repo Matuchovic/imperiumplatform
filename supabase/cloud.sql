@@ -72,3 +72,20 @@ end $$;
 
 comment on function public.obsazeni_cloudu is
   'Skutečné obsazení bucketu podle storage.objects, rozpadlé na aktivní, koš a osiřelé.';
+
+-- ── ZÁMEK CLOUDU ─────────────────────────────────────────────
+-- Druhá brána před soubory. PIN se ukládá jako otisk, ne otevřeně —
+-- databáze tak neobsahuje nic, čím by se dalo odemknout.
+
+create table if not exists cloud_zamek (
+  user_id     uuid primary key,
+  -- scrypt otisk ve tvaru sul:hash. Z něj se PIN zpětně nezíská.
+  otisk       text not null,
+  vytvoreno   timestamptz not null default now(),
+  zmeneno     timestamptz not null default now(),
+  -- Ochrana proti hádání: po pěti pokusech se brána zamkne.
+  pokusy      integer not null default 0,
+  blokovano_do timestamptz
+);
+
+alter table cloud_zamek enable row level security;
