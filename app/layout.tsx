@@ -45,6 +45,19 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
   },
   formatDetection: { telephone: false },
+  /**
+   * Ikony. Apple Touch je bez průhlednosti — iOS by ji nahradil
+   * černou a okraje by vypadaly ušpiněně.
+   */
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/icons/favicon-32.png",
+  },
 };
 
 export const viewport: Viewport = {
