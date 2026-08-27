@@ -1,14 +1,5 @@
 @import "tailwindcss";
 
-/* ============================================================
-   BETIMPERIUM — design tokens
-   ink    #050706  základ, černá se zeleným podtónem
-   slate  #0C1310  povrch panelů
-   signal #7EF0A8  primární neon (CTA, brand, zisk)
-   mint   #5EEAD4  teal partner do gradientů
-   amber  #FFC94A  pouze pro "live / čeká na výsledek"
-   ash    #8FA396  tlumený text
-   ============================================================ */
 
 @theme {
   --color-ink: #050706;
@@ -32,7 +23,6 @@
   --radius-card: 20px;
 }
 
-/* ---------- base ---------- */
 
 * {
   border-color: color-mix(in oklab, var(--color-signal) 10%, transparent);
@@ -81,12 +71,6 @@ body {
   color: var(--color-ash-2);
 }
 
-/* ============================================================
-   POZADÍ STRÁNEK — fotografie kanceláře
-   Ztmavení a rozostření jsou zapečené v souboru, ne v CSS.
-   Filtr v prohlížeči by se přepočítával při každém překreslení,
-   takhle je to hotové jednou při exportu.
-   ============================================================ */
 
 .page-bg {
   position: fixed;
@@ -132,9 +116,6 @@ body {
   background: radial-gradient(72% 64% at 50% 46%, rgba(2, 6, 4, 0.8) 0%, rgba(2, 6, 4, 0.45) 40%, rgba(1, 3, 2, 0.94) 100%);
 }
 
-/* ============================================================
-   PANEL
-   ============================================================ */
 
 .panel {
   position: relative;
@@ -151,9 +132,6 @@ body {
     0 0 70px -20px rgba(126, 240, 168, 0.14);
 }
 
-/* ============================================================
-   FORMULÁŘ
-   ============================================================ */
 
 .field-shell {
   position: relative;
@@ -283,10 +261,6 @@ body {
   .rise { opacity: 1; transform: none; }
 }
 
-/* ============================================================
-   ÚVODNÍ OBRAZOVKY — start systému a uvítání po přihlášení
-   Sekvenci řídí React (zná okamžik dokončení), CSS dělá vzhled.
-   ============================================================ */
 
 .veil {
   position: fixed;
@@ -552,9 +526,6 @@ body {
   .veil__tiles, .veil__bar-fill, .veil__step { transition: none; }
 }
 
-/* ============================================================
-   MOBIL
-   ============================================================ */
 
 /* iOS Safari zvětší stránku, když má zaostřený input písmo pod 16px.
    Layout se tím rozhodí a zpět se sám nevrátí. Proto přesně 16. */
@@ -609,12 +580,6 @@ body {
   .panel { border-radius: 16px; }
 }
 
-/* ============================================================
-   ADMIN PANEL
-   Typografie: běžné psaní na slova, mono jen na čísla.
-   Verzálky ruší tvar slova, podle kterého oko čte — proto jen
-   u krátkých nadpisů skupin v navigaci.
-   ============================================================ */
 
 .adm-shell { display: flex; min-height: 100dvh; }
 
@@ -761,15 +726,7 @@ body {
 @media (min-width: 1024px) { .adm-top__brand { display: none; } }
 
 
-
-
-
-@media (min-width: 1024px) {  }
-
 /* Na mobilu se pole schová pod ikonu — jinak vytlačí všechno ostatní. */
-@media (max-width: 1023px) {
-    
-}
 .adm-top__find {
   flex-shrink: 0;
   border: 0;
@@ -923,9 +880,6 @@ body {
   font-weight: 600;
 }
 
-/* ============================================================
-   KLIENTI
-   ============================================================ */
 
 .cl-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
 .cl-tab {
@@ -1083,9 +1037,6 @@ body {
 }
 .cl-memo { margin: 0; font-size: 12.5px; line-height: 1.6; color: #cfe6d8; }
 
-/* ============================================================
-   NASTAVENÍ
-   ============================================================ */
 
 .set-tabs {
   display: flex;
@@ -1152,6 +1103,21 @@ body {
   color: #5b6c61;
 }
 
+/**
+ * Pole formuláře. Popisek nad vstupem, ne vedle — na úzké
+ * obrazovce by vedle sebe zbyla na vstup polovina šířky.
+ */
+.set-pole { display: block; margin-bottom: 14px; }
+.set-label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-data);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5b6c61;
+}
+
 .set-input {
   width: 100%;
   height: 40px;
@@ -1165,14 +1131,44 @@ body {
   outline: none;
   transition: border-color 160ms ease, box-shadow 200ms ease;
 }
-@media (min-width: 640px) { .set-input { font-size: 13.5px; } }
+@media (min-width: 640px) { /**
+ * Pole formuláře. Popisek nad vstupem, ne vedle — na úzké
+ * obrazovce by vedle sebe zbyla na vstup polovina šířky.
+ */
+.set-pole { display: block; margin-bottom: 14px; }
+.set-label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-data);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5b6c61;
+}
+
+.set-input { font-size: 13.5px; } }
 .set-input:hover { border-color: rgba(126, 240, 168, 0.24); }
 .set-input:focus {
   border-color: rgba(126, 240, 168, 0.55);
   box-shadow: 0 0 0 3px rgba(126, 240, 168, 0.09);
 }
 .set-input--area { height: auto; padding: 10px 12px; line-height: 1.6; resize: vertical; }
-select.set-input { appearance: none; cursor: pointer; }
+select/**
+ * Pole formuláře. Popisek nad vstupem, ne vedle — na úzké
+ * obrazovce by vedle sebe zbyla na vstup polovina šířky.
+ */
+.set-pole { display: block; margin-bottom: 14px; }
+.set-label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-data);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5b6c61;
+}
+
+.set-input { appearance: none; cursor: pointer; }
 
 .set-toggle {
   display: flex;
@@ -1236,9 +1232,6 @@ select.set-input { appearance: none; cursor: pointer; }
   .set-switch, .set-switch__knob { transition: none; }
 }
 
-/* ============================================================
-   AUTOMATIZACE
-   ============================================================ */
 
 .au-master {
   display: flex;
@@ -1337,9 +1330,6 @@ select.set-input { appearance: none; cursor: pointer; }
 .au-confirm__text { margin: 8px 0 14px; font-size: 13px; line-height: 1.6; color: var(--color-ash); }
 .au-confirm__what { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 
-/* ============================================================
-   MOBIL — druhé kolo
-   ============================================================ */
 
 html {
   /* iOS v landscape sám nafukuje text a rozbíjí rozvržení. */
@@ -1500,9 +1490,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   body { overscroll-behavior: none; }
 }
 
-/* ============================================================
-   PLYNULOST
-   ============================================================ */
 
 /* Dlouhé stránky nemusí prohlížeč rozkládat celé najednou.
    Odhad výšky brání poskakování posuvníku. */
@@ -1527,9 +1514,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   }
 }
 
-/* ============================================================
-   PÁSMA KURZŮ
-   ============================================================ */
 
 .bd {
   border-radius: 12px;
@@ -1666,11 +1650,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 .demo-bar__how { font-size: 11px; opacity: 0.75; }
 @media (min-width: 1024px) { .demo-bar { padding-left: 24px; } }
 
-/* ============================================================
-   LIŠTA AKTUALIZACE
-   Barvy z palety aplikace. Sama nikdy neobnovuje nad rozdělanou
-   prací — tlačítko se místo toho uzamkne a řekne proč.
-   ============================================================ */
 
 .akt {
   position: sticky;
@@ -1766,9 +1745,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .akt__dot { animation: none; opacity: 1; }
 }
 
-/* ============================================================
-   ZNAČKA
-   ============================================================ */
 
 .brand {
   /* flex-start zvedne přívlastek k horní hraně. Baseline by ho
@@ -1833,9 +1809,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   }
 }
 
-/* ============================================================
-   ROLE
-   ============================================================ */
 
 .rl-row {
   display: grid;
@@ -1943,11 +1916,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .rl-item--ne i { color: #2b352e; }
 }
 
-/* ============================================================
-   ASISTENT
-   Otevírá se zkratkou a zase zmizí. V nástroji, kde se pracuje
-   celý den, nemá trvalý panel co zabírat místo.
-   ============================================================ */
 
 .jd-tlacitko {
   position: fixed;
@@ -2404,11 +2372,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 
 .jd-nalez__meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; font-size: 9.5px; letter-spacing: 0.08em; color: #5a7a9e; }
 
-/* ============================================================
-   BEZPEČNOST
-   Záře nese závažnost. Drobný text s adresami zůstává ostrý —
-   glow na deseti pixelech se nedá přečíst.
-   ============================================================ */
 
 .bz { position: relative; overflow: hidden; }
 
@@ -2596,9 +2559,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .bz-blip { opacity: 1; }
 }
 
-/* ============================================================
-   ANALYTIKA, ÚKOLY, SUPPORT, KAMPANĚ
-   ============================================================ */
 
 .an-tab { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 13px; }
 .an-tab th {
@@ -2773,9 +2733,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   border: 1px solid rgba(126, 240, 168, 0.12);
 }
 
-/* ============================================================
-   KALENDÁŘE A POZNÁMKY
-   ============================================================ */
 
 .kal__ovladani { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
 .kal__mesic {
@@ -2988,9 +2945,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   color: #5b6c61;
 }
 
-/* ============================================================
-   TÝMOVÝ CHAT
-   ============================================================ */
 
 .ch { display: grid; grid-template-columns: 1fr; gap: 12px; }
 @media (min-width: 860px) { .ch { grid-template-columns: 230px 1fr; } }
@@ -3084,11 +3038,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   word-break: break-word;
 }
 
-/* ============================================================
-   TREZOR
-   Neon nese význam: levý pruh říká stav, odhalené heslo září.
-   Drobný text zůstává bez záře — s glowem by se rozmazal.
-   ============================================================ */
 
 .tz-hlava { display: flex; align-items: center; gap: 11px; margin-bottom: 6px; }
 .tz-znak {
@@ -3308,9 +3257,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 
 @media (prefers-reduced-motion: reduce) { .tz-cas { animation: none; width: 100%; } }
 
-/* ============================================================
-   CLOUD
-   ============================================================ */
 
 .cd-cesta {
   display: flex;
@@ -3389,10 +3335,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   color: #5b6c61;
 }
 
-/* ============================================================
-   BETIMPERIUM PASS PIN
-   Deska na šířku. Nadpis dýchá, tečky nesou stav, tlačítka dole.
-   ============================================================ */
 
 .pb-cekam { padding: 40px 0; text-align: center; font-size: 13px; color: #5b6c61; }
 
@@ -3579,9 +3521,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .pb-board, .pb-tec--on, .pb-nadpis, .pb-linka, .pb-tres { animation: none; }
 }
 
-/* ============================================================
-   APLIKACE NA PLOCHU
-   ============================================================ */
 
 .ap-vyhody {
   display: grid;
@@ -3850,9 +3789,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .ap-hotova-ikona { opacity: 0; }
 }
 
-/* ============================================================
-   ODHLÁŠENÍ
-   ============================================================ */
 
 .od-scrim {
   position: fixed;
@@ -3978,9 +3914,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .od-lista { width: 0%; }
 }
 
-/* ============================================================
-   NOTIFIKACE
-   ============================================================ */
 
 .nt-vyzva {
   display: flex;
@@ -4070,11 +4003,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 
 .nt-ticho { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-top: 12px; }
 
-/* ============================================================
-   AVATAR
-   Efekt vždy kolem kolečka, nikdy uvnitř — obarvení vnitřku
-   by přebilo fotku a ta by zmizela.
-   ============================================================ */
 
 .av {
   position: relative;
@@ -4205,9 +4133,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
 .va-nazev { margin-top: 6px; font-size: 12.5px; color: var(--color-chalk); }
 .va-popis { font-size: 11px; line-height: 1.5; color: #5b6c61; }
 
-/* ============================================================
-   PERSONÁL
-   ============================================================ */
 
 .pe-mrizka {
   display: grid;
@@ -4300,9 +4225,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .ap-ikona-velka { width: 58px; height: 58px; border-radius: 14px; }
 }
 
-/* ============================================================
-   CHYBA A NAČÍTÁNÍ
-   ============================================================ */
 
 .er-panel {
   max-width: 520px;
@@ -4392,9 +4314,6 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .sk-radek { animation: none; }
 }
 
-/* ============================================================
-   PLYNULOST
-   ============================================================ */
 
 /**
  * Rolování a dotyk.
@@ -4476,9 +4395,6 @@ textarea,
   }
 }
 
-/* ============================================================
-   BETMAIL
-   ============================================================ */
 
 .bm { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
 @media (min-width: 900px) { .bm { grid-template-columns: 340px 1fr; } }
@@ -4627,9 +4543,6 @@ textarea,
 .bm-znak--on { border-color: rgba(126, 240, 168, 0.5); background: rgba(126, 240, 168, 0.1); }
 .bm-pocet { font-family: var(--font-data); font-size: 10.5px; color: var(--color-ash); }
 
-/* ============================================================
-   BETMAIL
-   ============================================================ */
 
 /* Tři sloupce na širokém, přes sebe na úzkém. */
 .bm { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
@@ -4733,18 +4646,6 @@ textarea,
 .bm__spona { font-size: 14px; color: #5b6c61; flex-shrink: 0; }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 .bm__prijemci { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
 .bm__osoba {
   display: inline-flex;
@@ -4767,11 +4668,6 @@ textarea,
   color: var(--color-chalk);
 }
 
-/* ============================================================
-   BETMAIL — DETAIL
-   Tělo má vlastní typografii: patnáct pixelů, řádkování 1,78,
-   šířka 64 znaků. Na širokém monitoru jinak řádek utíká.
-   ============================================================ */
 
 .bm__detail {
   border-radius: 14px;
@@ -4997,9 +4893,6 @@ textarea,
 .pz-polozka__nazev { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pz-polozka__v { font-size: 10px; color: #5b6c61; flex-shrink: 0; }
 
-/* ============================================================
-   ČTEČKA DOKUMENTŮ
-   ============================================================ */
 
 .pv-scrim {
   position: fixed;
@@ -5105,11 +4998,6 @@ textarea,
   .bm-cara { transform: scaleX(1); }
 }
 
-/* ============================================================
-   NÁPOVĚDA
-   Vždy tlumenější než obsah — jinak by soupeřila o pozornost
-   s tím, co má vysvětlovat.
-   ============================================================ */
 
 .info {
   display: flex;
@@ -5241,9 +5129,6 @@ textarea,
   .info, .rozbal__obsah, .pojem__bublina { animation: none; }
 }
 
-/* ============================================================
-   VOZOVÝ PARK
-   ============================================================ */
 
 .vz-zalozky { display: flex; gap: 6px; margin-top: 18px; flex-wrap: wrap; }
 .vz-zalozka {
@@ -5541,9 +5426,6 @@ textarea,
   cursor: pointer;
 }
 
-/* ============================================================
-   VÝPLATY
-   ============================================================ */
 
 .vy-ovladani { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
 .vy-obdobi {
@@ -5627,9 +5509,6 @@ textarea,
 .vy-vyhrada { margin-left: 6px; color: var(--color-amber); cursor: help; }
 .vy-vyhrada i { font-size: 14px; }
 
-/* ============================================================
-   FAKTURY
-   ============================================================ */
 
 .fa-tab { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 13px; }
 .fa-tab th {
@@ -5738,7 +5617,22 @@ textarea,
   .fa-polozka { grid-template-columns: 1fr 1fr; }
   .fa-p-nazev { grid-column: 1 / -1; }
 }
-.fa-polozka .set-input { margin: 0; padding: 8px 10px; font-size: 12.5px; }
+.fa-polozka /**
+ * Pole formuláře. Popisek nad vstupem, ne vedle — na úzké
+ * obrazovce by vedle sebe zbyla na vstup polovina šířky.
+ */
+.set-pole { display: block; margin-bottom: 14px; }
+.set-label {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-data);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5b6c61;
+}
+
+.set-input { margin: 0; padding: 8px 10px; font-size: 12.5px; }
 .fa-p-cislo { text-align: right; }
 .fa-p-jed { padding-right: 4px !important; }
 .fa-p-soucet { text-align: right; font-size: 12px; color: var(--color-signal); }
@@ -5768,10 +5662,6 @@ textarea,
 .fa-qr__popis { font-size: 9px; letter-spacing: 0.14em; color: #5b6c61; }
 .fa-qr__chyba { margin: 0; font-size: 11.5px; color: #ff8a8a; }
 
-/* ============================================================
-   DOKLAD
-   Na papíře nemá co dělat tmavé pozadí ani neonové efekty.
-   ============================================================ */
 
 .dk {
   padding: 26px;
@@ -5890,12 +5780,6 @@ textarea,
   .pv, .pv__hlava, .pv-scrim { position: static; background: none; border: 0; box-shadow: none; }
 }
 
-
-/* ============================================================
-   VIZE
-   Dlouhý text s vlastní typografií. Na mobilu se všechno
-   skládá pod sebe a obsah se sbalí do vodorovného pásu.
-   ============================================================ */
 
 .adm-nav--zari { position: relative; color: var(--color-signal); }
 .adm-nav--zari i { color: var(--color-signal) !important; }
@@ -6329,12 +6213,6 @@ textarea,
   .vi-postup { transition: none; }
 }
 
-/* ============================================================
-   DOTYK
-   Na zařízení bez myši se malé cíle špatně trefují. Zvětší se
-   jen tam, kde se opravdu klepe — u dekorací by to rozhodilo
-   rozvržení.
-   ============================================================ */
 
 @media (pointer: coarse) {
   .uk-box,
@@ -6406,11 +6284,6 @@ textarea,
   color: var(--color-signal);
 }
 
-/* ============================================================
-   HLEDÁNÍ
-   Pole má strop šířky. Roztažené přes celou lištu vypadá,
-   že se do něj vejde věta — a přitom se hledá jedno slovo.
-   ============================================================ */
 
 .adm-top__hledani { flex: 1; min-width: 0; display: none; }
 @media (min-width: 768px) { .adm-top__hledani { display: block; } }
@@ -6588,9 +6461,6 @@ textarea,
 
 @media (prefers-reduced-motion: reduce) { .hl-vysledky { animation: none; } }
 
-/* ============================================================
-   NÁSTROJE V LIŠTĚ
-   ============================================================ */
 
 .adm-nastroje { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 /* Na telefonu zůstane jen zvoneček — ostatní by vytlačily jméno. */
@@ -6800,3 +6670,149 @@ textarea,
 .vr-build { margin: 10px 0 4px; padding: 8px 10px 0; border-top: 1px solid rgba(126, 240, 168, 0.08); font-size: 10px; color: #4d5c53; }
 
 @media (prefers-reduced-motion: reduce) { .vr--nova, .zv-panel { animation: none; } }
+
+
+/**
+ * Rozbalovací panely na telefonu.
+ *
+ * Ukotvení k tlačítku funguje na desktopu, ale u tlačítka blízko
+ * pravého okraje vyjede panel mimo obrazovku. Na úzkém displeji
+ * se proto ukotví k oknu, ne k tlačítku.
+ */
+@media (max-width: 640px) {
+  .zv-panel,
+  .zv-panel--uzky {
+    position: fixed;
+    top: auto;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-height: 70dvh;
+    overflow-y: auto;
+  }
+}
+
+/* Horní lišta je na telefonu nacpaná. Odhlášení zůstane jako ikona. */
+@media (max-width: 560px) {
+  .adm-top { gap: 6px; padding-left: 10px; padding-right: 10px; }
+
+  /* Text tlačítka pryč, zůstane jen ikona zámku. */
+  .adm-top .lo-text { display: none; }
+  .adm-top .lo-btn {
+    width: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Jméno se vejde jen na širší telefon; avatar stačí. */
+  .adm-user__meta { display: none; }
+  .adm-user { gap: 0; }
+}
+
+/* ---------- obecné mobilní chování ---------- */
+@media (max-width: 640px) {
+  /* Karty souhrnů po dvou, ne po jedné — na výšku by seznam
+     čtyř čísel zabral celou obrazovku. */
+  .adm-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tz-kpi { padding: 12px; }
+  .tz-kpi__n { font-size: 20px; }
+
+  /* Nadpisy sekcí menší, ať se vejde i lead. */
+  .adm-title { font-size: 24px; }
+
+  /* Panely mají menší odsazení — na 390 px je 22 px zbytečně moc. */
+  .adm-panel, .tz-skupina, .bm__detail, .ch__okno, .kal { padding: 14px; }
+  .bm-detail { padding: 16px; }
+
+  /* Plachta zprava přes celou šířku, zdola. */
+  .cl-panel, .cl-panel--siroky {
+    inset: auto 0 0 0;
+    width: 100%;
+    max-height: 92dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  /* Mřížky na jeden sloupec. */
+  .pe-mrizka, .vz-mrizka, .bm-prilohy__mrizka, .vi-cisla { grid-template-columns: 1fr; }
+
+  /* Dvousloupcové formuláře pod sebe — dvě pole po 180 px
+     se na telefonu nevyplňují dobře. */
+  .cl-panel [style*="grid-template-columns: 1fr 1fr"],
+  .cl-panel [style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 400px) {
+  /* Na nejužších displejích i souhrny pod sebe. */
+  .adm-cards { grid-template-columns: 1fr; }
+  .adm-title { font-size: 21px; }
+}
+
+/* Vodorovné posuvné pásy nemají na dotyku ukazovat posuvník. */
+.vz-zalozky,
+.ap-taby,
+.bm__slozky,
+.vi-obsah,
+.vz-d-zalozky,
+.pv__listy {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.vz-zalozky::-webkit-scrollbar,
+.ap-taby::-webkit-scrollbar,
+.bm__slozky::-webkit-scrollbar,
+.vi-obsah::-webkit-scrollbar,
+.vz-d-zalozky::-webkit-scrollbar,
+.pv__listy::-webkit-scrollbar { display: none; }
+
+@media (max-width: 900px) {
+  /* Složky Betmailu jsou na užší obrazovce vodorovný pás. */
+  .bm__slozky { display: flex; gap: 6px; }
+  .bm__slozka { flex-shrink: 0; }
+  .bm__seznam { max-height: 44dvh; }
+}
+
+/* Čtečka dokumentů zabere na telefonu celou obrazovku. */
+@media (max-width: 640px) {
+  .pv { inset: 0; border-radius: 0; }
+  .pv__hlava { padding: 12px; flex-wrap: wrap; }
+  .pv__telo { padding: 12px; }
+}
+
+/* Doklad se na telefonu skládá pod sebe. */
+@media (max-width: 620px) {
+  .dk { padding: 16px; }
+  .dk__hlava { flex-direction: column; gap: 12px; }
+  .dk__platba { flex-direction: column; align-items: flex-start; }
+  .dk__soucty { max-width: 100%; }
+}
+
+/* Detail zprávy — reakce a akce se lámou. */
+@media (max-width: 560px) {
+  .bm-akce > .adm-btn { flex: 1 1 auto; justify-content: center; }
+  .bm-akce > .adm-btn:last-child { margin-left: 0 !important; flex: 0 0 auto; }
+}
+
+/* Odhlášení. Na telefonu zůstane jen ikona. */
+.lo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-ash);
+  font-family: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+.lo-btn:hover { color: var(--color-chalk); border-color: rgba(126, 240, 168, 0.3); }
+.lo-btn:disabled { opacity: 0.5; }
+.lo-btn i { font-size: 16px; }

@@ -67,10 +67,10 @@ export default function LogoutButton() {
       <button
         onClick={odhlas}
         disabled={stav !== "klid"}
-        className="tap rounded-lg px-4 py-2.5 text-[13.5px] text-ash transition-colors hover:text-chalk disabled:opacity-50"
-        style={{ border: "1px solid rgba(126,240,168,0.14)", background: "rgba(255,255,255,0.02)" }}
+        className="lo-btn tap"
       >
-        Odhlásit se
+        <i className="ti ti-logout" aria-hidden="true" />
+        <span className="lo-text">Odhlásit se</span>
       </button>
 
       {/* Horní lišta má backdrop-filter, a ten vytváří nový kontext,
