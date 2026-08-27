@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { MELODIE, type Druh } from "@/lib/zvuk/tony";
 import {
   zahraj, zvukZapnut, vibraceZapnuta, nastavZvuk, nastavVibraci,
-  umiVibrovat, odemkniZvuk,
+  umiVibrovat, odemkniZvuk, hlasZapnut, nastavHlas, rekni, predpripravHlas,
 } from "@/lib/zvuk/prehravac";
 
 /**
@@ -26,12 +26,22 @@ export default function Zvuky() {
   const [vibrace, setVibrace] = useState(true);
   const [vibruje, setVibruje] = useState(false);
   const [hraje, setHraje] = useState<Druh | null>(null);
+  const [hlas, setHlas] = useState(false);
+  /** null = ještě nevíme, zda je hlas nastavený na serveru. */
+  const [hlasDostupny, setHlasDostupny] = useState<boolean | null>(null);
 
   // Až po připojení — na serveru uložené volby nejsou.
   useEffect(() => {
     setZvuk(zvukZapnut());
     setVibrace(vibraceZapnuta());
     setVibruje(umiVibrovat());
+    setHlas(hlasZapnut());
+
+    // Zjistí, jestli má server klíč. Bez něj nemá smysl nabízet.
+    fetch("/api/hlas?hlasy=1", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setHlasDostupny(Boolean(d?.pripraven)))
+      .catch(() => setHlasDostupny(false));
   }, []);
 
   function prepniZvuk(zap: boolean) {
@@ -80,6 +90,36 @@ export default function Zvuky() {
                disabled={!vibruje}
                onChange={(e) => { setVibrace(e.target.checked); nastavVibraci(e.target.checked); }} />
       </label>
+
+      {hlasDostupny && (
+        <label className="nt-radek">
+          <span className="nt-ikona"><i className="ti ti-microphone" aria-hidden="true" /></span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span className="nt-nazev">Mluvený hlas</span>
+            <span className="nt-popis">
+              Místo tónu se ozve věta — „Přišel ti Betmail", „Faktura je po splatnosti".
+              Nahrávky se stáhnou jednou a pak hrají z paměti.
+            </span>
+          </span>
+          <input type="checkbox" className="nt-prep" checked={hlas}
+                 onChange={(e) => {
+                   setHlas(e.target.checked);
+                   nastavHlas(e.target.checked);
+                   if (e.target.checked) {
+                     odemkniZvuk();
+                     predpripravHlas();
+                     void rekni("vitej");
+                   }
+                 }} />
+        </label>
+      )}
+
+      {hlasDostupny === false && (
+        <p className="adm-todo__note">
+          Mluvený hlas není nastavený. Doplň do prostředí <span className="data">ELEVENLABS_API_KEY</span>{" "}
+          a <span className="data">ELEVENLABS_HLAS</span>, pak pusť <span className="data">supabase/hlas.sql</span>.
+        </p>
+      )}
 
       <p className="data zv-ukazky__nadpis">JAK TO ZNÍ</p>
       <div className="zv-ukazky">

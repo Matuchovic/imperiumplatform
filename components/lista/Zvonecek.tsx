@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { zahraj } from "@/lib/zvuk/prehravac";
+import { rekni, predpripravHlas } from "@/lib/zvuk/prehravac";
 
 /**
  * Zvoneček.
@@ -35,7 +35,13 @@ export default function Zvonecek() {
       // První načtení mlčí — jinak by to zvonilo při každém
       // otevření aplikace, i když se nic nezměnilo.
       if (posledni.current !== null && soucet > posledni.current) {
-        zahraj("upozorneni");
+        // Řekne, čeho přibylo nejvíc — obecné „máš upozornění"
+        // nutí člověka otevřít a podívat se.
+        const nejvic = [...nove].sort((a, b) => b.pocet - a.pocet)[0];
+        const veta = ({
+          betmail: "posta", ukoly: "ukol", faktury: "faktura", podpora: "podpora",
+        } as Record<string, string>)[nejvic?.klic ?? ""] ?? "upozorneni";
+        void rekni(veta);
       }
       posledni.current = soucet;
 
@@ -47,6 +53,8 @@ export default function Zvonecek() {
 
   useEffect(() => {
     nacti();
+    // Odkazy na věty se stáhnou dopředu, ať první upozornění nečeká.
+    predpripravHlas();
     // Obnova po minutě. Na odsvícené kartě se neptá.
     const t = setInterval(() => { if (!document.hidden) nacti(); }, 60_000);
     return () => clearInterval(t);

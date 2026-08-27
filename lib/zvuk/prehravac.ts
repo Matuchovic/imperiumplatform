@@ -113,3 +113,69 @@ export function zahraj(druh: Druh, vzdyZahrat = false): void {
     try { navigator.vibrate(VIBRACE[druh]); } catch { /* některé prohlížeče odmítnou */ }
   }
 }
+
+/* ============================================================
+   HLAS
+   Namluvené věty z ElevenLabs. Když nejsou k dispozici,
+   zahraje se tón — upozornění nesmí zmizet jen proto,
+   že služba neodpověděla.
+   ============================================================ */
+
+const KLIC_HLAS = "bi-hlas";
+
+/** Odkazy se stáhnou jednou za relaci, ne při každém upozornění. */
+let odkazy: Record<string, string> | null = null;
+let nacitaSe: Promise<void> | null = null;
+
+export const hlasZapnut = (): boolean => {
+  try { return localStorage.getItem(KLIC_HLAS) === "ano"; } catch { return false; }
+};
+export const nastavHlas = (zap: boolean): void => {
+  try { localStorage.setItem(KLIC_HLAS, zap ? "ano" : "ne"); } catch { /* soukromý režim */ }
+};
+
+async function nactiOdkazy(): Promise<void> {
+  if (odkazy) return;
+  if (nacitaSe) return nacitaSe;
+
+  nacitaSe = (async () => {
+    try {
+      const r = await fetch("/api/hlas", { cache: "no-store" });
+      const d = await r.json().catch(() => null);
+      odkazy = d?.odkazy ?? {};
+    } catch {
+      odkazy = {};
+    }
+  })();
+
+  return nacitaSe;
+}
+
+/** Připraví hlas dopředu, aby první upozornění nečekalo. */
+export const predpripravHlas = (): void => { void nactiOdkazy(); };
+
+/**
+ * Řekne větu. Když hlas není, zahraje tón.
+ *
+ * Nikdy nevyhodí chybu — upozornění nesmí shodit akci.
+ */
+export async function rekni(veta: string, zaloha: Druh = "upozorneni"): Promise<void> {
+  if (!hlasZapnut() || !zvukZapnut()) { zahraj(zaloha); return; }
+
+  await nactiOdkazy();
+  const url = odkazy?.[veta];
+  if (!url) { zahraj(zaloha); return; }
+
+  try {
+    const a = new Audio(url);
+    a.volume = 0.85;
+    // Když prohlížeč přehrání odmítne, ozve se aspoň tón.
+    await a.play().catch(() => zahraj(zaloha));
+  } catch {
+    zahraj(zaloha);
+  }
+
+  if (vibraceZapnuta() && umiVibrovat()) {
+    try { navigator.vibrate(VIBRACE[zaloha]); } catch { /* odmítnuto */ }
+  }
+}
