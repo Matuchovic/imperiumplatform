@@ -110,7 +110,8 @@ export async function vygeneruj(
 
 /** Seznam hlasů k výběru. */
 export type Hlas = {
-  id: string; nazev: string; popis: string; cesky: boolean; ukazka: string | null;
+  id: string; nazev: string; popis: string;
+  cesky: boolean; zakladni: boolean; ukazka: string | null;
 };
 
 export async function dostupneHlasy(): Promise<Hlas[]> {
@@ -133,6 +134,7 @@ export async function dostupneHlasy(): Promise<Hlas[]> {
     return ((d.voices ?? []) as {
       voice_id: string;
       name: string;
+      category?: string;
       labels?: Record<string, string>;
       verified_languages?: { language: string }[];
       preview_url?: string;
@@ -141,6 +143,13 @@ export async function dostupneHlasy(): Promise<Hlas[]> {
       nazev: h.name,
       popis: [h.labels?.accent, h.labels?.description].filter(Boolean).join(" · "),
       cesky: (h.verified_languages ?? []).some((j) => j.language === "cs"),
+      /**
+       * Na free plánu jdou přes API jen základní hlasy.
+       *
+       * Hlas z knihovny vypadá v seznamu stejně, ale vrátí 402.
+       * Rozlišení proto musí být vidět dřív, než ho někdo vybere.
+       */
+      zakladni: h.category === "premade",
       ukazka: h.preview_url ?? null,
     }));
   } catch {

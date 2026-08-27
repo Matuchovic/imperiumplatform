@@ -67,7 +67,17 @@ export async function GET(req: Request) {
      * Anglicky trénovaný hlas češtinu zvládne, ale s přízvukem —
      * a to je přesně ten rozdíl, který je slyšet.
      */
-    hlasy.sort((a, b) => Number(b.cesky) - Number(a.cesky) || a.nazev.localeCompare(b.nazev, "cs"));
+    /**
+     * Nahoru to, co na free plánu vůbec funguje.
+     *
+     * Hlas z knihovny může být sebelepší — přes API vrátí 402
+     * a nabízet ho na prvním místě znamená posílat člověka do zdi.
+     */
+    hlasy.sort((a, b) =>
+      Number(b.zakladni) - Number(a.zakladni) ||
+      Number(b.cesky) - Number(a.cesky) ||
+      a.nazev.localeCompare(b.nazev, "cs")
+    );
 
     return NextResponse.json({
       pripraven: true,

@@ -8,6 +8,7 @@ import { jeTym, type Role } from "./nav";
 import type { Efekt } from "@/lib/avatar";
 import Tep from "@/components/pritomnost/Tep";
 import OdemkniZvuk from "@/components/pritomnost/OdemkniZvuk";
+import Uvitani from "@/components/asistent/Uvitani";
 
 /**
  * Skořápka administrace.
@@ -54,6 +55,7 @@ export default function Shell({
       <div className="adm-main">
         <Tep />
         <OdemkniZvuk />
+        <Uvitani jmeno={name} />
 
         <Topbar
           name={name}

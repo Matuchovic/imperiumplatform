@@ -75,6 +75,7 @@ export async function POST(req: Request) {
         r.status === 401 ? "Klíč ELEVENLABS_API_KEY je neplatný."
         : r.status === 404 ? `Hlas ${hlas} u ElevenLabs neexistuje.`
         : r.status === 422 ? "Vybraný model nezvládne tenhle text nebo hlas."
+        : r.status === 402 ? "Tenhle hlas je z knihovny a free plán ho přes API nepustí. Vyber některý ze základních — v seznamu mají štítek ZÁKLADNÍ."
         : r.status === 429 ? "Vyčerpaný kredit nebo příliš mnoho požadavků."
         : `ElevenLabs vrátil ${r.status}. ${detail.slice(0, 160)}`;
 

@@ -9,7 +9,10 @@ import { useCallback, useEffect, useState } from "react";
  * takže nás poslech nestojí nic a jde vyzkoušet kolik chceš.
  */
 
-type Hlas = { id: string; nazev: string; popis: string; cesky: boolean; ukazka: string | null };
+type Hlas = {
+  id: string; nazev: string; popis: string;
+  cesky: boolean; zakladni: boolean; ukazka: string | null;
+};
 
 const MODELY: { id: string; nazev: string; popis: string }[] = [
   { id: "eleven_multilingual_v2", nazev: "Multilingual v2", popis: "Nejlepší kvalita, pomalejší" },
@@ -104,8 +107,15 @@ export default function VyberHlasu() {
   if (nacitam) return null;
   if (hlasy.length === 0) return null;
 
-  const cesti = hlasy.filter((h) => h.cesky);
-  const ostatni = hlasy.filter((h) => !h.cesky);
+  /**
+   * Rozdělení podle toho, co na free plánu vůbec funguje.
+   *
+   * Hlas z knihovny může znít líp, ale přes API vrátí 402 —
+   * nabízet ho jako první znamená posílat člověka do zdi.
+   */
+  const zakladniCz = hlasy.filter((h) => h.zakladni && h.cesky);
+  const zakladniOstatni = hlasy.filter((h) => h.zakladni && !h.cesky);
+  const knihovna = hlasy.filter((h) => !h.zakladni);
 
   return (
     <div className="adm-panel">
@@ -115,27 +125,29 @@ export default function VyberHlasu() {
         ten mluví s přízvukem. Ukázku od ElevenLabs si můžeš pustit zdarma.
       </p>
 
-      {cesti.length === 0 && (
-        <div className="adm-alert adm-alert--warn">
-          <span className="adm-alert__text">
-            <span className="adm-alert__title">Žádný hlas ověřený pro češtinu.</span>{" "}
-            <span className="adm-alert__detail">
-              Na elevenlabs.io ve Voice Library vyfiltruj jazyk Czech a přidej si hlas
-              do My Voices — objeví se tady.
-            </span>
+      <div className="adm-alert">
+        <span className="adm-alert__text">
+          <span className="adm-alert__title">Free plán pustí přes API jen základní hlasy.</span>{" "}
+          <span className="adm-alert__detail">
+            Hlasy z knihovny vypadají v seznamu stejně, ale vrátí chybu 402.
+            Jsou dole a označené — vybrat jdou až po přechodu na placený plán.
           </span>
-        </div>
-      )}
+        </span>
+      </div>
 
       {[
-        { nadpis: "OVĚŘENÉ PRO ČEŠTINU", seznam: cesti },
-        { nadpis: "OSTATNÍ", seznam: ostatni },
+        { nadpis: "ZÁKLADNÍ · OVĚŘENÉ PRO ČEŠTINU", seznam: zakladniCz },
+        { nadpis: "ZÁKLADNÍ · OSTATNÍ", seznam: zakladniOstatni },
+        { nadpis: "Z KNIHOVNY · VYŽADUJÍ PLACENÝ PLÁN", seznam: knihovna },
       ].filter((s) => s.seznam.length > 0).map((skupina) => (
         <div key={skupina.nadpis}>
           <p className="data zv-ukazky__nadpis">{skupina.nadpis}</p>
           <div className="vh-mrizka">
             {skupina.seznam.map((h) => (
-              <div key={h.id} className={`vh-karta ${vybrany === h.id ? "vh-karta--on" : ""}`}>
+              <div
+                key={h.id}
+                className={`vh-karta ${vybrany === h.id ? "vh-karta--on" : ""} ${!h.zakladni ? "vh-karta--placena" : ""}`}
+              >
                 <button
                   className="vh-hrat"
                   onClick={() => poslechni(h)}
@@ -149,6 +161,7 @@ export default function VyberHlasu() {
                   <span className="vh-nazev">
                     {h.nazev}
                     {h.cesky && <span className="vh-cesky">CZ</span>}
+                    {!h.zakladni && <span className="vh-placene">PLACENÝ</span>}
                   </span>
                   {h.popis && <span className="vh-popis">{h.popis}</span>}
                 </span>

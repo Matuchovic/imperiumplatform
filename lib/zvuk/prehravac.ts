@@ -127,8 +127,9 @@ const KLIC_HLAS = "bi-hlas";
 let odkazy: Record<string, string> | null = null;
 let nacitaSe: Promise<void> | null = null;
 
+/** Zapnuto, dokud si to někdo nevypne. Viz lib/asistent/hlas.ts. */
 export const hlasZapnut = (): boolean => {
-  try { return localStorage.getItem(KLIC_HLAS) === "ano"; } catch { return false; }
+  try { return localStorage.getItem(KLIC_HLAS) !== "ne"; } catch { return true; }
 };
 export const nastavHlas = (zap: boolean): void => {
   try { localStorage.setItem(KLIC_HLAS, zap ? "ano" : "ne"); } catch { /* soukromý režim */ }

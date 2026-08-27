@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import WelcomeScreen from "@/components/welcome/WelcomeScreen";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { odemkniZvuk } from "@/lib/zvuk/prehravac";
 
 type Errors = { email?: string; password?: string; form?: string };
 
@@ -30,6 +31,15 @@ export default function LoginForm() {
   }
 
   async function submit(ev: React.FormEvent) {
+    /**
+     * Odemčení zvuku z klepnutí na Přihlásit se.
+     *
+     * Prohlížeč přehrávání povolí až po interakci. Tohle je
+     * poslední klepnutí před vstupem do systému, takže se
+     * uvítání po přesměrování ozve.
+     */
+    odemkniZvuk();
+
     ev.preventDefault();
     if (busy || !validate()) return;
 

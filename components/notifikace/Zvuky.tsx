@@ -97,8 +97,8 @@ export default function Zvuky() {
           <span style={{ flex: 1, minWidth: 0 }}>
             <span className="nt-nazev">Mluvený hlas</span>
             <span className="nt-popis">
-              Místo tónu se ozve věta — „Přišel ti Betmail", „Faktura je po splatnosti".
-              Nahrávky se stáhnou jednou a pak hrají z paměti.
+              Zapnuto. Místo tónu se ozve věta — „Přišel ti Betmail",
+              „Faktura je po splatnosti". Vypnout jde tady.
             </span>
           </span>
           <input type="checkbox" className="nt-prep" checked={hlas}

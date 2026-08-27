@@ -11,8 +11,14 @@
 
 const KLIC = "bi:hlas";
 
+/**
+ * Hlas je zapnutý, dokud si ho někdo nevypne.
+ *
+ * Funkce, kterou je potřeba najít v nastavení, většina lidí
+ * nikdy nezapne — a pak se diví, že systém mlčí.
+ */
 export const hlasZapnut = (): boolean =>
-  typeof window !== "undefined" && localStorage.getItem(KLIC) === "1";
+  typeof window !== "undefined" && localStorage.getItem(KLIC) !== "0";
 
 export function prepniHlas(zapnout: boolean): void {
   localStorage.setItem(KLIC, zapnout ? "1" : "0");

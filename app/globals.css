@@ -7253,3 +7253,49 @@ textarea,
   cursor: help;
 }
 .jd-zaloha i { font-size: 13px; }
+
+/* Hlas z knihovny je na free plánu nepoužitelný — vypadá tlumeně. */
+.vh-karta--placena { opacity: 0.55; }
+.vh-karta--placena:hover { opacity: 0.85; }
+.vh-placene {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(255, 201, 74, 0.14);
+  color: var(--color-amber);
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+/* ---------- tiché uvítání ---------- */
+.uv-lista {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(126, 240, 168, 0.05);
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #cfe6d8;
+  animation: info-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.uv-znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: rgba(126, 240, 168, 0.12);
+  color: var(--color-signal);
+}
+.uv-znak i { font-size: 15px; }
+
+@media (max-width: 560px) {
+  .uv-lista { flex-wrap: wrap; }
+  .uv-lista > span:nth-child(2) { flex: 1 1 100%; order: -1; }
+}
