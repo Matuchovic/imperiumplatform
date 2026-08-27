@@ -29,41 +29,49 @@ export default async function Prehled() {
 
   try {
     const db = serviceClient();
-    const staff = me.role !== "klient";
-
-    const { data: profile } = await db
-      .from("profiles").select("name").eq("id", me.id).maybeSingle<{ name: string }>();
-    name = profile?.name ?? "";
+    const jeTym = me.role !== "klient";
 
     // Klient vidí své, tým celý provoz.
     let tq = db.from("tickets").select("stake, profit, odds, clv, state");
-    if (!staff) tq = tq.eq("user_id", me.id);
-    const { data: tRows } = await tq.limit(2000);
+    if (!jeTym) tq = tq.eq("user_id", me.id);
 
-    const all = (tRows ?? []) as { stake: number; profit: number; odds: number; clv: number | null; state: string }[];
+    /**
+     * Všech šest dotazů najednou.
+     *
+     * Za sebou se jejich doby sčítaly — šest odezev po sto
+     * milisekundách je šest desetin vteřiny čekání. Takhle
+     * se čeká jen na ten nejpomalejší.
+     */
+    const [profil, tiketyRes, balRes, klientiRes, kandidatiRes, behRes] = await Promise.all([
+      db.from("profiles").select("name").eq("id", me.id).maybeSingle<{ name: string }>(),
+      tq.limit(2000),
+      db.rpc("bankroll_balance", { uid: me.id }),
+      jeTym
+        ? db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "klient")
+        : Promise.resolve({ count: 0 }),
+      jeTym
+        ? db.from("candidates").select("id", { count: "exact", head: true }).eq("status", "pending")
+        : Promise.resolve({ count: 0 }),
+      jeTym
+        ? db.from("engine_runs").select("started_at")
+            .order("started_at", { ascending: false }).limit(1)
+            .maybeSingle<{ started_at: string }>()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    name = profil.data?.name ?? "";
+    balance = Number(balRes.data ?? 0);
+    clients = klientiRes.count ?? 0;
+    candidates = kandidatiRes.count ?? 0;
+    lastRun = (behRes.data as { started_at: string } | null)?.started_at ?? null;
+
+    const all = (tiketyRes.data ?? []) as {
+      stake: number; profit: number; odds: number; clv: number | null; state: string;
+    }[];
     openCount = all.filter((t) => t.state === "open").length;
     tickets = all
       .filter((t) => t.state !== "open")
       .map((t) => ({ stake: Number(t.stake), profit: Number(t.profit), odds: Number(t.odds), clv: t.clv }));
-
-    const { data: bal } = await db.rpc("bankroll_balance", { uid: me.id });
-    balance = Number(bal ?? 0);
-
-    if (staff) {
-      const { count: c } = await db
-        .from("profiles").select("id", { count: "exact", head: true }).eq("role", "klient");
-      clients = c ?? 0;
-
-      const { count: cc } = await db
-        .from("candidates").select("id", { count: "exact", head: true }).eq("status", "pending");
-      candidates = cc ?? 0;
-
-      const { data: run } = await db
-        .from("engine_runs").select("started_at")
-        .order("started_at", { ascending: false }).limit(1)
-        .maybeSingle<{ started_at: string }>();
-      lastRun = run?.started_at ?? null;
-    }
   } catch (err) {
     failed = true;
     log("error", "prehled", "načtení přehledu selhalo", {

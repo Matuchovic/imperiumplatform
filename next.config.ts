@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
 
+
   // Otisk nasazení pro lištu aktualizace. Musí se dostat i do
   // klientského balíčku, proto NEXT_PUBLIC_.
   env: {

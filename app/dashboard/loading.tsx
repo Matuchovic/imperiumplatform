@@ -1,17 +1,27 @@
-function Block({ h, w = "100%" }: { h: number; w?: string }) {
-  return <div className="skeleton" style={{ height: h, width: w, borderRadius: 11, background: "rgba(126,240,168,0.06)" }} />;
-}
-
-/** Skeleton, ne spinner — obrysy sedí na místa, kam se obsah načte. */
-export default function Loading() {
+/**
+ * Kostra sekce.
+ *
+ * Ukáže se okamžitě při přepnutí, zatímco server dopočítává data.
+ * Bez ní obrazovka zamrzne na staré sekci a přepnutí působí,
+ * jako by kliknutí neprošlo.
+ */
+export default function Nacitani() {
   return (
-    <div aria-busy="true" aria-label="Načítám">
-      <Block h={24} w="240px" />
-      <div style={{ marginTop: 10 }}><Block h={14} w="380px" /></div>
-      <div className="adm-cards" style={{ marginTop: 22 }}>
-        <Block h={92} /><Block h={92} /><Block h={92} /><Block h={92} />
+    <div className="sk" aria-busy="true" aria-label="Načítám">
+      <span className="sk-radek" style={{ width: "36%", height: 26 }} />
+      <span className="sk-radek" style={{ width: "62%", height: 14, marginTop: 12 }} />
+
+      <div className="sk-karty">
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} className="sk-karta" />
+        ))}
       </div>
-      <div style={{ marginTop: 16 }}><Block h={190} /></div>
+
+      <div className="sk-panel">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span key={i} className="sk-radek" style={{ width: `${88 - i * 9}%`, height: 13 }} />
+        ))}
+      </div>
     </div>
   );
 }

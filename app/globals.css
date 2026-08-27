@@ -4329,3 +4329,179 @@ button, a, [role="switch"], [role="tab"] { touch-action: manipulation; }
   .ap-uvodni { gap: 13px; padding: 14px; }
   .ap-ikona-velka { width: 58px; height: 58px; border-radius: 14px; }
 }
+
+/* ============================================================
+   CHYBA A NAČÍTÁNÍ
+   ============================================================ */
+
+.er-panel {
+  max-width: 520px;
+  margin: 40px auto;
+  text-align: center;
+  border-radius: 16px;
+  padding: 30px 24px 22px;
+  background: rgba(12, 19, 16, 0.8);
+  border: 1px solid rgba(255, 107, 107, 0.24);
+}
+.er-znak {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff8a8a;
+}
+.er-znak i { font-size: 23px; }
+.er-nadpis {
+  margin: 15px 0 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-chalk);
+}
+.er-popis { margin: 6px 0 0; font-size: 13px; line-height: 1.6; color: var(--color-ash); }
+.er-detail {
+  margin: 16px 0 0;
+  padding: 11px 13px;
+  border-radius: 10px;
+  text-align: left;
+  background: rgba(1, 6, 4, 0.8);
+  border: 1px solid rgba(255, 107, 107, 0.16);
+  font-family: var(--font-data);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #ffb3b3;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+}
+.er-digest { margin: 8px 0 0; font-size: 10px; color: #5b6c61; }
+
+/* ---------- kostra ---------- */
+.sk { padding: 4px 0; }
+.sk-radek {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(126, 240, 168, 0.04) 25%,
+    rgba(126, 240, 168, 0.09) 37%,
+    rgba(126, 240, 168, 0.04) 63%
+  );
+  background-size: 400% 100%;
+  animation: sk-vlna 1.4s ease-in-out infinite;
+}
+@keyframes sk-vlna { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+.sk-karty {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 22px;
+}
+.sk-karta {
+  height: 84px;
+  border-radius: 13px;
+  background: rgba(12, 19, 16, 0.5);
+  border: 1px solid rgba(126, 240, 168, 0.08);
+}
+
+.sk-panel {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 18px;
+  border-radius: 13px;
+  background: rgba(12, 19, 16, 0.5);
+  border: 1px solid rgba(126, 240, 168, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk-radek { animation: none; }
+}
+
+/* ============================================================
+   PLYNULOST
+   ============================================================ */
+
+/**
+ * Rolování a dotyk.
+ *
+ * Prohlížeč čeká 300 ms, jestli z klepnutí nebude dvojklik.
+ * touch-action to vypne a tlačítka reagují okamžitě.
+ */
+.tap,
+button,
+a,
+[role="button"],
+[role="tab"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Dlouhé seznamy se překreslují po částech, ne najednou. */
+.adm-panel,
+.tz-skupina,
+.ch__okno,
+.kal {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+}
+
+/* Plynulé rolování uvnitř panelů bez trhání na iOS. */
+.scroll-x,
+.ch__zpravy,
+.jd-telo,
+.adm-side {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/**
+ * Přechody jen tam, kde nesou informaci.
+ *
+ * Animovat vše je nejrychlejší cesta k trhanému rozhraní —
+ * prohlížeč pak překresluje i to, co se nemění.
+ */
+* {
+  transition-property: none;
+}
+button,
+a,
+input,
+select,
+textarea,
+.adm-nav,
+.adm-panel,
+.tz-radek,
+.pe-karta,
+.cd-radek,
+.va-volba,
+.ap-tab,
+.jd-chip,
+.rl-row,
+.nt-prep,
+.kal__den {
+  transition-property: background-color, border-color, color, box-shadow, opacity, transform;
+}
+
+/* Vrstvy, které se hýbou, dostanou vlastní plochu k překreslení. */
+.adm-side,
+.cl-panel,
+.jd-panel,
+.pb-board {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

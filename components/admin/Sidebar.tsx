@@ -45,6 +45,8 @@ export default function Sidebar({
                   <Link
                     key={item.href}
                     href={item.href}
+                    // Sekce se načte dřív, než se na ni klikne.
+                    prefetch
                     onClick={onClose}
                     aria-current={active ? "page" : undefined}
                     className={`adm-nav ${active ? "adm-nav--on" : ""}`}

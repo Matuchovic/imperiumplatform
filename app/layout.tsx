@@ -77,8 +77,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="cs" className={`${outfit.variable} ${inter.variable} ${mono.variable}`}>
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
-        {/* Pozadí přihlášení je největší vykreslený prvek stránky —
-            přednačtení ho stihne dřív, než se objeví formulář. */}
+        {/* Ikony se vkládají až po vykreslení, aby neblokovaly první
+            snímek. Přednačtení ale spustí stahování hned — jinak
+            prohlížeč o souboru neví a ikony chvíli blikají. */}
+        <link
+          rel="preload"
+          as="style"
+          href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"
+          crossOrigin=""
+        />
       </head>
       <body className="min-h-dvh antialiased">
         <ObnovaPoPadu />
