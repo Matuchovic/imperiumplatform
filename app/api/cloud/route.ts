@@ -72,24 +72,38 @@ export async function GET(req: Request) {
   if (polozky.error) return NextResponse.json({ error: polozky.error.message }, { status: 500 });
 
   // Cesta k aktuální složce, aby se dalo vrátit o úroveň výš.
+  /**
+   * Cesta ke složce.
+   *
+   * Načte se jedním dotazem a strom se poskládá v paměti. Řetězení
+   * dotazů podle `rodic_id` znamenalo, že se typ proměnné odvozoval
+   * z výsledku a výsledek z proměnné — kruh, který TypeScript
+   * nerozplete. A navíc to bylo tolik dotazů, kolik má cesta úrovní.
+   */
   const cesta: { id: number; nazev: string }[] = [];
   if (rodic) {
-    // Typ řádku pojmenovaný předem. Bez toho by se `id` odvozovalo
-    // z `data` a `data` z `id` — kruhová závislost, kterou
-    // TypeScript nerozplete.
-    type Uzel = { id: number; nazev: string; rodic_id: number | null };
+    const { data: vsechny } = await db
+      .from("dokumenty")
+      .select("id, nazev, rodic_id")
+      .eq("je_slozka", true)
+      .is("smazano_at", null)
+      .limit(2000);
 
-    let id: number | null = Number(rodic);
-    // Strop proti zacyklení, kdyby data byla poškozená.
-    for (let i = 0; i < 12 && id !== null; i++) {
-      const vysledek = await db
-        .from("dokumenty").select("id, nazev, rodic_id").eq("id", id)
-        .maybeSingle<Uzel>();
+    const slozky = new Map<number, { nazev: string; rodic: number | null }>();
+    for (const s of (vsechny ?? []) as { id: number; nazev: string; rodic_id: number | null }[]) {
+      slozky.set(s.id, { nazev: s.nazev, rodic: s.rodic_id });
+    }
 
-      const uzel: Uzel | null = vysledek.data;
-      if (!uzel) break;
-      cesta.unshift({ id: uzel.id, nazev: uzel.nazev });
-      id = uzel.rodic_id;
+    let kurzor = Number(rodic);
+    const videne = new Set<number>();
+    // Množina navštívených chrání proti zacyklení, kdyby se složka
+    // stala vlastním rodičem.
+    while (slozky.has(kurzor) && !videne.has(kurzor)) {
+      videne.add(kurzor);
+      const uzel = slozky.get(kurzor)!;
+      cesta.unshift({ id: kurzor, nazev: uzel.nazev });
+      if (uzel.rodic === null) break;
+      kurzor = uzel.rodic;
     }
   }
 

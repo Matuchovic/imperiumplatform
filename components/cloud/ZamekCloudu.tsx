@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PIN_DELKA, MAX_POKUSU } from "@/lib/cloud/zamek-verejne";
 
 /**
@@ -24,7 +24,6 @@ export default function ZamekCloudu({ deti }: { deti: React.ReactNode }) {
   const [stary, setStary] = useState("");
   const [chyba, setChyba] = useState<string | null>(null);
   const [bezi, setBezi] = useState(false);
-  const pole = useRef<HTMLInputElement>(null);
 
   const zjisti = useCallback(async () => {
     try {
@@ -35,10 +34,6 @@ export default function ZamekCloudu({ deti }: { deti: React.ReactNode }) {
   }, []);
 
   useEffect(() => { zjisti(); }, [zjisti]);
-  useEffect(() => {
-    if (stav && !stav.odemceno) setTimeout(() => pole.current?.focus(), 80);
-  }, [stav]);
-
   async function odemkni(hodnota: string) {
     if (hodnota.length !== PIN_DELKA || bezi) return;
     setBezi(true);
@@ -63,21 +58,21 @@ export default function ZamekCloudu({ deti }: { deti: React.ReactNode }) {
     setBezi(false);
   }
 
-  async function nastav() {
-    if (novy.length !== PIN_DELKA) { setChyba(`PIN musí mít ${PIN_DELKA} číslic.`); return; }
+  async function nastav(hodnota: string) {
+    if (hodnota.length !== PIN_DELKA) { setChyba(`PIN musí mít ${PIN_DELKA} číslic.`); return; }
     setBezi(true);
     setChyba(null);
     try {
       const r = await fetch("/api/cloud/zamek", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin: novy, stary }),
+        body: JSON.stringify({ pin: hodnota, stary }),
       });
       const d = await r.json().catch(() => null);
       if (!r.ok) setChyba(d?.error ?? "Nastavení selhalo.");
       else {
         // Po nastavení rovnou odemkneme, ať se nezadává dvakrát.
-        await odemkni(novy);
+        await odemkni(hodnota);
         setNovy(""); setStary("");
         zjisti();
       }
@@ -94,14 +89,14 @@ export default function ZamekCloudu({ deti }: { deti: React.ReactNode }) {
   }
 
   if (!stav) {
-    return <div className="zm-cekam">Ověřuji přístup…</div>;
+    return <div className="pb-cekam">Ověřuji přístup…</div>;
   }
 
   if (stav.odemceno) {
     return (
       <>
-        <div className="zm-lista">
-          <span className="zm-lista__stav">
+        <div className="pb-lista">
+          <span className="pb-lista__stav">
             <i className="ti ti-lock-open" aria-hidden="true" />
             Cloud odemčený na 30 minut
           </span>
@@ -116,76 +111,105 @@ export default function ZamekCloudu({ deti }: { deti: React.ReactNode }) {
   }
 
   const nastavuje = !stav.maPin;
+  const hodnota = nastavuje ? novy : pin;
+
+  const cislo = (c: string) => {
+    if (stav.blokovano || hodnota.length >= PIN_DELKA) return;
+    const dalsi = hodnota + c;
+    nastavuje ? setNovy(dalsi) : setPin(dalsi);
+    setChyba(null);
+    // Po poslední číslici se vyhodnotí samo. Tlačítko zůstává
+    // pro toho, kdo raději potvrzuje.
+    if (dalsi.length === PIN_DELKA) {
+      setTimeout(() => (nastavuje ? nastav(dalsi) : odemkni(dalsi)), 240);
+    }
+  };
+
+  const smaz = () => {
+    if (stav.blokovano) return;
+    nastavuje ? setNovy(novy.slice(0, -1)) : setPin(pin.slice(0, -1));
+    setChyba(null);
+  };
+
+  const vymaz = () => {
+    nastavuje ? setNovy("") : setPin("");
+    setChyba(null);
+  };
 
   return (
-    <div className="zm-brana">
-      <div className="zm-panel">
-        <span className="zm-znak" aria-hidden="true">
-          <i className={`ti ti-${stav.blokovano ? "lock-exclamation" : "lock"}`} />
-        </span>
-
-        <p className="zm-nadpis">
-          {nastavuje ? "Nastav PIN k cloudu" : stav.blokovano ? "Cloud je zablokovaný" : "Cloud je zamčený"}
+    <div className="pb-scena">
+      <div className={`pb-board ${stav.blokovano ? "pb-board--zle" : ""} ${chyba ? "pb-tres" : ""}`}>
+        <p className={`pb-nadpis ${stav.blokovano ? "pb-nadpis--zle" : ""}`}>
+          BETIMPERIUM PASS PIN
         </p>
-        <p className="zm-popis">
-          {nastavuje
-            ? `Zvol ${PIN_DELKA}místný PIN. Bude potřeba při každém vstupu do cloudu.`
-            : stav.blokovano
-              ? "Příliš mnoho nesprávných pokusů. Zkus to za patnáct minut."
-              : `Zadej ${PIN_DELKA}místný PIN.`}
-        </p>
+        <div className="pb-linka" />
 
-        {chyba && <p className="zm-chyba">{chyba}</p>}
+        <div className="pb-telo">
+          <div>
+            <p className="pb-titulek">
+              {stav.blokovano ? "Zablokováno" : nastavuje ? "Nastav PIN" : "Cloud je zamčený"}
+            </p>
+            <p className="pb-popis">
+              {stav.blokovano
+                ? "Příliš mnoho nesprávných pokusů. Brána se otevře za patnáct minut."
+                : nastavuje
+                  ? `Zvol ${PIN_DELKA}místný PIN. Bude potřeba při každém vstupu do cloudu.`
+                  : `Zadej ${PIN_DELKA}místný PIN.`}
+            </p>
 
-        {nastavuje ? (
-          <>
-            <input
-              ref={pole}
-              className="zm-vstup"
-              type="password"
-              inputMode="numeric"
-              autoComplete="new-password"
-              maxLength={PIN_DELKA}
-              value={novy}
-              onChange={(e) => { setNovy(e.target.value.replace(/\D/g, "")); setChyba(null); }}
-              onKeyDown={(e) => e.key === "Enter" && nastav()}
-              placeholder="••••••"
-              aria-label="Nový PIN"
-            />
-            <button className="zm-tlacitko" onClick={nastav} disabled={bezi || novy.length !== PIN_DELKA}>
-              {bezi ? "Ukládám…" : "Nastavit PIN"}
-            </button>
-          </>
-        ) : (
-          <>
-            <input
-              ref={pole}
-              className="zm-vstup"
-              type="password"
-              inputMode="numeric"
-              autoComplete="off"
-              maxLength={PIN_DELKA}
-              value={pin}
-              disabled={stav.blokovano || bezi}
-              onChange={(e) => {
-                const v = e.target.value.replace(/\D/g, "");
-                setPin(v);
-                setChyba(null);
-                // Odemyká se samo po šesté číslici — potvrzovací
-                // tlačítko je u PINu krok navíc.
-                if (v.length === PIN_DELKA) odemkni(v);
-              }}
-              placeholder="••••••"
-              aria-label="PIN"
-            />
-            {stav.zbyva !== null && stav.zbyva < MAX_POKUSU && !stav.blokovano && (
-              <p className="zm-zbyva">Zbývá {stav.zbyva} pokusů</p>
+            <div className="pb-tecky">
+              {Array.from({ length: PIN_DELKA }, (_, i) => (
+                <span
+                  key={i}
+                  className={[
+                    "pb-tec",
+                    i < hodnota.length ? "pb-tec--on" : "",
+                    chyba || stav.blokovano ? "pb-tec--zle" : "",
+                  ].join(" ")}
+                />
+              ))}
+            </div>
+
+            {chyba ? (
+              <p className="pb-hlaska pb-hlaska--zle">{chyba}</p>
+            ) : stav.zbyva !== null && stav.zbyva < MAX_POKUSU && !stav.blokovano ? (
+              <p className="pb-hlaska pb-hlaska--warn">Zbývá {stav.zbyva} pokusů</p>
+            ) : (
+              <p className="pb-hlaska">&nbsp;</p>
             )}
-          </>
-        )}
+          </div>
 
-        <p className="data zm-pata">
-          PIN JE ULOŽENÝ JAKO OTISK · PO PĚTI POKUSECH SE BRÁNA ZAMKNE
+          <div className="pb-klav">
+            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((c) => (
+              <button key={c} className="pb-kl" onClick={() => cislo(c)} disabled={stav.blokovano || bezi}>
+                {c}
+              </button>
+            ))}
+            <span />
+            <button className="pb-kl" onClick={() => cislo("0")} disabled={stav.blokovano || bezi}>0</button>
+            <button className="pb-kl" onClick={smaz} disabled={stav.blokovano || bezi} aria-label="Smazat">
+              <i className="ti ti-backspace" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
+        <div className="pb-pata">
+          <button className="pb-btn" onClick={vymaz} disabled={stav.blokovano || bezi}>
+            <i className="ti ti-eraser" aria-hidden="true" />
+            Vymazat
+          </button>
+          <button
+            className="pb-btn pb-btn--hlavni"
+            onClick={() => (nastavuje ? nastav(novy) : odemkni(pin))}
+            disabled={stav.blokovano || bezi || hodnota.length !== PIN_DELKA}
+          >
+            <i className="ti ti-arrow-right" aria-hidden="true" />
+            {bezi ? "Ověřuji…" : nastavuje ? "Nastavit PIN" : "Odemknout"}
+          </button>
+        </div>
+
+        <p className="data pb-pravidla">
+          PIN ULOŽEN JAKO OTISK · PO PĚTI POKUSECH BLOKACE · PLATÍ I PRO PŘÍMÉ VOLÁNÍ API
         </p>
       </div>
     </div>
