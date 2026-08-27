@@ -23,7 +23,12 @@ export type AuditAction =
   | "provider.configured"
   | "subscription.changed"
   | "ai.action_approved"
-  | "ai.action_rejected";
+  | "ai.action_rejected"
+  // Zobrazení hesla je auditní událost stejné váhy jako změna
+  // nastavení — bez záznamu by trezor byl jen sdílená složka.
+  | "trezor.revealed"
+  | "trezor.created"
+  | "trezor.deleted";
 
 export type AuditEntry = {
   action: AuditAction;
