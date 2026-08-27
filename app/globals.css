@@ -5570,3 +5570,89 @@ textarea,
   color: var(--color-ash);
   cursor: pointer;
 }
+
+/* ============================================================
+   VÝPLATY
+   ============================================================ */
+
+.vy-ovladani { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+.vy-obdobi {
+  min-width: 150px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-chalk);
+  text-transform: capitalize;
+}
+
+.vy-tab { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 13px; }
+.vy-tab th {
+  padding: 9px 8px;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5b6c61;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.12);
+}
+.vy-tab td {
+  padding: 8px;
+  text-align: right;
+  border-top: 1px solid rgba(126, 240, 168, 0.06);
+}
+.vy-tab tfoot td {
+  padding-top: 12px;
+  border-top: 1px solid rgba(126, 240, 168, 0.16);
+  font-size: 12.5px;
+  color: var(--color-chalk);
+}
+.vy-radek--uklada { opacity: 0.55; }
+
+.vy-clovek { display: flex; align-items: center; gap: 10px; text-align: left; min-width: 190px; }
+.vy-jmeno { display: block; font-size: 13px; color: var(--color-chalk); white-space: nowrap; }
+.vy-uvazek { display: block; margin-top: 1px; font-size: 10px; color: #5b6c61; }
+
+/* Políčko vypadá jako text, dokud se do něj neklikne — tabulka
+   plná rámečků je nečitelná. */
+.vy-pole {
+  width: 82px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-chalk);
+  font-family: var(--font-data);
+  font-size: 12.5px;
+  text-align: right;
+  outline: none;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+.vy-pole:hover { border-color: rgba(126, 240, 168, 0.16); }
+.vy-pole:focus {
+  border-color: rgba(126, 240, 168, 0.5);
+  background: rgba(2, 8, 5, 0.7);
+}
+/* Šipky u čísel zabírají místo a nikdo je nepoužívá. */
+.vy-pole::-webkit-outer-spin-button,
+.vy-pole::-webkit-inner-spin-button { appearance: none; margin: 0; }
+.vy-pole[type="number"] { appearance: textfield; }
+
+.vy-castka { font-size: 12.5px; color: var(--color-ash); white-space: nowrap; }
+.vy-castka--hlavni { color: var(--color-signal); }
+
+.vy-stav {
+  padding: 5px 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(126, 240, 168, 0.14);
+  background: rgba(2, 8, 5, 0.6);
+  font-family: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+  outline: none;
+}
+.vy-stav:focus { border-color: rgba(126, 240, 168, 0.45); }
+
+.vy-vyhrada { margin-left: 6px; color: var(--color-amber); cursor: help; }
+.vy-vyhrada i { font-size: 14px; }
