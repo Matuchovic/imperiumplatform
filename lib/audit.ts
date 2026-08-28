@@ -42,7 +42,10 @@ export type AuditAction =
   | "agent.enabled"
   | "agent.disabled"
   | "apiklic.created"
-  | "apiklic.revoked";
+  | "apiklic.revoked"
+  | "apiklic.rotated"
+  | "webhook.created"
+  | "webhook.deleted";
 
 export type AuditEntry = {
   action: AuditAction;

@@ -1,6 +1,8 @@
 import { serviceClient } from "@/lib/supabase/server";
 import { otiskKlice } from "./hash";
 import { domenaSedi, vyprsel, type Opravneni } from "./klice";
+import { ipProchazi, adresaZadatele } from "./ip";
+import { zkontrolujPodezreni } from "./podezreni";
 
 /**
  * Ověření klíče u každého volání.
@@ -14,6 +16,8 @@ export type Overeno = {
   id: number;
   nazev: string;
   opravneni: Opravneni[];
+  /** Testovací klíč nezapisuje do ostrých dat. */
+  nanecisto: boolean;
 };
 
 export type Zamitnuto = {
@@ -37,11 +41,12 @@ export async function overKlic(
 
   const db = serviceClient();
   const { data } = await db.from("api_klice")
-    .select("id, nazev, opravneni, domeny, limit_hod, plati_do, odvolany_at")
+    .select("id, nazev, opravneni, domeny, ip_seznam, limit_hod, plati_do, odvolany_at, dobehne_do, jen_nanecisto")
     .eq("otisk_hash", otiskKlice(klic))
     .maybeSingle<{
       id: number; nazev: string; opravneni: string[]; domeny: string[];
-      limit_hod: number; plati_do: string | null; odvolany_at: string | null;
+      ip_seznam: string[]; limit_hod: number; plati_do: string | null;
+      odvolany_at: string | null; dobehne_do: string | null; jen_nanecisto: boolean;
     }>();
 
   /**
@@ -55,6 +60,27 @@ export async function overKlic(
 
   if (vyprsel(data.plati_do)) {
     return { ok: false, stav: 401, duvod: "Klíč vypršel." };
+  }
+
+  /**
+   * Doběh po výměně.
+   *
+   * Vyměněný klíč ještě chvíli funguje, aby web nespadl ve chvíli,
+   * kdy nikdo není u počítače. Po uplynutí lhůty přestane.
+   */
+  if (data.dobehne_do && new Date(data.dobehne_do) < new Date()) {
+    return { ok: false, stav: 401, duvod: "Klíč byl vyměněn a jeho doběh skončil." };
+  }
+
+  /**
+   * Adresa se kontroluje dřív než doména.
+   *
+   * Hlavičku s doménou si volající nastaví sám, adresu ne — takže
+   * je to silnější pojistka a má mít přednost.
+   */
+  const ip = adresaZadatele(req.headers);
+  if (!ipProchazi(data.ip_seznam, ip)) {
+    return { ok: false, stav: 403, duvod: "Z téhle adresy klíč neplatí." };
   }
 
   const puvod = req.headers.get("origin") ?? req.headers.get("referer");
@@ -87,6 +113,7 @@ export async function overKlic(
     id: data.id,
     nazev: data.nazev,
     opravneni: data.opravneni as Opravneni[],
+    nanecisto: Boolean(data.jen_nanecisto),
   };
 }
 
@@ -119,5 +146,8 @@ export async function zapisVolani(v: {
         .update({ posledni_pouziti: new Date().toISOString() })
         .eq("id", v.klicId);
     }
+
+    // Kontrola běží po zápisu, aby viděla i právě proběhlé volání.
+    if (v.klicId) void zkontrolujPodezreni(v.klicId, v.req);
   } catch { /* protokol nesmí shodit odpověď */ }
 }

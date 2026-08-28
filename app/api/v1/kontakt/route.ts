@@ -39,6 +39,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ chyba: "Neplatný e-mail." }, { status: 422 });
   }
 
+  /**
+   * Testovací klíč nezapisuje.
+   *
+   * Zkoušení z dokumentace by jinak plnilo databázi kontakty,
+   * které nikdo nechtěl — a ty by pak skončily v kampani.
+   */
+  if (o.nanecisto) {
+    await zapisVolani({ klicId: o.id, cesta: "/api/v1/kontakt", metoda: "POST",
+      stav: 200, req, trvani: Date.now() - zacatek });
+    return NextResponse.json({ ok: true, nanecisto: true });
+  }
+
   const db = serviceClient();
   const { error } = await db.from("kontakty").insert({
     company_name: jmeno || email,

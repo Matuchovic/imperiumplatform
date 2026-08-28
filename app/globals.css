@@ -8255,3 +8255,47 @@ textarea,
 @media (prefers-reduced-motion: reduce) {
   .kl-odhaleni, .kl-tecka--zive, .kl-detail { animation: none; }
 }
+
+/* ---------- protokol volání ---------- */
+.pk-podezreni {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 201, 74, 0.14);
+}
+.pk-podezreni:first-of-type { border-top: 0; }
+.pk-znak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: rgba(255, 201, 74, 0.12);
+  color: var(--color-amber);
+}
+.pk-znak i { font-size: 16px; }
+.pk-nazev { display: block; font-size: 13.5px; color: var(--color-chalk); }
+.pk-popis { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.55; color: var(--color-ash); }
+.pk-cas { display: block; margin-top: 3px; font-size: 10px; color: #4d5c53; }
+
+.pk-tab { width: 100%; min-width: 860px; border-collapse: collapse; font-size: 12.5px; }
+.pk-tab th {
+  padding: 8px;
+  font-weight: 400;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5b6c61;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(126, 240, 168, 0.12);
+}
+.pk-tab td { padding: 8px; text-align: right; border-top: 1px solid rgba(126, 240, 168, 0.05); }
+/* Chybný řádek má levý pruh — v dlouhém výpisu se pozná okrajem oka. */
+.pk-radek--chyba td:first-child { box-shadow: inset 2px 0 0 #ff8a8a; }
+.pk-cas-bunka { color: #5b6c61; white-space: nowrap; font-size: 11px; }
+.pk-tlum { color: #5b6c61; }
+.pk-chyba { color: #ff8a8a; font-size: 11.5px; }

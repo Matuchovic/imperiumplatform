@@ -28,6 +28,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ chyba: "Chybí e-mail nebo text." }, { status: 422 });
   }
 
+  if (o.nanecisto) {
+    await zapisVolani({ klicId: o.id, cesta: "/api/v1/dotaz", metoda: "POST",
+      stav: 200, req, trvani: Date.now() - zacatek });
+    return NextResponse.json({ ok: true, nanecisto: true });
+  }
+
   const db = serviceClient();
   const { error } = await db.from("tikety_podpory").insert({
     predmet: String(b.predmet ?? "").trim().slice(0, 200) || "Dotaz z webu",

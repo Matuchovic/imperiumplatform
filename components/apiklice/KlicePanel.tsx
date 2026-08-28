@@ -15,9 +15,9 @@ import {
 
 type Klic = {
   id: number; nazev: string; nahled: string; druh: string;
-  opravneni: string[]; domeny: string[]; limit_hod: number;
+  opravneni: string[]; domeny: string[]; ip_seznam: string[]; limit_hod: number;
   plati_do: string | null; posledni_pouziti: string | null;
-  odvolany_at: string | null; created_at: string;
+  odvolany_at: string | null; dobehne_do: string | null; created_at: string;
   dnes: number; graf: number[]; chyb: number;
 };
 
@@ -49,6 +49,23 @@ export default function KlicePanel() {
   }, []);
 
   useEffect(() => { nacti(); }, [nacti]);
+
+  /**
+   * Výměna. Starý klíč ještě den funguje, takže web nespadne
+   * ve chvíli, kdy nikdo není u počítače.
+   */
+  async function vymen(k: Klic) {
+    if (!confirm(`Vyměnit klíč „${k.nazev}"? Starý bude fungovat ještě 24 hodin.`)) return;
+    const r = await fetch("/api/apiklice/vymena", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: k.id }),
+    });
+    const d = await r.json().catch(() => null);
+    if (!r.ok) { setChyba(d?.error ?? "Výměna selhala."); return; }
+    setOtevreny(null);
+    setNovy(d.klic);
+  }
 
   async function odvolej(k: Klic) {
     if (!confirm(`Odvolat klíč „${k.nazev}"? Web, který ho používá, okamžitě přestane fungovat.`)) return;
@@ -124,6 +141,10 @@ export default function KlicePanel() {
           <i className="ti ti-book" aria-hidden="true" />
           Dokumentace pro web
         </a>
+        <a className="adm-btn" href="/dashboard/apiklice/protokol">
+          <i className="ti ti-list-search" aria-hidden="true" />
+          Protokol volání
+        </a>
       </div>
 
       {klice.length === 0 ? (
@@ -197,9 +218,27 @@ export default function KlicePanel() {
                       </span>
                     </div>
                     <div className="kl-udaj">
+                      <span className="data">IP ADRESY</span>
+                      <span>
+                        {k.ip_seznam?.length ? k.ip_seznam.join(", ") : (
+                          <span style={{ color: "#ffc94a" }}>
+                            Bez omezení — doménu jde podvrhnout, adresu ne
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="kl-udaj">
                       <span className="data">LIMIT</span>
                       <span>{k.limit_hod} volání za hodinu</span>
                     </div>
+                    {k.dobehne_do && (
+                      <div className="kl-udaj">
+                        <span className="data">DOBĚH</span>
+                        <span style={{ color: "#ffc94a" }}>
+                          vyměněn, funguje do {new Date(k.dobehne_do).toLocaleString("cs-CZ")}
+                        </span>
+                      </div>
+                    )}
                     <div className="kl-udaj">
                       <span className="data">PLATNOST</span>
                       <span>{k.plati_do ? `do ${den(k.plati_do)}` : "bez omezení"}</span>
@@ -227,10 +266,15 @@ export default function KlicePanel() {
 
                     {stav !== "odvolany" && (
                       <div className="adm-actions">
+                        <button className="adm-btn" onClick={() => vymen(k)}>
+                          <i className="ti ti-refresh" aria-hidden="true" />
+                          Vyměnit bez výpadku
+                        </button>
                         <button className="adm-btn" onClick={() => odvolej(k)}
-                                style={{ borderColor: "rgba(255,107,107,0.24)", color: "#ff8a8a" }}>
+                                style={{ borderColor: "rgba(255,107,107,0.24)", color: "#ff8a8a",
+                                         marginLeft: "auto" }}>
                           <i className="ti ti-ban" aria-hidden="true" />
-                          Odvolat klíč
+                          Odvolat hned
                         </button>
                       </div>
                     )}
@@ -259,6 +303,7 @@ function FormularKlice({
   const [druh, setDruh] = useState<"live" | "test">("live");
   const [vybrana, setVybrana] = useState<Opravneni[]>([]);
   const [domeny, setDomeny] = useState("");
+  const [ip, setIp] = useState("");
   const [limit, setLimit] = useState("600");
   const [bezi, setBezi] = useState(false);
   const [chyba, setChyba] = useState<string | null>(null);
@@ -276,6 +321,7 @@ function FormularKlice({
         body: JSON.stringify({
           nazev, druh, opravneni: vybrana,
           domeny: domeny.split(",").map((d) => d.trim()).filter(Boolean),
+          ip_seznam: ip.split(",").map((x) => x.trim()).filter(Boolean),
           limit_hod: Number(limit) || 600,
         }),
       });
@@ -319,7 +365,7 @@ function FormularKlice({
           <select className="set-input" value={druh}
                   onChange={(e) => setDruh(e.target.value as "live" | "test")}>
             <option value="live">Ostrý provoz</option>
-            <option value="test">Testovací</option>
+            <option value="test">Testovací — nezapisuje do ostrých dat</option>
           </select>
         </label>
 
@@ -361,6 +407,16 @@ function FormularKlice({
         <p className="adm-todo__note" style={{ marginTop: 0 }}>
           Oddělené čárkou. Prázdné pole znamená, že klíč funguje odkudkoli —
           u zápisových oprávnění se to nedoporučuje.
+        </p>
+
+        <label className="set-pole">
+          <span className="set-label">Povolené IP adresy</span>
+          <input className="set-input" value={ip} onChange={(e) => setIp(e.target.value)}
+                 placeholder="76.76.21.0/24, 81.2.3.4" />
+        </label>
+        <p className="adm-todo__note" style={{ marginTop: 0 }}>
+          Silnější pojistka než doména — tu si volající nastaví sám, adresu ne.
+          Vercel má pevné odchozí rozsahy, dají se zadat.
         </p>
 
         <label className="set-pole">

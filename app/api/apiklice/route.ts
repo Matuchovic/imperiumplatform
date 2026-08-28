@@ -14,7 +14,7 @@ export async function GET() {
 
   const db = serviceClient();
   const { data: klice } = await db.from("api_klice")
-    .select("id, nazev, nahled, druh, opravneni, domeny, limit_hod, plati_do, posledni_pouziti, odvolany_at, created_at")
+    .select("id, nazev, nahled, druh, opravneni, domeny, ip_seznam, limit_hod, plati_do, posledni_pouziti, odvolany_at, dobehne_do, created_at")
     .order("created_at", { ascending: false });
 
   const idcka = (klice ?? []).map((k) => k.id as number);
@@ -80,7 +80,12 @@ export async function POST(req: Request) {
     druh,
     opravneni,
     domeny,
+    ip_seznam: Array.isArray(b.ip_seznam)
+      ? (b.ip_seznam as string[]).map((x) => x.trim()).filter(Boolean).slice(0, 20)
+      : [],
     limit_hod: Math.min(Math.max(Number(b.limit_hod) || 600, 10), 10_000),
+    // Testovací klíč volání zaznamená, ale nic neuloží.
+    jen_nanecisto: druh === "test",
     plati_do: typeof b.plati_do === "string" && b.plati_do ? b.plati_do : null,
     vytvoril: me.id,
   }).select("id").single();
