@@ -85,6 +85,7 @@ export const NAV: NavGroup[] = [
         roles: VSICHNI },
       { label: "Trezor", href: "/dashboard/trezor", icon: "lock", roles: SPRAVA },
       { label: "Role", href: "/dashboard/role", icon: "shield-lock", roles: SPRAVA },
+      { label: "API klíče", href: "/dashboard/apiklice", icon: "key", roles: SPRAVA },
       { label: "Bezpečnost", href: "/dashboard/bezpecnost", icon: "shield-lock",
         roles: SPRAVA },
       { label: "Audit log", href: "/dashboard/audit", icon: "history",

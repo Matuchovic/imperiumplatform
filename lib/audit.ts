@@ -40,7 +40,9 @@ export type AuditAction =
   | "faktura.paid"
   | "faktura.reminded"
   | "agent.enabled"
-  | "agent.disabled";
+  | "agent.disabled"
+  | "apiklic.created"
+  | "apiklic.revoked";
 
 export type AuditEntry = {
   action: AuditAction;
